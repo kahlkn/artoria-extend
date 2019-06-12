@@ -82,7 +82,7 @@ public class DefaultErrorProcessor implements ErrorProcessor {
             builder.append("</body>").append(NEWLINE);
             builder.append("</html>").append(NEWLINE);
             try {
-                response.setContentType(TEXT_HTML + ";charset=" + DEFAULT_ENCODING);
+                response.setContentType(TEXT_HTML + ";charset=" + DEFAULT_ENCODING_NAME);
                 PrintWriter writer = response.getWriter();
                 writer.write(builder.toString());
             }

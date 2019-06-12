@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <java.version>1.6</java.version>
-        <relativePath/>
+        <!--<relativePath/>-->
     </properties>
 
     <licenses>

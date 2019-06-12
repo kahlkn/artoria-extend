@@ -51,8 +51,8 @@ public class JavaCodeGenerator implements Generator<Boolean>, Serializable {
     private Set<String> reservedTables = new HashSet<String>();
     private Set<String> excludedTables = new HashSet<String>();
     private DatabaseClient databaseClient;
-    private String templateCharset = DEFAULT_ENCODING;
-    private String outputCharset = DEFAULT_ENCODING;
+    private String templateCharset = DEFAULT_ENCODING_NAME;
+    private String outputCharset = DEFAULT_ENCODING_NAME;
     private String baseTemplatePath = "classpath:templates/generator/java/default";
     private String templateExtensionName = ".txt";
     private String baseOutputPath;
@@ -421,6 +421,7 @@ public class JavaCodeGenerator implements Generator<Boolean>, Serializable {
         List<TableMeta> tableList = databaseClient.getTableMetaList();
         if (CollectionUtils.isEmpty(tableList)) { return tableList; }
         // Table filtering and alias handling.
+        List<TableMeta> result = new ArrayList<TableMeta>();
         for (TableMeta tableMeta : tableList) {
             String tableName = tableMeta.getName();
             if (!reservedTables.isEmpty() && !reservedTables.contains(tableName)) {
@@ -445,8 +446,9 @@ public class JavaCodeGenerator implements Generator<Boolean>, Serializable {
             entityName = StringUtils.underlineToCamel(entityName);
             entityName = StringUtils.capitalize(entityName);
             tableMeta.setAlias(entityName);
+            result.add(tableMeta);
         }
-        return tableList;
+        return result;
     }
 
     @Override

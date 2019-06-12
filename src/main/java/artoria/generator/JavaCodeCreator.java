@@ -10,6 +10,7 @@ import artoria.template.Renderer;
 import artoria.time.DateUtils;
 import artoria.util.Assert;
 import artoria.util.ClassLoaderUtils;
+import artoria.util.CloseUtils;
 import artoria.util.StringUtils;
 
 import java.io.*;
@@ -29,8 +30,8 @@ public class JavaCodeCreator implements Serializable {
     private static final String CLASSPATH = "classpath:";
     private static Logger log = LoggerFactory.getLogger(JavaCodeCreator.class);
     private Map<String, Object> attributes = new HashMap<String, Object>();
-    private String templateCharset = DEFAULT_ENCODING;
-    private String outputCharset = DEFAULT_ENCODING;
+    private String templateCharset = DEFAULT_ENCODING_NAME;
+    private String outputCharset = DEFAULT_ENCODING_NAME;
     private String baseTemplatePath;
     private String templateName;
     private String templateExtensionName;
@@ -261,7 +262,7 @@ public class JavaCodeCreator implements Serializable {
             throw ExceptionUtils.wrap(e);
         }
         finally {
-            IOUtils.closeQuietly(in);
+            CloseUtils.closeQuietly(in);
         }
         return templateContent;
     }
@@ -416,7 +417,7 @@ public class JavaCodeCreator implements Serializable {
                 renderer.render(model, writer, filename, templateContent, null);
             }
             finally {
-                IOUtils.closeQuietly(writer);
+                CloseUtils.closeQuietly(writer);
             }
         }
     }
