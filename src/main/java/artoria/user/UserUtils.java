@@ -1,12 +1,19 @@
 package artoria.user;
 
 import artoria.exception.VerifyUtils;
-import artoria.spring.ApplicationContextUtils;
+import artoria.util.StringUtils;
 import artoria.util.ThreadLocalUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static artoria.common.DefaultErrorCode.*;
+import static artoria.common.DefaultErrorCode.PARAMETER_IS_REQUIRED;
 
+/**
+ * User tools.
+ * @author Kahle
+ */
 public class UserUtils {
+    private static Logger log = LoggerFactory.getLogger(UserUtils.class);
     /**
      * ThreadLocal tokenId key
      */
@@ -19,20 +26,44 @@ public class UserUtils {
      * ThreadLocal userInfo key
      */
     public static final String USER_INFO_THREAD_LOCAL_KEY = "USER_INFO";
+    /**
+     * Token manager.
+     */
+    private static TokenManager tokenManager;
+    /**
+     * User manager.
+     */
+    private static UserManager userManager;
 
-    private static class Holder {
-        static TokenManager tokenManager = ApplicationContextUtils.getBean(TokenManager.class);
-        static UserManager userManager = ApplicationContextUtils.getBean(UserManager.class);
+    public static TokenManager getTokenManager() {
+
+        return tokenManager;
+    }
+
+    public static void setTokenManager(TokenManager tokenManager) {
+        VerifyUtils.notNull(tokenManager, PARAMETER_IS_REQUIRED);
+        log.info("Set token manager: {}", tokenManager.getClass().getName());
+        UserUtils.tokenManager = tokenManager;
+    }
+
+    public static UserManager getUserManager() {
+
+        return userManager;
+    }
+
+    public static void setUserManager(UserManager userManager) {
+        VerifyUtils.notNull(userManager, PARAMETER_IS_REQUIRED);
+        log.info("Set user manager: {}", tokenManager.getClass().getName());
+        UserUtils.userManager = userManager;
     }
 
     public static String getTokenId() {
-        String tokenId = (String) ThreadLocalUtils.getValue(TOKEN_ID_THREAD_LOCAL_KEY);
-        VerifyUtils.notBlank(tokenId, NO_LOGIN);
-        return tokenId;
+
+        return (String) ThreadLocalUtils.getValue(TOKEN_ID_THREAD_LOCAL_KEY);
     }
 
     public static void setTokenId(String tokenId) {
-        VerifyUtils.notBlank(tokenId, PARAMETER_IS_REQUIRED);
+
         ThreadLocalUtils.setValue(TOKEN_ID_THREAD_LOCAL_KEY, tokenId);
     }
 
@@ -40,8 +71,9 @@ public class UserUtils {
         Token token = (Token) ThreadLocalUtils.getValue(TOKEN_THREAD_LOCAL_KEY);
         if (token != null) { return token; }
         String tokenId = UserUtils.getTokenId();
-        token = Holder.tokenManager.find(tokenId);
-        VerifyUtils.notNull(token, INVALID_TOKEN);
+        if (StringUtils.isBlank(tokenId)) { return null; }
+        token = getTokenManager().find(tokenId);
+        if (token == null) { return null; }
         ThreadLocalUtils.setValue(TOKEN_THREAD_LOCAL_KEY, token);
         return token;
     }
@@ -50,9 +82,11 @@ public class UserUtils {
         UserInfo userInfo = (UserInfo) ThreadLocalUtils.getValue(USER_INFO_THREAD_LOCAL_KEY);
         if (userInfo != null) { return userInfo; }
         Token token = UserUtils.getToken();
+        if (token == null) { return null; }
         String userId = token.getUserId();
-        userInfo = Holder.userManager.find(userId);
-        VerifyUtils.notNull(userInfo, INVALID_USER);
+        if (StringUtils.isBlank(userId)) { return null; }
+        userInfo = getUserManager().find(userId);
+        if (userInfo == null) { return null; }
         ThreadLocalUtils.setValue(USER_INFO_THREAD_LOCAL_KEY, userInfo);
         return userInfo;
     }

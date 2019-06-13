@@ -15,17 +15,16 @@ import java.io.OutputStream;
 import java.util.*;
 
 import static artoria.common.Constants.EMPTY_STRING;
-import static org.apache.poi.ss.usermodel.Cell.*;
 
 /**
  * Excel tools and excel object.
  * @author Kahle
  */
 public class Excel extends BinaryFile implements Table {
+    public static final String XLSX = "xlsx";
+    public static final String XLS = "xls";
     private final Map<String, String> propertiesMapping = new LinkedHashMap<String, String>();
     private final Map<String, String> headersMapping = new LinkedHashMap<String, String>();
-    private static final String XLS = "xls";
-    private static final String XLSX = "xlsx";
     private int columnStartNumber = 0;
     private int rowStartNumber = 0;
     private Sheet currentSheet;
@@ -106,10 +105,10 @@ public class Excel extends BinaryFile implements Table {
         if (cell == null) {
             return null;
         }
-        int cellType = cell.getCellType();
+        CellType cellType = cell.getCellTypeEnum();
         switch (cellType) {
-            case CELL_TYPE_NUMERIC:
-            case CELL_TYPE_FORMULA: {
+            case NUMERIC:
+            case FORMULA: {
                 if (DateUtil.isCellDateFormatted(cell)) {
                     cellValue = cell.getDateCellValue();
                 }
@@ -118,7 +117,7 @@ public class Excel extends BinaryFile implements Table {
                 }
                 break;
             }
-            case CELL_TYPE_BOOLEAN: {
+            case BOOLEAN: {
                 cellValue = cell.getBooleanCellValue();
                 break;
             }

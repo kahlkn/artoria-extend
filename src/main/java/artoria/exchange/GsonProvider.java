@@ -41,13 +41,13 @@ public class GsonProvider implements JsonProvider {
     @Override
     public String toJsonString(Object object) {
 
-        return this.gson.toJson(object);
+        return gson.toJson(object);
     }
 
     @Override
     public <T> T parseObject(String text, Type type) {
 
-        return this.gson.fromJson(text, type);
+        return gson.fromJson(text, type);
     }
 
 }
