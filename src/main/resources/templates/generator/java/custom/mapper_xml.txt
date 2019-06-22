@@ -179,6 +179,15 @@
 #end#end
     </select>
 
+    <select id="selectFirst" resultMap="BaseResultMap" parameterType="${table.entityPackageName}.${table.entityClassName}">
+        select
+            <include refid="Base_Column_List" />
+        from `${table.name}`
+        where `alive_flag` = 1
+            <include refid="Base_Selective_Where" />
+        limit 1
+    </select>
+
     <select id="querySelective" resultMap="BaseResultMap" parameterType="${table.entityPackageName}.${table.entityClassName}">
         select
             <include refid="Base_Column_List" />

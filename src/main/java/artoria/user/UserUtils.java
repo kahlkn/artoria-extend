@@ -53,7 +53,7 @@ public class UserUtils {
 
     public static void setUserManager(UserManager userManager) {
         VerifyUtils.notNull(userManager, PARAMETER_IS_REQUIRED);
-        log.info("Set user manager: {}", tokenManager.getClass().getName());
+        log.info("Set user manager: {}", userManager.getClass().getName());
         UserUtils.userManager = userManager;
     }
 

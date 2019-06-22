@@ -3,7 +3,10 @@ package artoria.user;
 import artoria.exception.BusinessException;
 import artoria.exception.VerifyUtils;
 import artoria.servlet.RequestUtils;
+import artoria.util.StringUtils;
 import artoria.util.ThreadLocalUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +20,7 @@ import static artoria.user.UserUtils.*;
  * @author Kahle
  */
 public class UserInterceptor extends HandlerInterceptorAdapter {
+    private static Logger log = LoggerFactory.getLogger(UserInterceptor.class);
     private static final String OPTIONS_METHOD = "OPTIONS";
     private PermissionManager permissionManager;
     private TokenManager tokenManager;
@@ -50,9 +54,15 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
                 permissionManager.authenticate(requestURI, (String) null);
         if (auth) { return true; }
 
-        VerifyUtils.notBlank(tokenId, NO_LOGIN);
+        if (StringUtils.isBlank(tokenId)) {
+            log.info("The token ID is blank when accessing \"{}\". ", requestURI);
+            throw new BusinessException(NO_LOGIN);
+        }
         Token token = UserUtils.getToken();
-        VerifyUtils.notNull(token, INVALID_TOKEN);
+        if (token == null) {
+            log.info("This token ID is invalid and its content is \"{}\". ", tokenId);
+            throw new BusinessException(INVALID_TOKEN);
+        }
         token.setLastAccessedTime(System.currentTimeMillis());
         token.setLastAccessedAddress(RequestUtils.getRemoteAddr(request));
         tokenManager.save(token);

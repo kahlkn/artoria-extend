@@ -125,6 +125,13 @@ public interface ${table.mapperClassName} {
 #end);
 
     /**
+     * Select first.
+     * @param record Query condition
+     * @return Query result
+     */
+    ${table.entityClassName} selectFirst(${table.entityClassName} record);
+
+    /**
      * Query selective.
      * @param record Query condition
      * @return Query result list
