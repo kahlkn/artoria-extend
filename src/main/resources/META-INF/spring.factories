@@ -6,6 +6,7 @@ artoria.config.Base64AutoConfiguration,\
 artoria.config.CryptoAutoConfiguration,\
 artoria.exception.ExceptionAutoConfiguration,\
 artoria.config.JsonAutoConfiguration,\
+artoria.feign.FeignSupportAutoConfiguration,\
 artoria.logging.ControllerLogAutoConfiguration,\
 artoria.logging.LoggingAutoConfiguration,\
 artoria.config.ReflectAutoConfiguration,\

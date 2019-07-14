@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 
+import java.nio.charset.Charset;
+
 /**
  * Spring auto configuration.
  * @author Kahle
@@ -29,6 +31,8 @@ public class SpringAutoConfiguration implements ApplicationContextAware, Initial
 
     @Override
     public void afterPropertiesSet() throws Exception {
+
+        log.info("The default charset for the current run environment is {}. ", Charset.defaultCharset().name());
     }
 
     @Override
