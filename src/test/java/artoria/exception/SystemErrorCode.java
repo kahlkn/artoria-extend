@@ -9,10 +9,17 @@ public enum SystemErrorCode implements ErrorCode {
 
     private String code;
     private String description;
+    private String message;
 
     SystemErrorCode(String code, String description) {
         this.code = code;
         this.description = description;
+    }
+
+    SystemErrorCode(String code, String description, String message) {
+        this.code = code;
+        this.description = description;
+        this.message = message;
     }
 
     @Override
@@ -25,6 +32,12 @@ public enum SystemErrorCode implements ErrorCode {
     public String getDescription() {
 
         return description;
+    }
+
+    @Override
+    public String getMessage() {
+
+        return message;
     }
 
 }

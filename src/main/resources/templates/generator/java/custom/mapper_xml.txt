@@ -24,7 +24,7 @@
 
     <sql id="Base_Selective_Where" >
 #foreach(${column} in ${table.columnList})
-        <if test="${column.fieldName} != null#if($column.javaType != "Date" && $column.javaType != "java.util.Date") and ${column.fieldName} != ''#end">and `${column.name}` = #{${column.fieldName}}</if>
+        <if test="${column.fieldName} != null#if($column.javaType != "Date" && $column.javaType != "java.util.Date" && $column.javaType != "Integer" && $column.javaType != "java.lang.Integer") and ${column.fieldName} != ''#end">and `${column.name}` = #{${column.fieldName}}</if>
 #end
     </sql>
 

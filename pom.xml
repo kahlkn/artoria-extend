@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.kahlkn</groupId>
     <artifactId>artoria-extend</artifactId>
-    <version>0.8.0.20190426-SNAPSHOT</version>
+    <version>1.0.0.20190429-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Artoria Extend</name>
     <url>https://github.com/kahlkn/artoria-extend</url>
@@ -55,25 +55,29 @@
 
     <dependencies>
 
-        <!-- ///// begin test //// -->
+        <!-- ///// begin artoria //// -->
+        <dependency>
+            <groupId>com.github.kahlkn</groupId>
+            <artifactId>artoria</artifactId>
+            <version>1.0.0.20190429-SNAPSHOT</version>
+        </dependency>
+        <!-- ///// end artoria //// -->
+
+        <!-- ///// begin spring //// -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>2.0.4.RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <!-- ///// end test //// -->
 
-        <!-- ///// begin kahlkn //// -->
         <dependency>
-            <groupId>com.github.kahlkn</groupId>
-            <artifactId>artoria</artifactId>
-            <version>1.0.0.20190427-SNAPSHOT</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>2.0.4.RELEASE</version>
             <scope>provided</scope>
         </dependency>
-        <!-- ///// end kahlkn //// -->
 
-        <!-- ///// begin spring //// -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
@@ -263,7 +267,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.47</version>
+            <version>1.2.61</version>
             <scope>provided</scope>
         </dependency>
 
@@ -388,12 +392,14 @@
         </dependency>
         <!-- ///// end zookeeper //// -->
 
+        <!-- ///// begin cglib //// -->
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>3.2.4</version>
             <scope>provided</scope>
         </dependency>
+        <!-- ///// end cglib //// -->
 
         <dependency>
             <groupId>io.springfox</groupId>

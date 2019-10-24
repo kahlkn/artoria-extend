@@ -9,17 +9,18 @@ import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 
-import java.nio.charset.Charset;
+import static artoria.common.Constants.DEFAULT_CHARSET_NAME;
+import static artoria.common.Constants.SIXTEEN;
+import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
 /**
  * Spring auto configuration.
  * @author Kahle
  */
 @Configuration
-@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
+@AutoConfigureOrder(HIGHEST_PRECEDENCE + SIXTEEN)
 public class SpringAutoConfiguration implements ApplicationContextAware, InitializingBean, DisposableBean {
     private static Logger log = LoggerFactory.getLogger(SpringAutoConfiguration.class);
 
@@ -32,7 +33,7 @@ public class SpringAutoConfiguration implements ApplicationContextAware, Initial
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        log.info("The default charset for the current run environment is {}. ", Charset.defaultCharset().name());
+        log.info("The default charset for the current run environment is {}. ", DEFAULT_CHARSET_NAME);
     }
 
     @Override

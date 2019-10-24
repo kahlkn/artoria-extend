@@ -13,12 +13,13 @@ import java.util.*;
  * Feign request header transfer interceptor.
  * @author Kahle
  */
-public class FeignRequestHeaderTransferInterceptor implements RequestInterceptor {
+public class FeignRequestTransferInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
         HttpServletRequest request = RequestContextUtils.getRequest();
         if (request == null) { return; }
+        // Transfer request headers.
         Enumeration<String> headerNames = request.getHeaderNames();
         if (CollectionUtils.isEmpty(headerNames)) { return; }
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();

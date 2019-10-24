@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static artoria.common.DefaultErrorCode.PARAMETER_IS_REQUIRED;
+import static artoria.common.InternalErrorCode.PARAMETER_IS_REQUIRED;
 
 /**
  * ${table.serviceImplClassName}.

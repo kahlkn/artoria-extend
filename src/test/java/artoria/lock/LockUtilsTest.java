@@ -13,8 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class LockUtilsTest {
     private static Logger log = LoggerFactory.getLogger(LockUtilsTest.class);
+    private volatile Integer num = 100;
     private ExecutorService pool;
-    private Integer num = 100;
 
     @Before
     public void init() {

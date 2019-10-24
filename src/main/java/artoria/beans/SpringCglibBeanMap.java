@@ -9,7 +9,6 @@ import java.util.Set;
  * @author Kahle
  */
 public class SpringCglibBeanMap extends BeanMap {
-
     private org.springframework.cglib.beans.BeanMap beanMap;
 
     @Override
@@ -21,23 +20,23 @@ public class SpringCglibBeanMap extends BeanMap {
     @Override
     protected Object get(Object bean, Object key) {
 
-        return this.beanMap.get(key);
+        return beanMap.get(key);
     }
 
     @Override
     protected Object put(Object bean, Object key, Object value) {
-        TypeConverter cvt = this.getTypeConverter();
+        TypeConverter cvt = getTypeConverter();
         if (key != null && cvt != null) {
-            Class type = this.beanMap.getPropertyType((String) key);
+            Class type = beanMap.getPropertyType((String) key);
             value = cvt.convert(value, type);
         }
-        return this.beanMap.put(key, value);
+        return beanMap.put(key, value);
     }
 
     @Override
     public Set keySet() {
 
-        return this.beanMap.keySet();
+        return beanMap.keySet();
     }
 
 }

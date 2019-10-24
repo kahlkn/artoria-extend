@@ -16,9 +16,14 @@ public class CglibProxyFactory implements ProxyFactory {
     private static class MethodInterceptorAdapter implements MethodInterceptor {
         private Interceptor interceptor;
 
+        public MethodInterceptorAdapter(Interceptor interceptor) {
+
+            this.interceptor = interceptor;
+        }
+
         public Interceptor getInterceptor() {
 
-            return this.interceptor;
+            return interceptor;
         }
 
         public void setInterceptor(Interceptor interceptor) {
@@ -26,15 +31,10 @@ public class CglibProxyFactory implements ProxyFactory {
             this.interceptor = interceptor;
         }
 
-        public MethodInterceptorAdapter(Interceptor interceptor) {
-
-            this.interceptor = interceptor;
-        }
-
         @Override
         public Object intercept(Object proxyObject, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 
-            return this.interceptor.intercept(proxyObject, method, args);
+            return interceptor.intercept(proxyObject, method, args);
         }
 
     }
