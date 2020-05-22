@@ -34,9 +34,9 @@ public class FastJsonProvider implements JsonProvider {
     }
 
     @Override
-    public <T> T parseObject(String text, Type type) {
+    public <T> T parseObject(String jsonString, Type type) {
 
-        return JSON.parseObject(text, type);
+        return JSON.parseObject(jsonString, type);
     }
 
 }

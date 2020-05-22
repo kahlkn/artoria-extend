@@ -45,9 +45,9 @@ public class GsonProvider implements JsonProvider {
     }
 
     @Override
-    public <T> T parseObject(String text, Type type) {
+    public <T> T parseObject(String jsonString, Type type) {
 
-        return gson.fromJson(text, type);
+        return gson.fromJson(jsonString, type);
     }
 
 }

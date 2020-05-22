@@ -3,8 +3,11 @@ package artoria.template;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+
+import static artoria.common.Constants.UTF_8;
 
 public class FreemarkerRendererTest {
     private String source = "This is test string \"${testStr}\", \nTest string is \"${testStr}\". ";
@@ -24,10 +27,10 @@ public class FreemarkerRendererTest {
 
     @Test
     public void test1() throws Exception {
-        System.out.println(RenderUtils.renderToString(input, "source", source));
-        System.out.println(RenderUtils.renderToString(input, "source1", source1));
+        System.out.println(RenderUtils.renderToString(input, "source", new StringReader(source)));
+        System.out.println(RenderUtils.renderToString(input, "source1", new StringReader(source1)));
         System.out.println();
-        System.out.println(RenderUtils.renderToString(input, "testFreemarker.ftl"));
+        System.out.println(RenderUtils.renderToString(input, "testFreemarker.ftl", UTF_8));
     }
 
 }

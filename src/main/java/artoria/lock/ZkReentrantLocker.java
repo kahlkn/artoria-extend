@@ -4,6 +4,7 @@ import artoria.exception.ExceptionUtils;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.util.Assert;
+import artoria.zookeeper.ZkConnectionStateListener;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
@@ -13,6 +14,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import java.util.concurrent.TimeUnit;
 
 import static artoria.common.Constants.SLASH;
+import static artoria.common.Constants.ZERO;
 
 /**
  * Zookeeper reentrant mutex lock operator.
@@ -64,7 +66,7 @@ public class ZkReentrantLocker implements Locker {
     }
 
     public void setZkTimeout(long zkTimeout, TimeUnit zkTimeUnit) {
-        Assert.state(zkTimeout > 0, "Parameter \"zkTimeout\" must greater than 0. ");
+        Assert.isTrue(zkTimeout > ZERO, "Parameter \"zkTimeout\" must greater than 0. ");
         Assert.notNull(zkTimeUnit, "Parameter \"zkTimeUnit\" must not null. ");
         this.zkTimeout = zkTimeout;
         this.zkTimeUnit = zkTimeUnit;

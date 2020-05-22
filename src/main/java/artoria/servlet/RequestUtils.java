@@ -1,17 +1,16 @@
 package artoria.servlet;
 
-import artoria.time.DateUtils;
 import artoria.util.ArrayUtils;
+import artoria.util.CollectionUtils;
 import artoria.util.MapUtils;
 import artoria.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static artoria.common.Constants.*;
+import static artoria.common.Constants.COMMA;
+import static artoria.common.Constants.UNKNOWN;
 
 /**
  * Request tools.
@@ -19,13 +18,31 @@ import static artoria.common.Constants.*;
  */
 public class RequestUtils {
 
+    public static String getReferer(HttpServletRequest request) {
+        if (request == null) { return null; }
+        String referer = request.getHeader("Referer");
+        return StringUtils.isBlank(referer) ? null : referer;
+    }
+
     public static String getUserAgent(HttpServletRequest request) {
         if (request == null) { return null; }
         String userAgent = request.getHeader("User-Agent");
         return StringUtils.isBlank(userAgent) ? null : userAgent;
     }
 
-    public static String getRemoteAddr(HttpServletRequest request) {
+    public static String getRealAddress(HttpServletRequest request) {
+        String remoteAddr = RequestUtils.getRemoteAddress(request);
+        if (StringUtils.isBlank(remoteAddr)) { return remoteAddr; }
+        if (!remoteAddr.contains(COMMA)) { return remoteAddr; }
+        String[] split = remoteAddr.trim().split(COMMA);
+        remoteAddr = split[split.length - 1];
+        if (StringUtils.isNotBlank(remoteAddr)) {
+            remoteAddr = remoteAddr.trim();
+        }
+        return remoteAddr;
+    }
+
+    public static String getRemoteAddress(HttpServletRequest request) {
         if (request == null) { return null; }
         String address = request.getHeader("X-Forwarded-For");
         if(StringUtils.isBlank(address) || UNKNOWN.equalsIgnoreCase(address)) {
@@ -49,96 +66,76 @@ public class RequestUtils {
         return address;
     }
 
-    public static String toString(HttpServletRequest request) {
-        StringBuilder builder = new StringBuilder()
-                .append("$time").append(COLON).append(BLANK_SPACE)
-                .append(DateUtils.format()).append(NEWLINE);
-
-        builder.append("$from").append(COLON).append(BLANK_SPACE)
-                .append(request.getRemoteAddr()).append(COLON)
-                .append(request.getRemotePort()).append(NEWLINE);
-
-        builder.append("$method").append(COLON).append(BLANK_SPACE)
-                .append(request.getMethod()).append(NEWLINE);
-
-        builder.append("$target").append(COLON).append(BLANK_SPACE)
-                .append(request.getRequestURL().toString()).append(NEWLINE);
-
-        String contentType = request.getContentType();
-        if (StringUtils.isNotBlank(contentType)) {
-            builder.append("$content-type").append(LEFT_SQUARE_BRACKET)
-                    .append(contentType).append(RIGHT_SQUARE_BRACKET).append(BLANK_SPACE);
+    public static Map<String, String> getCookieMap(Cookie[] cookies) {
+        Map<String, String> cookieMap = new LinkedHashMap<String, String>();
+        if (ArrayUtils.isEmpty(cookies)) { return cookieMap; }
+        for (Cookie cookie : cookies) {
+            if (cookie == null) { continue; }
+            String cookieValue = cookie.getValue();
+            String cookieName = cookie.getName();
+            cookieMap.put(cookieName, cookieValue);
         }
+        return cookieMap;
+    }
 
-        Cookie[] cookies = request.getCookies();
-        if (ArrayUtils.isNotEmpty(cookies)) {
-            builder.append("$cookie").append(LEFT_SQUARE_BRACKET)
-                    .append(RequestUtils.toString(cookies)).append(RIGHT_SQUARE_BRACKET)
-                    .append(BLANK_SPACE);
+    public static RequestBean getRequestBean(HttpServletRequest request) {
+        if (request == null) { return null; }
+        RequestBean requestBean = new RequestBean();
+        requestBean.setReceiveTime(new Date());
+        StringBuffer requestURL = request.getRequestURL();
+        requestBean.setRequestURL(String.valueOf(requestURL));
+        requestBean.setMethod(request.getMethod());
+        requestBean.setContentType(request.getContentType());
+        requestBean.setRemoteAddress(request.getRemoteAddr());
+        int remotePort = request.getRemotePort();
+        requestBean.setRemotePort(String.valueOf(remotePort));
+        requestBean.setCharacterEncoding(request.getCharacterEncoding());
+        Map<String, String> cookieMap = getCookieMap(request.getCookies());
+        requestBean.setCookies(cookieMap);
+        Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();
+        Enumeration<String> headerNameEnumeration = request.getHeaderNames();
+        while (headerNameEnumeration.hasMoreElements()) {
+            String headerName = headerNameEnumeration.nextElement();
+            if (StringUtils.isBlank(headerName)) { continue; }
+            Enumeration<String> valEnumeration = request.getHeaders(headerName);
+            List<String> list = new ArrayList<String>();
+            CollectionUtils.addAll(list, valEnumeration);
+            headers.put(headerName, list);
         }
-
+        requestBean.setHeaders(headers);
+        Map<String, List<String>> parameters = new LinkedHashMap<String, List<String>>();
         Map<String, String[]> parameterMap = request.getParameterMap();
         if (MapUtils.isNotEmpty(parameterMap)) {
-            builder.append("$parameter").append(COLON).append(BLANK_SPACE);
-            builder.append(RequestUtils.toString(parameterMap)).append(NEWLINE);
+            for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+                if (entry == null) { continue; }
+                String[] val = entry.getValue();
+                String key = entry.getKey();
+                List<String> list = new ArrayList<String>();
+                Collections.addAll(list, val);
+                parameters.put(key, list);
+            }
         }
-
-        String characterEncoding = request.getCharacterEncoding();
-        if (StringUtils.isNotBlank(characterEncoding)) {
-            builder.append("$character-encoding").append(COLON)
-                    .append(BLANK_SPACE).append(characterEncoding).append(NEWLINE);
-        }
-
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            builder.append(headerName).append(COLON).append(BLANK_SPACE)
-                    .append(request.getHeader(headerName)).append(NEWLINE);
-        }
-
-        return builder.toString();
+        requestBean.setParameters(parameters);
+        return requestBean;
     }
 
-    public static String toString(Cookie[] cookies) {
-        StringBuilder builder = new StringBuilder();
-        if (ArrayUtils.isEmpty(cookies)) { return EMPTY_STRING; }
+    public static String findCookieValue(HttpServletRequest request, String cookieName) {
+        if (request == null) { return null; }
+        if (StringUtils.isBlank(cookieName)) {
+            return null;
+        }
+        Cookie[] cookies = request.getCookies();
+        if (ArrayUtils.isEmpty(cookies)) {
+            return null;
+        }
         for (Cookie cookie : cookies) {
-            builder.append(cookie.getName()).append(EQUAL)
-                    .append(cookie.getValue()).append(COMMA);
-        }
-        builder.deleteCharAt(builder.length() - 1);
-        return builder.toString();
-    }
-
-    public static String toString(Map<String, String[]> params) {
-        StringBuilder builder = new StringBuilder();
-        if (params == null) { return EMPTY_STRING; }
-        Set<Map.Entry<String, String[]>> entries = params.entrySet();
-        for (Map.Entry<String, String[]> entry : entries) {
-            String[] values = entry.getValue();
-            if (values.length == 1) {
-                builder.append(entry.getKey())
-                        .append(EQUAL)
-                        .append(values[0])
-                        .append(COMMA);
-            }
-            else {
-                builder.append(entry.getKey())
-                        .append(LEFT_SQUARE_BRACKET)
-                        .append(RIGHT_SQUARE_BRACKET)
-                        .append(EQUAL)
-                        .append(LEFT_CURLY_BRACKET);
-                for (String value : values) {
-                    builder.append(value)
-                            .append(COMMA);
-                }
-                builder.deleteCharAt(builder.length() - 1)
-                        .append(RIGHT_CURLY_BRACKET)
-                        .append(COMMA);
+            if (cookie == null) { continue; }
+            String name = cookie.getName();
+            if (cookieName.equalsIgnoreCase(name)) {
+                return cookie.getValue();
             }
         }
-        builder.deleteCharAt(builder.length() - 1);
-        return builder.toString();
+        return null;
     }
 
 }

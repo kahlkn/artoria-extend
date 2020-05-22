@@ -179,7 +179,7 @@
 #end#end
     </select>
 
-    <select id="selectFirst" resultMap="BaseResultMap" parameterType="${table.entityPackageName}.${table.entityClassName}">
+    <select id="findOne" resultMap="BaseResultMap" parameterType="${table.entityPackageName}.${table.entityClassName}">
         select
             <include refid="Base_Column_List" />
         from `${table.name}`

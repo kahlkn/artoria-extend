@@ -1,6 +1,8 @@
 package artoria.beans;
 
-import artoria.converter.TypeConverter;
+import artoria.convert.TypeConverter;
+import artoria.util.ObjectUtils;
+import org.springframework.lang.NonNull;
 
 import java.util.Set;
 
@@ -33,10 +35,11 @@ public class CglibBeanMap extends BeanMap {
         return beanMap.put(key, value);
     }
 
+    @NonNull
     @Override
-    public Set keySet() {
+    public Set<Object> keySet() {
 
-        return beanMap.keySet();
+        return ObjectUtils.cast(beanMap.keySet());
     }
 
 }

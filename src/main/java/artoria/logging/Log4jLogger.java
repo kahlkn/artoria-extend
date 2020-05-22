@@ -4,6 +4,8 @@ import artoria.io.StringBuilderWriter;
 import artoria.template.Renderer;
 import org.apache.log4j.Logger;
 
+import static artoria.common.Constants.TWO;
+
 /**
  * Log4j logger.
  * @author Kahle
@@ -19,7 +21,7 @@ public class Log4jLogger implements artoria.logging.Logger {
 
     private void log(org.apache.log4j.Level level, String format, Object[] arguments, Throwable throwable) {
         if (!logger.isEnabledFor(level)) { return; }
-        StackTraceElement element = new Throwable().getStackTrace()[2];
+        StackTraceElement element = new Throwable().getStackTrace()[TWO];
         String clazzName = element.getClassName();
         StringBuilderWriter writer = new StringBuilderWriter();
         loggerRenderer.render(arguments, writer, null, format, null);

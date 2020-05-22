@@ -1,7 +1,5 @@
 package ${table.voPackageName};
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,7 +13,6 @@ import ${typeImport};
  * @date $!{date}
  */
 @Data
-@ApiModel("The vo of the table ${table.name}.")
 public class ${table.voClassName} implements Serializable {
 
     /* (Start) This will be covered, please do not modify. */
@@ -23,7 +20,6 @@ public class ${table.voClassName} implements Serializable {
     /**
      * $!{column.remarks}
      */
-    @ApiModelProperty("$!{column.remarks}")
     private ${column.javaType} ${column.fieldName};
 #end
     /* (End) This will be covered, please do not modify. */

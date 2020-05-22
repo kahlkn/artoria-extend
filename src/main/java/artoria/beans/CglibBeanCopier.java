@@ -1,6 +1,6 @@
 package artoria.beans;
 
-import artoria.converter.TypeConverter;
+import artoria.convert.TypeConverter;
 import artoria.util.Assert;
 
 /**
@@ -10,17 +10,12 @@ import artoria.util.Assert;
 public class CglibBeanCopier implements BeanCopier {
 
     private static class CglibConverterAdapter implements net.sf.cglib.core.Converter {
-        private TypeConverter typeConverter;
-        private boolean useConverter;
+        private final TypeConverter typeConverter;
+        private final Boolean useConverter;
 
         public CglibConverterAdapter(TypeConverter typeConverter) {
-            this.setTypeConverter(typeConverter);
-            this.useConverter = typeConverter != null;
-        }
-
-        public void setTypeConverter(TypeConverter typeConverter) {
-            Assert.notNull(typeConverter, "Parameter \"typeConverter\" must not null. ");
             this.typeConverter = typeConverter;
+            this.useConverter = typeConverter != null;
         }
 
         @Override
@@ -33,6 +28,8 @@ public class CglibBeanCopier implements BeanCopier {
 
     @Override
     public void copy(Object from, Object to, TypeConverter typeConverter) {
+        Assert.notNull(from, "Parameter \"from\" must is not null. ");
+        Assert.notNull(to, "Parameter \"to\" must is not null. ");
         Class<?> fromClass = from.getClass();
         Class<?> toClass = to.getClass();
         boolean useConverter = typeConverter != null;

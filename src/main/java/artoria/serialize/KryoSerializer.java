@@ -18,12 +18,12 @@ public class KryoSerializer implements Serializer<Object> {
 
     public KryoSerializer(KryoPool kryoPool) {
 
-        this.setKryoPool(kryoPool);
+        setKryoPool(kryoPool);
     }
 
     public KryoPool getKryoPool() {
 
-        return this.kryoPool;
+        return kryoPool;
     }
 
     public void setKryoPool(KryoPool kryoPool) {
@@ -35,7 +35,7 @@ public class KryoSerializer implements Serializer<Object> {
     public void serialize(final Object object, final OutputStream outputStream) throws IOException {
         Assert.notNull(object, "Parameter \"object\" must not null. ");
         Assert.notNull(outputStream, "Parameter \"outputStream\" must not null. ");
-        this.kryoPool.run(new KryoCallback<Object>() {
+        kryoPool.run(new KryoCallback<Object>() {
             @Override
             public Object execute(Kryo kryo) {
                 Output output = new Output(outputStream);

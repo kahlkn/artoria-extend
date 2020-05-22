@@ -14,20 +14,10 @@ import java.lang.reflect.Method;
 public class CglibProxyFactory implements ProxyFactory {
 
     private static class MethodInterceptorAdapter implements MethodInterceptor {
-        private Interceptor interceptor;
+        private final Interceptor interceptor;
 
         public MethodInterceptorAdapter(Interceptor interceptor) {
-
-            this.interceptor = interceptor;
-        }
-
-        public Interceptor getInterceptor() {
-
-            return interceptor;
-        }
-
-        public void setInterceptor(Interceptor interceptor) {
-
+            Assert.notNull(interceptor, "Parameter \"interceptor\" must not null. ");
             this.interceptor = interceptor;
         }
 

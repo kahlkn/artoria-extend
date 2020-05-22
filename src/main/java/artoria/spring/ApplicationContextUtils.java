@@ -49,12 +49,11 @@ public class ApplicationContextUtils {
     }
 
     public static void registerBean(String name, BeanDefinitionBuilder beanDefinitionBuilder) {
-        /*
-         * rootBeanDefinition      parent   bean
-         * childBeanDefinition     child    bean
-         * genericBeanDefinition   generic  bean
-         * BeanDefinitionBuilder.genericBeanDefinition(clazz)
-         */
+        // Beans registered by this method can only be obtained by "ApplicationContext.getBean"
+        //      and cannot be obtained by "Autowired".
+        // "BeanDefinitionBuilder.rootBeanDefinition(clazz);"      parent   bean
+        // "BeanDefinitionBuilder.childBeanDefinition(clazz);"     child    bean
+        // "BeanDefinitionBuilder.genericBeanDefinition(clazz);"   generic  bean
         BeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
         ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) getContext();
         BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) applicationContext.getBeanFactory();

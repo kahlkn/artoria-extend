@@ -39,7 +39,7 @@ public class LoggingAutoConfiguration implements InitializingBean, DisposableBea
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        this.initJulToSlf4j();
+        initJulToSlf4j();
     }
 
     @Override

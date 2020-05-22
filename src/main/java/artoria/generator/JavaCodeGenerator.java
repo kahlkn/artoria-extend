@@ -63,7 +63,7 @@ public class JavaCodeGenerator implements Generator<Boolean>, Serializable {
 
     public JavaCodeGenerator() {
         this.addAttribute("author", "artoria-extend");
-        this.addAttribute("date", DateUtils.format(FILLED_DATE_PATTERN));
+        this.addAttribute("date", DateUtils.format(FULL_DATETIME_PATTERN));
     }
 
     public Set<String> getRemovedTableNamePrefixes() {
@@ -348,7 +348,7 @@ public class JavaCodeGenerator implements Generator<Boolean>, Serializable {
                 columnMap.put(JAVA_TYPE, columnClassName);
                 continue;
             }
-            String shortName = columnClassName.substring(index + 1);
+            String shortName = columnClassName.substring(index + ONE);
             String className = importClassMap.get(shortName);
             if (className != null && !className.equals(columnClassName)) {
                 columnMap.put(JAVA_TYPE, columnClassName);
@@ -371,8 +371,8 @@ public class JavaCodeGenerator implements Generator<Boolean>, Serializable {
         for (JavaCodeCreator creator : this.creatorMap.values()) {
             String templateName = creator.getTemplateName();
             int index = templateName.lastIndexOf(UNDERLINE);
-            if (index != -1) {
-                templateName = templateName.substring(0, index);
+            if (index != MINUS_ONE) {
+                templateName = templateName.substring(ZERO, index);
             }
             templateName = StringUtils.uncapitalize(templateName);
             creatorMap.put(templateName, creator);
@@ -484,7 +484,7 @@ public class JavaCodeGenerator implements Generator<Boolean>, Serializable {
             return true;
         }
         catch (Exception e) {
-            throw ExceptionUtils.wrap(e, GenerateException.class);
+            throw ExceptionUtils.wrap(e);
         }
     }
 

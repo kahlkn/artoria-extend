@@ -18,12 +18,12 @@ public class KryoDeserializer implements Deserializer<Object> {
 
     public KryoDeserializer(KryoPool kryoPool) {
 
-        this.setKryoPool(kryoPool);
+        setKryoPool(kryoPool);
     }
 
     public KryoPool getKryoPool() {
 
-        return this.kryoPool;
+        return kryoPool;
     }
 
     public void setKryoPool(KryoPool kryoPool) {
@@ -34,7 +34,7 @@ public class KryoDeserializer implements Deserializer<Object> {
     @Override
     public Object deserialize(final InputStream inputStream) throws IOException {
         Assert.notNull(inputStream, "Parameter \"inputStream\" must not null. ");
-        return this.kryoPool.run(new KryoCallback<Object>() {
+        return kryoPool.run(new KryoCallback<Object>() {
             @Override
             public Object execute(Kryo kryo) {
                 Input input = new Input(inputStream);

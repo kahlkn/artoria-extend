@@ -114,7 +114,7 @@ public class JavaCodeCreator implements Serializable {
         Assert.state(templateName.contains(UNDERLINE)
                 , "Parameter \"templateName\" must contain underline. ");
         templateName = templateName.endsWith(DOT)
-                ? templateName.substring(0, templateName.length() - 1)
+                ? templateName.substring(ZERO, templateName.length() - ONE)
                 : templateName;
         this.templateName = templateName;
     }
@@ -151,7 +151,7 @@ public class JavaCodeCreator implements Serializable {
     public void setBasePackageName(String basePackageName) {
         Assert.notBlank(basePackageName, "Parameter \"basePackageName\" must not blank. ");
         basePackageName = basePackageName.endsWith(DOT)
-                ? basePackageName.substring(0, basePackageName.length() - 1)
+                ? basePackageName.substring(ZERO, basePackageName.length() - ONE)
                 : basePackageName;
         this.basePackageName = basePackageName.trim();
     }
@@ -279,11 +279,11 @@ public class JavaCodeCreator implements Serializable {
         String begin = templateName, end = EMPTY_STRING;
         if (index != -1 && index + 1 !=
                 (length = templateName.length())) {
-            begin = templateName.substring(0, index);
-            end = templateName.substring(index + 1, length);
+            begin = templateName.substring(ZERO, index);
+            end = templateName.substring(index + ONE, length);
         }
         if (begin.endsWith(UNDERLINE)) {
-            begin = begin.substring(0, begin.length() - 1);
+            begin = begin.substring(ZERO, begin.length() - ONE);
         }
         begin = StringUtils.uncapitalize(begin);
         String className = (String) tableMap.get(begin + "ClassName");
@@ -301,12 +301,12 @@ public class JavaCodeCreator implements Serializable {
         }
         // Variable definition.
         StringBuilder result = new StringBuilder(); String tmpFormat;
-        int fileIndex = 0, generatedIndex = 0, count = 0, tmpFromIndex;
+        int fileIndex = ZERO, generatedIndex = ZERO, count = ZERO, tmpFromIndex;
         do {
             // Look for the begin cover mark in the file content.
             int fileBegin = fileContent.indexOf(beginCoverMark, fileIndex);
             // If don't find it once.
-            if (fileBegin == EOF && count == 0) {
+            if (fileBegin == EOF && count == ZERO) {
                 log.info("The file already exists and can not find begin cover mark. ");
                 return null;
             }
@@ -381,7 +381,7 @@ public class JavaCodeCreator implements Serializable {
         Renderer renderer = this.getRenderer();
         // Create template filled model.
         Map<String, Object> model = new HashMap<String, Object>(this.getAttributes());
-        model.put("generatedTime", DateUtils.format(FILLED_DATE_PATTERN));
+        model.put("generatedTime", DateUtils.format(FULL_DATETIME_PATTERN));
         model.put("table", tableMap);
         // Print log.
         String tmpString = "Generator \"{}\": rendering the java code corresponding to table \"{}\". ";

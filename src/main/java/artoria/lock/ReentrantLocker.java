@@ -4,6 +4,7 @@ import artoria.collection.ReferenceMap;
 import artoria.util.Assert;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,12 +16,14 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Kahle
  */
 public class ReentrantLocker implements Locker {
-    private final ReentrantLock PRODUCT_LOCK = new ReentrantLock();
+    private final ReentrantLock CREATION_LOCK = new ReentrantLock();
     private Map<String, Lock> storage;
 
     public ReentrantLocker() {
         ReferenceMap.Type type = ReferenceMap.Type.SOFT;
-        this.storage = new ReferenceMap<String, Lock>(type, true);
+        this.storage = new ReferenceMap<String, Lock>(
+                new ConcurrentHashMap<String, ReferenceMap.ValueCell<String, Lock>>(), type
+        );
     }
 
     public ReentrantLocker(Map<String, Lock> storage) {
@@ -33,7 +36,7 @@ public class ReentrantLocker implements Locker {
         Lock lock = storage.get(lockName);
         if (lock != null) { return lock; }
         try {
-            PRODUCT_LOCK.lock();
+            CREATION_LOCK.lock();
             lock = storage.get(lockName);
             if (lock != null) { return lock; }
             lock = new ReentrantLock();
@@ -41,7 +44,7 @@ public class ReentrantLocker implements Locker {
             return lock;
         }
         finally {
-            PRODUCT_LOCK.unlock();
+            CREATION_LOCK.unlock();
         }
     }
 

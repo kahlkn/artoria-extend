@@ -1,6 +1,5 @@
 package artoria.cache;
 
-import artoria.config.CacheAutoConfiguration;
 import com.alibaba.fastjson.JSON;
 import org.junit.Ignore;
 import org.junit.Test;

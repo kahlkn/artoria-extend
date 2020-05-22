@@ -27,9 +27,9 @@ public class FreemarkerRenderer implements Renderer {
     public FreemarkerRenderer() {
         try {
             Configuration configuration = new Configuration();
-            TemplateLoader[] loaders = new TemplateLoader[2];
-            loaders[0] = new FileTemplateLoader(new File(DOT));
-            loaders[1] = new ClassTemplateLoader(FreemarkerRenderer.class, SLASH);
+            TemplateLoader[] loaders = new TemplateLoader[TWO];
+            loaders[ZERO] = new FileTemplateLoader(new File(DOT));
+            loaders[ONE] = new ClassTemplateLoader(FreemarkerRenderer.class, SLASH);
             MultiTemplateLoader loader = new MultiTemplateLoader(loaders);
             configuration.setTemplateLoader(loader);
             this.configuration = configuration;

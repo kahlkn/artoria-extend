@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static artoria.common.Constants.LEFT_PARENTHESIS;
+import static artoria.common.Constants.ZERO;
 import static artoria.io.IOUtils.EOF;
 
 /**
@@ -30,7 +31,7 @@ public class DatabaseTypeMapper {
         if (StringUtils.isNotBlank(columnType)) {
             int index = columnType.indexOf(LEFT_PARENTHESIS);
             if (index != EOF) {
-                columnType = columnType.substring(0, index);
+                columnType = columnType.substring(ZERO, index);
             }
             String result = TYPE_MAPPINGS.get(columnType);
             if (StringUtils.isNotBlank(result)) { return result; }

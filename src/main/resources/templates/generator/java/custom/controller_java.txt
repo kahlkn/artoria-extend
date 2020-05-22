@@ -9,9 +9,6 @@ import ${table.entityPackageName}.${table.entityClassName};
 import ${table.dtoPackageName}.${table.dtoClassName};
 import ${table.voPackageName}.${table.voClassName};
 import ${table.servicePackageName}.${table.serviceClassName};
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,7 +27,6 @@ import java.util.List;
  */
 @Slf4j
 @Controller
-@Api(value = "${table.controllerClassName}", description = "${table.controllerClassName}")
 public class ${table.controllerClassName} {
 
     @Autowired

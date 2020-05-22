@@ -1,56 +1,29 @@
-package artoria.entity;
+package artoria.test.entity;
 
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * one module more menu
- * one menu more module
- */
 public class Menu implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private String module;
-    private Integer id;
+    private String id;
     private String code;
     private String name;
+    private String module;
     private String parentCode;
     private List<Menu> sonMenuList;
 
-    public String getModule() {
+    public String getId() {
 
-        return this.module;
+        return id;
     }
 
-    public void setModule(String module) {
-
-        this.module = module;
-    }
-
-    public Integer getId() {
-
-        return this.id;
-    }
-
-    public void setId(Integer id) {
+    public void setId(String id) {
 
         this.id = id;
     }
 
-    public String getName() {
-
-        return this.name;
-    }
-
-    public void setName(String name) {
-
-        this.name = name;
-    }
-
     public String getCode() {
 
-        return this.code;
+        return code;
     }
 
     public void setCode(String code) {
@@ -58,9 +31,29 @@ public class Menu implements Serializable {
         this.code = code;
     }
 
+    public String getName() {
+
+        return name;
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
+
+    public String getModule() {
+
+        return module;
+    }
+
+    public void setModule(String module) {
+
+        this.module = module;
+    }
+
     public String getParentCode() {
 
-        return this.parentCode;
+        return parentCode;
     }
 
     public void setParentCode(String parentCode) {
@@ -70,7 +63,7 @@ public class Menu implements Serializable {
 
     public List<Menu> getSonMenuList() {
 
-        return this.sonMenuList;
+        return sonMenuList;
     }
 
     public void setSonMenuList(List<Menu> sonMenuList) {

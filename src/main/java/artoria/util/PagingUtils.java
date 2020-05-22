@@ -6,7 +6,6 @@ import artoria.common.Paging;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,9 +50,6 @@ public class PagingUtils {
         if (data == null) {
             return new PageResult<List<T>>();
         }
-        if (data.isEmpty()) {
-            return new PageResult<List<T>>(new ArrayList<T>());
-        }
         if (!(data instanceof Page)) {
             return new PageResult<List<T>>(data);
         }
@@ -70,9 +66,6 @@ public class PagingUtils {
     public static <F, T> PageResult<List<T>> handleResult(List<F> data, Class<T> clazz) {
         if (data == null) {
             return new PageResult<List<T>>();
-        }
-        if (data.isEmpty()) {
-            return new PageResult<List<T>>(new ArrayList<T>());
         }
         List<T> list = BeanUtils.beanToBeanInList(data, clazz);
         if (!(data instanceof Page)) {
@@ -97,12 +90,9 @@ public class PagingUtils {
         result.setPageSize(data.getPageSize());
         result.setPageCount(data.getPageCount());
         result.setTotal(data.getTotal());
-        List<F> list = data.getData();
-        if (CollectionUtils.isEmpty(list)) {
-            result.setData(new ArrayList<T>());
-            return result;
-        }
-        result.setData(BeanUtils.beanToBeanInList(list, clazz));
+        List<F> fList = data.getData();
+        List<T> tList = BeanUtils.beanToBeanInList(fList, clazz);
+        result.setData(tList);
         return result;
     }
 

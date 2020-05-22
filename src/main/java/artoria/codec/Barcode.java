@@ -19,6 +19,9 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import static artoria.common.Constants.TWO;
+import static artoria.common.Constants.ZERO;
+
 /**
  * Barcode encode and decode tools.
  * @author Kahle
@@ -47,8 +50,8 @@ public class Barcode {
     public static BufferedImage toBufferedImage(BitMatrix bitMatrix, int imageType, int trueColor, int falseColor) {
         int width = bitMatrix.getWidth(), height = bitMatrix.getHeight();
         BufferedImage image = new BufferedImage(width, height, imageType);
-        for (int x = 0; x < width; x++ ) {
-            for (int y = 0; y < height; y++ ) {
+        for (int x = ZERO; x < width; x++ ) {
+            for (int y = ZERO; y < height; y++ ) {
                 image.setRGB(x, y, bitMatrix.get(x, y) ? trueColor : falseColor);
             }
         }
@@ -79,12 +82,12 @@ public class Barcode {
     }
 
     private void handleLogo(BufferedImage image) {
-        if (this.logo == null) { return; }
-        Assert.state(this.logo.exists(), "Parameter \"logo\" must exist. ");
+        if (logo == null) { return; }
+        Assert.state(logo.exists(), "Parameter \"logo\" must exist. ");
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();
         double rate;
-        switch (this.errorCorrectionLevel) {
+        switch (errorCorrectionLevel) {
             case L:{ rate = 0.20; } break;
             case M:{ rate = 0.25; } break;
             case Q:{ rate = 0.27; } break;
@@ -95,10 +98,10 @@ public class Barcode {
         }
         int logoWidth = Double.valueOf(imageWidth * rate).intValue();
         int logoHeight = Double.valueOf(imageHeight * rate).intValue();
-        int logoX = (imageWidth - logoWidth) / 2;
-        int logoY = (imageHeight - logoHeight) / 2;
+        int logoX = (imageWidth - logoWidth) / TWO;
+        int logoY = (imageHeight - logoHeight) / TWO;
         try {
-            BufferedImage logoImage = ImageIO.read(this.logo);
+            BufferedImage logoImage = ImageIO.read(logo);
             Graphics2D graphics = image.createGraphics();
             graphics.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight, null);
             graphics.dispose();
@@ -110,7 +113,7 @@ public class Barcode {
 
     public Map<EncodeHintType, Object> getEncodeHints() {
 
-        return this.encodeHints;
+        return encodeHints;
     }
 
     public Barcode setEncodeHints(Map<EncodeHintType, Object> encodeHints) {
@@ -124,13 +127,13 @@ public class Barcode {
     }
 
     public Barcode addEncodeHint(EncodeHintType encodeHintType, Object value) {
-        this.encodeHints.put(encodeHintType, value);
+        encodeHints.put(encodeHintType, value);
         return this;
     }
 
     public Map<DecodeHintType, Object> getDecodeHints() {
 
-        return this.decodeHints;
+        return decodeHints;
     }
 
     public Barcode setDecodeHints(Map<DecodeHintType, Object> decodeHints) {
@@ -144,13 +147,13 @@ public class Barcode {
     }
 
     public Barcode addDecodeHint(DecodeHintType decodeHintType, Object value) {
-        this.decodeHints.put(decodeHintType, value);
+        decodeHints.put(decodeHintType, value);
         return this;
     }
 
     public ErrorCorrectionLevel getErrorCorrectionLevel() {
 
-        return this.errorCorrectionLevel;
+        return errorCorrectionLevel;
     }
 
     public Barcode setErrorCorrectionLevel(ErrorCorrectionLevel errorCorrectionLevel) {
@@ -160,7 +163,7 @@ public class Barcode {
 
     public BarcodeFormat getBarcodeFormat() {
 
-        return this.barcodeFormat;
+        return barcodeFormat;
     }
 
     public Barcode setBarcodeFormat(BarcodeFormat barcodeFormat) {
@@ -170,7 +173,7 @@ public class Barcode {
 
     public String getCharset() {
 
-        return this.charset;
+        return charset;
     }
 
     public Barcode setCharset(String charset) {
@@ -180,7 +183,7 @@ public class Barcode {
 
     public int getFalseColor() {
 
-        return this.falseColor;
+        return falseColor;
     }
 
     public Barcode setFalseColor(int falseColor) {
@@ -190,7 +193,7 @@ public class Barcode {
 
     public int getTrueColor() {
 
-        return this.trueColor;
+        return trueColor;
     }
 
     public Barcode setTrueColor(int trueColor) {
@@ -200,7 +203,7 @@ public class Barcode {
 
     public int getImageType() {
 
-        return this.imageType;
+        return imageType;
     }
 
     public Barcode setImageType(int imageType) {
@@ -210,7 +213,7 @@ public class Barcode {
 
     public int getWidth() {
 
-        return this.width;
+        return width;
     }
 
     public Barcode setWidth(int width) {
@@ -220,7 +223,7 @@ public class Barcode {
 
     public int getHeight() {
 
-        return this.height;
+        return height;
     }
 
     public Barcode setHeight(int height) {
@@ -230,7 +233,7 @@ public class Barcode {
 
     public int getMargin() {
 
-        return this.margin;
+        return margin;
     }
 
     public Barcode setMargin(int margin) {
@@ -240,7 +243,7 @@ public class Barcode {
 
     public File getLogo() {
 
-        return this.logo;
+        return logo;
     }
 
     public Barcode setLogo(File logo) {
@@ -249,41 +252,40 @@ public class Barcode {
     }
 
     public BitMatrix encodeToBitMatrix(String content) throws WriterException {
-        this.handleHints();
+        handleHints();
         MultiFormatWriter writer = new MultiFormatWriter();
-        return writer.encode(content
-                , this.barcodeFormat, this.width, this.height, this.encodeHints);
+        return writer.encode(content, barcodeFormat, width, height, encodeHints);
     }
 
     public Result decodeFromBufferedImage(BufferedImage image) throws NotFoundException {
-        this.handleHints();
+        handleHints();
         LuminanceSource source = new BufferedImageLuminanceSource(image);
         Binarizer binarizer = new HybridBinarizer(source);
         BinaryBitmap binaryBitmap = new BinaryBitmap(binarizer);
         MultiFormatReader reader = new MultiFormatReader();
-        return reader.decode(binaryBitmap, this.decodeHints);
+        return reader.decode(binaryBitmap, decodeHints);
     }
 
     public String decode(BufferedImage image) throws NotFoundException {
-        Result result = this.decodeFromBufferedImage(image);
+        Result result = decodeFromBufferedImage(image);
         return result != null ? result.getText() : null;
     }
 
     public BufferedImage encode(String content) throws WriterException {
-        BitMatrix bitMatrix = this.encodeToBitMatrix(content);
+        BitMatrix bitMatrix = encodeToBitMatrix(content);
         BufferedImage bufferedImage =
-                Barcode.toBufferedImage(bitMatrix, this.imageType, this.trueColor, this.falseColor);
-        this.handleLogo(bufferedImage);
+                Barcode.toBufferedImage(bitMatrix, imageType, trueColor, falseColor);
+        handleLogo(bufferedImage);
         return bufferedImage;
     }
 
     public String decodeFromFile(File file) throws NotFoundException, IOException {
         BufferedImage image = Barcode.toBufferedImage(file);
-        return this.decode(image);
+        return decode(image);
     }
 
     public boolean encodeToFile(String content, File file) throws WriterException, IOException {
-        BufferedImage image = this.encode(content);
+        BufferedImage image = encode(content);
         String extension = FilenameUtils.getExtension(file.toString());
         if (StringUtils.isBlank(extension)) {
             file = new File(file.toString(), DEFAULT_FILE_EXTENSION);
