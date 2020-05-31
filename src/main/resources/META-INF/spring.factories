@@ -1,9 +1,11 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 artoria.spring.SpringAutoConfiguration,\
 artoria.spring.RequestContextHystrixAutoConfiguration,\
-artoria.config.CglibAutoConfiguration,\
-artoria.config.Base64AutoConfiguration,\
-artoria.config.CryptoAutoConfiguration,\
+artoria.aop.SpringCglibAopAutoConfiguration,\
+artoria.aop.CglibAopAutoConfiguration,\
+artoria.beans.BeanAutoConfiguration,\
+artoria.codec.Base64AutoConfiguration,\
+artoria.crypto.CryptoAutoConfiguration,\
 artoria.exception.ExceptionAutoConfiguration,\
 artoria.config.JsonAutoConfiguration,\
 artoria.feign.FeignSupportAutoConfiguration,\
