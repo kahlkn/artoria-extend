@@ -1,12 +1,10 @@
 package artoria.user;
 
-import artoria.exception.VerifyUtils;
+import artoria.util.Assert;
 import artoria.util.StringUtils;
 import artoria.util.ThreadLocalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static artoria.common.DefaultErrorCode.PARAMETER_IS_REQUIRED;
 
 /**
  * User tools.
@@ -15,17 +13,21 @@ import static artoria.common.DefaultErrorCode.PARAMETER_IS_REQUIRED;
 public class UserUtils {
     private static Logger log = LoggerFactory.getLogger(UserUtils.class);
     /**
-     * ThreadLocal tokenId key
+     * Thread local token id key.
      */
-    public static final String TOKEN_ID_THREAD_LOCAL_KEY = "TOKEN_ID";
+    private static final String TOKEN_ID_THREAD_LOCAL_KEY = "TOKEN_ID";
     /**
-     * ThreadLocal token key
+     * Thread local user info key.
      */
-    public static final String TOKEN_THREAD_LOCAL_KEY = "TOKEN";
+    private static final String USER_INFO_THREAD_LOCAL_KEY = "USER_INFO";
     /**
-     * ThreadLocal userInfo key
+     * Thread local token info key.
      */
-    public static final String USER_INFO_THREAD_LOCAL_KEY = "USER_INFO";
+    private static final String TOKEN_INFO_THREAD_LOCAL_KEY = "TOKEN_INFO";
+    /**
+     * Permission manager.
+     */
+    private static PermissionManager permissionManager;
     /**
      * Token manager.
      */
@@ -35,13 +37,30 @@ public class UserUtils {
      */
     private static UserManager userManager;
 
+    static void clearThreadLocal() {
+        ThreadLocalUtils.remove(TOKEN_ID_THREAD_LOCAL_KEY);
+        ThreadLocalUtils.remove(TOKEN_INFO_THREAD_LOCAL_KEY);
+        ThreadLocalUtils.remove(USER_INFO_THREAD_LOCAL_KEY);
+    }
+
+    public static PermissionManager getPermissionManager() {
+
+        return permissionManager;
+    }
+
+    public static void setPermissionManager(PermissionManager permissionManager) {
+        Assert.notNull(permissionManager, "Parameter \"permissionManager\" must not null. ");
+        log.info("Set permission manager: {}", permissionManager.getClass().getName());
+        UserUtils.permissionManager = permissionManager;
+    }
+
     public static TokenManager getTokenManager() {
 
         return tokenManager;
     }
 
     public static void setTokenManager(TokenManager tokenManager) {
-        VerifyUtils.notNull(tokenManager, PARAMETER_IS_REQUIRED);
+        Assert.notNull(tokenManager, "Parameter \"tokenManager\" must not null. ");
         log.info("Set token manager: {}", tokenManager.getClass().getName());
         UserUtils.tokenManager = tokenManager;
     }
@@ -52,7 +71,7 @@ public class UserUtils {
     }
 
     public static void setUserManager(UserManager userManager) {
-        VerifyUtils.notNull(userManager, PARAMETER_IS_REQUIRED);
+        Assert.notNull(userManager, "Parameter \"userManager\" must not null. ");
         log.info("Set user manager: {}", userManager.getClass().getName());
         UserUtils.userManager = userManager;
     }
@@ -68,13 +87,13 @@ public class UserUtils {
     }
 
     public static Token getToken() {
-        Token token = (Token) ThreadLocalUtils.getValue(TOKEN_THREAD_LOCAL_KEY);
+        Token token = (Token) ThreadLocalUtils.getValue(TOKEN_INFO_THREAD_LOCAL_KEY);
         if (token != null) { return token; }
         String tokenId = UserUtils.getTokenId();
         if (StringUtils.isBlank(tokenId)) { return null; }
-        token = getTokenManager().find(tokenId);
+        token = getTokenManager().findById(tokenId);
         if (token == null) { return null; }
-        ThreadLocalUtils.setValue(TOKEN_THREAD_LOCAL_KEY, token);
+        ThreadLocalUtils.setValue(TOKEN_INFO_THREAD_LOCAL_KEY, token);
         return token;
     }
 
@@ -85,7 +104,7 @@ public class UserUtils {
         if (token == null) { return null; }
         String userId = token.getUserId();
         if (StringUtils.isBlank(userId)) { return null; }
-        userInfo = getUserManager().find(userId);
+        userInfo = getUserManager().findById(userId);
         if (userInfo == null) { return null; }
         ThreadLocalUtils.setValue(USER_INFO_THREAD_LOCAL_KEY, userInfo);
         return userInfo;

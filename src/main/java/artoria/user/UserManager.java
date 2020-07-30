@@ -7,22 +7,10 @@ package artoria.user;
 public interface UserManager {
 
     /**
-     * User id generation logic.
-     * @return User id
-     */
-    String generateId();
-
-    /**
      * Save user information object.
      * @param userInfo User information object
      */
     void save(UserInfo userInfo);
-
-    /**
-     * Remove user information object.
-     * @param userId User id
-     */
-    void remove(String userId);
 
     /**
      * Refresh user information object.
@@ -31,10 +19,21 @@ public interface UserManager {
     void refresh(String userId);
 
     /**
+     * Remove user information object.
+     * @param userId User id
+     */
+    void remove(String userId);
+
+    /**
+     *
+     */
+    void clear();
+
+    /**
      * Find user information object.
      * @param userId User id
      * @return User information object
      */
-    UserInfo find(String userId);
+    UserInfo findById(String userId);
 
 }

@@ -7,11 +7,21 @@ import artoria.common.ErrorCode;
  * @author Kahle
  */
 public class BusinessException extends UncheckedException {
-    private ErrorCode errorCode;
+    private String description;
+    private String code;
 
-    public ErrorCode getErrorCode() {
+    private static String buildMessage(String code, String description) {
+        description += " (Error Code: " + code + ")";
+        return description;
+    }
 
-        return this.errorCode;
+    private static String buildMessage(ErrorCode errorCode) {
+        if (errorCode == null) {
+            return buildMessage(null, null);
+        }
+        String description = errorCode.getDescription();
+        String code = errorCode.getCode();
+        return buildMessage(code, description);
     }
 
     public BusinessException() {
@@ -34,14 +44,42 @@ public class BusinessException extends UncheckedException {
         super(message, cause);
     }
 
+    public BusinessException(String code, String description) {
+        super(buildMessage(code, description));
+        this.description = description;
+        this.code = code;
+    }
+
+    public BusinessException(String code, String description, Throwable cause) {
+        super(buildMessage(code, description), cause);
+        this.description = description;
+        this.code = code;
+    }
+
     public BusinessException(ErrorCode errorCode) {
-        super(errorCode != null ? errorCode.getDescription() : null);
-        this.errorCode = errorCode;
+        super(buildMessage(errorCode));
+        if (errorCode != null) {
+            this.description = errorCode.getDescription();
+            this.code = errorCode.getCode();
+        }
     }
 
     public BusinessException(ErrorCode errorCode, Throwable cause) {
-        super(errorCode != null ? errorCode.getDescription() : null, cause);
-        this.errorCode = errorCode;
+        super(buildMessage(errorCode), cause);
+        if (errorCode != null) {
+            this.description = errorCode.getDescription();
+            this.code = errorCode.getCode();
+        }
+    }
+
+    public String getCode() {
+
+        return code;
+    }
+
+    public String getDescription() {
+
+        return description;
     }
 
 }

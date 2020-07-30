@@ -1,218 +1,232 @@
 package artoria.cache;
 
-import artoria.util.*;
+import artoria.exception.ExceptionUtils;
+import artoria.util.Assert;
+import artoria.util.CollectionUtils;
+import artoria.util.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static artoria.common.Constants.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class RedisCache<K, V> implements Cache<K, V> {
-    private final RedisTemplate<Serializable, Object> serializableRedisTemplate;
-    private static final String CACHE_KEY_PREFIX = "REDIS_CACHE_";
-    private final ValueOperations<Serializable, Object> opsForValue;
-    private final CacheLoader<K, V> cacheLoader;
-    private TimeUnit timeoutUnit;
-    private long timeout;
+public class RedisCache implements Cache {
+    private static final String REDIS_KEY_PREFIX = "CACHE:";
+    private static Logger log = LoggerFactory.getLogger(RedisCache.class);
+    private final AtomicLong missCount = new AtomicLong();
+    private final AtomicLong hitCount = new AtomicLong();
+    private final RedisTemplate<String, Object> redisTemplate;
     private final String name;
+    private final Long timeToIdle;
+    private final Long timeToLive;
+    private Boolean printLog;
 
-    @SuppressWarnings("unchecked")
-    <C extends RedisCacheConfiguration<K, V>> RedisCache(String name, C configuration) {
-        Assert.notNull(configuration, "Parameter \"configuration\" must not null. ");
+    public RedisCache(RedisTemplate<String, Object> redisTemplate, String name) {
+
+        this(redisTemplate, name, ZERO, ZERO);
+    }
+
+    public RedisCache(RedisTemplate<String, Object> redisTemplate, String name, long timeToLive, long timeToIdle) {
+        Assert.notNull(redisTemplate, "Parameter \"redisTemplate\" must not null. ");
         Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        this.serializableRedisTemplate = configuration.getSerializableRedisTemplate();
-        Assert.notNull(serializableRedisTemplate,
-                "Object \"serializableRedisTemplate\" in parameter \"configuration\" must not null. ");
-        this.opsForValue = serializableRedisTemplate.opsForValue();
-        this.cacheLoader = configuration.getCacheLoader();
-        this.timeoutUnit = configuration.getTimeoutUnit();
-        this.timeout = configuration.getTimeout();
+        timeToIdle = timeToIdle >= ZERO ? timeToIdle : ZERO;
+        timeToLive = timeToLive >= ZERO ? timeToLive : ZERO;
+        this.redisTemplate = redisTemplate;
         this.name = name;
+        this.timeToLive = timeToLive;
+        this.timeToIdle = timeToIdle;
+        this.printLog = false;
+    }
+
+    private String redisKey(Object key) {
+
+        return REDIS_KEY_PREFIX + name + COLON + key;
+    }
+
+    private void updateHitStatistic(boolean hit) {
+        if (printLog) {
+            log.info("The size of the cache named \"{}\" is \"{}\" " +
+                            "and its hit counts are \"{}\" and its miss counts are \"{}\". "
+                    , name, size(), hitCount, missCount);
+        }
+        (hit ? hitCount : missCount).incrementAndGet();
+    }
+
+    private void updateExpireTime(String redisKey, Long timeToLive, Long timeToIdle, boolean hit) {
+        if (!hit) { return; }
+        if (timeToLive == null) { timeToLive = this.timeToLive; }
+        if (timeToIdle == null) { timeToIdle = this.timeToIdle; }
+        if (timeToLive != null && timeToLive > ZERO) {
+            redisTemplate.expire(redisKey, timeToLive, MILLISECONDS);
+        }
+        if (timeToIdle != null && timeToIdle > ZERO) {
+            redisTemplate.expire(redisKey, timeToIdle, MILLISECONDS);
+        }
+    }
+
+    public boolean getPrintLog() {
+
+        return printLog;
+    }
+
+    public void setPrintLog(boolean printLog) {
+
+        this.printLog = printLog;
     }
 
     @Override
     public String getName() {
 
-        return this.name;
-    }
-
-    private String handleKey(K key) {
-
-        return CACHE_KEY_PREFIX + this.getName() + UNDERLINE + key;
-    }
-
-    @SuppressWarnings("unchecked")
-    private V takeValue(K key) {
-        if (key == null) { return null; }
-        return (V) opsForValue.get(this.handleKey(key));
+        return name;
     }
 
     @Override
-    public V get(K key) {
-        V val;
-        if ((val = this.takeValue(key)) == null) {
-            this.load(key, false);
-            val = this.takeValue(key);
-        }
-        return val;
-    }
+    public Object getNativeCache() {
 
-    @Override
-    public void put(K key, V value) {
-        String realKey = this.handleKey(key);
-        opsForValue.set(realKey, value, timeout, timeoutUnit);
-    }
-
-    @Override
-    public V putAndGet(K key, V value) {
-        V oldVal = this.takeValue(key);
-        this.put(key, value);
-        return oldVal;
-    }
-
-    @Override
-    public V putIfAbsent(K key, V value) {
-        V val;
-        if ((val = this.takeValue(key)) == null) {
-            val = this.putAndGet(key, value);
-        }
-        return val;
-    }
-
-    @Override
-    public void putAll(Map<? extends K, ? extends V> map) {
-        if (MapUtils.isEmpty(map)) {
-            return;
-        }
-        for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
-            this.put(entry.getKey(), entry.getValue());
-        }
-    }
-
-    @Override
-    public boolean remove(K key) {
-        if (key == null) { return false; }
-        String realKey = this.handleKey(key);
-        Boolean flag = serializableRedisTemplate.delete(realKey);
-        return flag != null ? flag : false;
-    }
-
-    @Override
-    public boolean remove(K key, V oldValue) {
-        if (key == null) { return false; }
-        Object curValue = this.takeValue(key);
-        boolean flag = !ObjectUtils.equals(curValue, oldValue);
-        flag = flag || (curValue == null && !this.containsKey(key));
-        if (flag) { return false; }
-        this.remove(key);
-        return true;
-    }
-
-    @Override
-    public void remove(Collection<? extends K> keys) {
-        if (CollectionUtils.isEmpty(keys)) {
-            return;
-        }
-        for (K key : keys) {
-            this.remove(key);
-        }
-    }
-
-    @Override
-    public V removeAndGet(K key) {
-        V oldVal = this.takeValue(key);
-        this.remove(key);
-        return oldVal;
-    }
-
-    @Override
-    public boolean containsKey(K key) {
-        String realKey = this.handleKey(key);
-        Boolean flag = serializableRedisTemplate.hasKey(realKey);
-        return flag != null ? flag : false;
-    }
-
-    @Override
-    public void clear() {
-        String pattern = CACHE_KEY_PREFIX + this.getName() + ASTERISK;
-        Set<Serializable> keys = serializableRedisTemplate.keys(pattern);
-        if (CollectionUtils.isEmpty(keys)) {
-            return;
-        }
-        for (Serializable key : keys) {
-            if (key == null) { continue; }
-            serializableRedisTemplate.delete(key);
-        }
+        return redisTemplate;
     }
 
     @Override
     public int size() {
-        String pattern = CACHE_KEY_PREFIX + this.getName() + ASTERISK;
-        Set<Serializable> keys = serializableRedisTemplate.keys(pattern);
-        return keys != null ? keys.size() : 0;
+        String pattern = redisKey(ASTERISK);
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys == null) { return ZERO; }
+        return keys.size();
     }
 
     @Override
-    public void load(K key, boolean coverExisted) {
-        if (cacheLoader == null) { return; }
-        if (this.containsKey(key) && !coverExisted) {
-            return;
+    public boolean containsKey(Object key) {
+        Assert.notNull(key, "Parameter \"key\" must not null. ");
+        String redisKey = redisKey(key);
+        Boolean hasKey = redisTemplate.hasKey(redisKey);
+        boolean result = Boolean.TRUE.equals(hasKey);
+        updateExpireTime(redisKey, timeToLive, timeToIdle, result);
+        updateHitStatistic(result);
+        return result;
+    }
+
+    @Override
+    public Object get(Object key) {
+
+        return get(key, Object.class);
+    }
+
+    @Override
+    public <T> T get(Object key, Callable<T> callable) {
+        Assert.notNull(callable, "Parameter \"callable\" must not null. ");
+        Object result = get(key, Object.class);
+        if (result != null) {
+            return ObjectUtils.cast(result);
         }
-        V val = cacheLoader.load(key);
-        this.put(key, val);
+        try {
+            Object call = callable.call();
+            put(key, call);
+            result = call;
+        }
+        catch (Exception e) {
+            throw ExceptionUtils.wrap(e);
+        }
+        return ObjectUtils.cast(result);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void load(Iterable<? extends K> keys, boolean coverExisted) {
-        if (cacheLoader == null) { return; }
-        Map<K, V> loadMap = cacheLoader.loadAll(keys);
-        for (Map.Entry<K, V> entry : loadMap.entrySet()) {
-            if (entry == null) { continue; }
-            K key = entry.getKey();
-            V val = entry.getValue();
+    public <T> T get(Object key, Class<T> type) {
+        Assert.notNull(type, "Parameter \"type\" must not null. ");
+        Assert.notNull(key, "Parameter \"key\" must not null. ");
+        ValueOperations<String, Object> opsForValue = redisTemplate.opsForValue();
+        String redisKey = redisKey(key);
+        Object valObj = opsForValue.get(redisKey);
+        boolean hit = valObj != null;
+        updateExpireTime(redisKey, timeToLive, timeToIdle, hit);
+        updateHitStatistic(hit);
+        return ObjectUtils.cast(valObj);
+    }
+
+    @Override
+    public Object put(Object key, Object value) {
+
+        return put(key, value, timeToLive, timeToIdle);
+    }
+
+    @Override
+    public Object put(Object key, Object value, Long timeToLive, Long timeToIdle) {
+        Assert.notNull(value, "Parameter \"value\" must not null. ");
+        Assert.notNull(key, "Parameter \"key\" must not null. ");
+        ValueOperations<String, Object> opsForValue = redisTemplate.opsForValue();
+        String redisKey = redisKey(key);
+        opsForValue.set(redisKey, value);
+        updateExpireTime(redisKey, timeToLive, timeToIdle, Boolean.TRUE);
+        return null;
+    }
+
+    @Override
+    public Object putIfAbsent(Object key, Object value) {
+
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void putAll(Map<?, ?> map) {
+        Assert.notEmpty(map, "Parameter \"map\" must not empty. ");
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Override
+    public Object remove(Object key) {
+        Assert.notNull(key, "Parameter \"key\" must not null. ");
+        String redisKey = redisKey(key);
+        redisTemplate.delete(redisKey);
+        return null;
+    }
+
+    @Override
+    public void removeAll(Collection<?> keys) {
+        if (CollectionUtils.isEmpty(keys)) { return; }
+        List<String> keyList = new ArrayList<String>();
+        for (Object key : keys) {
             if (key == null) { continue; }
-            String keyStr = this.handleKey(key);
-            if (this.containsKey((K) keyStr) && !coverExisted) {
-                continue;
-            }
-            this.put(key, val);
+            keyList.add(String.valueOf(key));
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void refresh() {
-        if (cacheLoader == null) { return; }
-        if (serializableRedisTemplate == null) {
-            return;
-        }
-        String prefix = CACHE_KEY_PREFIX + this.getName() + UNDERLINE;
-        String pattern = prefix + ASTERISK;
-        Set<Serializable> keys = serializableRedisTemplate.keys(pattern);
-        if (CollectionUtils.isEmpty(keys)) {
-            return;
-        }
-        for (Serializable key : keys) {
-            if (key == null) { continue; }
-            String keyStr = (String) key;
-            if (!keyStr.startsWith(prefix)) {
-                continue;
-            }
-            keyStr = StringUtils.replace(keyStr, prefix, EMPTY_STRING);
-            this.load((K) keyStr, true);
-        }
+        redisTemplate.delete(keyList);
     }
 
     @Override
-    public Object getOriginal() {
+    public int prune() {
 
-        return serializableRedisTemplate;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        String pattern = redisKey(ASTERISK);
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (CollectionUtils.isEmpty(keys)) { return; }
+        redisTemplate.delete(keys);
+    }
+
+    @Override
+    public Collection<Object> keys() {
+
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<Object, Object> entries() {
+
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+
     }
 
 }

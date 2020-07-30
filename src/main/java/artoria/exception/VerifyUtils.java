@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Verify tools.
+ * Data verification tools.
  * @author Kahle
  */
 public class VerifyUtils {

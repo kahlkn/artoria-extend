@@ -10,6 +10,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "artoria.exception")
 public class ExceptionProperties {
     /**
+     * Enabled default exception handler.
+     */
+    private Boolean enabled;
+    /**
      * Enabled internal error page.
      */
     private Boolean internalErrorPage = true;
@@ -18,13 +22,23 @@ public class ExceptionProperties {
      */
     private String baseTemplatePath = "/error";
     /**
-     * Enabled show exception message.
+     * Default error message.
      */
-    private Boolean showErrorMessage = false;
+    private String defaultErrorMessage = "Internal server error. ";
+
+    public Boolean getEnabled() {
+
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+
+        this.enabled = enabled;
+    }
 
     public Boolean getInternalErrorPage() {
 
-        return this.internalErrorPage;
+        return internalErrorPage;
     }
 
     public void setInternalErrorPage(Boolean internalErrorPage) {
@@ -34,7 +48,7 @@ public class ExceptionProperties {
 
     public String getBaseTemplatePath() {
 
-        return this.baseTemplatePath;
+        return baseTemplatePath;
     }
 
     public void setBaseTemplatePath(String baseTemplatePath) {
@@ -42,14 +56,14 @@ public class ExceptionProperties {
         this.baseTemplatePath = baseTemplatePath;
     }
 
-    public Boolean getShowErrorMessage() {
+    public String getDefaultErrorMessage() {
 
-        return this.showErrorMessage;
+        return defaultErrorMessage;
     }
 
-    public void setShowErrorMessage(Boolean showErrorMessage) {
-        if (showErrorMessage == null) { return; }
-        this.showErrorMessage = showErrorMessage;
+    public void setDefaultErrorMessage(String defaultErrorMessage) {
+        if (defaultErrorMessage == null) { return; }
+        this.defaultErrorMessage = defaultErrorMessage;
     }
 
 }

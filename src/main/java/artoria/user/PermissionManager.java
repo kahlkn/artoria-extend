@@ -1,10 +1,38 @@
 package artoria.user;
 
+import java.util.Collection;
+
 /**
  * Permission manager.
  * @author Kahle
  */
 public interface PermissionManager {
+
+    /**
+     *
+     * @param resource
+     * @param roleCodes
+     */
+    void save(String resource, Collection<String> roleCodes);
+
+    /**
+     *
+     * @param resource
+     * @param roleCodes
+     */
+    void remove(String resource, Collection<String> roleCodes);
+
+    /**
+     *
+     */
+    void clear();
+
+    /**
+     *
+     * @param resource
+     * @return
+     */
+    Collection<String> findByResource(String resource);
 
     /**
      * Authenticate.
@@ -28,6 +56,6 @@ public interface PermissionManager {
      * @param roleCode The visitor's role code
      * @return Whether to allow access
      */
-    boolean authenticate(String resource, String roleCode);
+    boolean authenticate(String resource, Collection<String> roleCodes);
 
 }

@@ -1,7 +1,7 @@
 package artoria.user;
 
-import artoria.config.SwaggerProperties;
-import artoria.logging.ControllerLogAutoConfiguration;
+import artoria.exception.ExceptionAutoConfiguration;
+import artoria.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,52 +17,44 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * User auto configuration.
+ * @author Kahle
+ */
 @Configuration
-@EnableConfigurationProperties({UserProperties.class, SwaggerProperties.class})
-@AutoConfigureAfter(ControllerLogAutoConfiguration.class)
-@ConditionalOnBean({TokenManager.class, UserManager.class})
+@AutoConfigureAfter({ExceptionAutoConfiguration.class})
 @ConditionalOnProperty(name = "artoria.user.enabled", havingValue = "true")
+@ConditionalOnBean({PermissionManager.class, TokenManager.class, UserManager.class})
+@EnableConfigurationProperties({UserProperties.class})
 public class UserAutoConfiguration implements WebMvcConfigurer {
     private static Logger log = LoggerFactory.getLogger(UserAutoConfiguration.class);
-    private final PermissionManager permissionManager;
-    private final TokenManager tokenManager;
-    private final UserManager userManager;
     private final UserProperties userProperties;
-    private final SwaggerProperties swaggerProperties;
 
     @Autowired
     public UserAutoConfiguration(
             PermissionManager permissionManager,
             TokenManager tokenManager,
             UserManager userManager,
-            UserProperties userProperties,
-            SwaggerProperties swaggerProperties
+            UserProperties userProperties
     ) {
-        this.permissionManager = permissionManager;
-        this.tokenManager = tokenManager;
-        this.userManager = userManager;
-        this.userProperties = userProperties;
-        this.swaggerProperties = swaggerProperties;
+        Assert.notNull(permissionManager, "Parameter \"permissionManager\" must not null. ");
+        Assert.notNull(userProperties, "Parameter \"userProperties\" must not null. ");
+        Assert.notNull(tokenManager, "Parameter \"tokenManager\" must not null. ");
+        Assert.notNull(userManager, "Parameter \"userManager\" must not null. ");
+        UserUtils.setPermissionManager(permissionManager);
         UserUtils.setTokenManager(tokenManager);
         UserUtils.setUserManager(userManager);
+        this.userProperties = userProperties;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        String tokenHeaderName = userProperties.getTokenHeaderName();
+        Assert.notNull(tokenHeaderName, "Variable \"tokenHeaderName\" must not null. ");
         String[] wantExclude = userProperties.getExcludePathPatterns();
-        UserInterceptor userInterceptor =
-                new UserInterceptor(tokenManager, userManager, permissionManager, userProperties);
+        UserInterceptor userInterceptor = new UserInterceptor(tokenHeaderName);
         List<String> willExclude = new ArrayList<String>(Arrays.asList(wantExclude));
-        willExclude.add("/");
         willExclude.add("/error/**");
-        Boolean swaggerEnabled = swaggerProperties.getEnabled();
-        if (swaggerEnabled != null && swaggerEnabled) {
-            willExclude.add("/webjars/springfox-swagger-ui/**");
-            willExclude.add("/swagger-resources/**");
-            willExclude.add("/swagger-ui.html");
-            willExclude.add("/v2/api-docs");
-            willExclude.add("/csrf");
-        }
         registry.addInterceptor(userInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(willExclude);

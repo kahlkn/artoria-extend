@@ -2,6 +2,8 @@ package artoria.user;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import static artoria.common.Constants.ZERO;
+
 /**
  * User properties.
  * @author Kahle
@@ -13,25 +15,29 @@ public class UserProperties {
      */
     private Boolean enabled;
     /**
-     * Token name.
+     *
      */
-    private String tokenName = "Authorization";
+    private String rolePropertyName = "roleCodes";
     /**
-     * Token expire.
+     * Token property name.
      */
-    private Long tokenExpire = 7 * 24 * 60 * 60 * 1000L;
+    private String tokenHeaderName = "Authorization";
     /**
-     * User information expire.
+     * Token information expiration time.
      */
-    private Long userExpire = 7 * 24 * 60 * 60 * 1000L;
+    private Long tokenExpirationTime = 7 * 24 * 60 * 60 * 1000L;
+    /**
+     * User information expiration time.
+     */
+    private Long userExpirationTime = 14 * 24 * 60 * 60 * 1000L;
     /**
      * URL patterns to which the registered interceptor should not apply to.
      */
-    private String[] excludePathPatterns = new String[0];
+    private String[] excludePathPatterns = new String[ZERO];
 
     public Boolean getEnabled() {
 
-        return this.enabled;
+        return enabled;
     }
 
     public void setEnabled(Boolean enabled) {
@@ -39,39 +45,49 @@ public class UserProperties {
         this.enabled = enabled;
     }
 
-    public String getTokenName() {
+    public String getRolePropertyName() {
 
-        return this.tokenName;
+        return rolePropertyName;
     }
 
-    public void setTokenName(String tokenName) {
+    public void setRolePropertyName(String rolePropertyName) {
 
-        this.tokenName = tokenName;
+        this.rolePropertyName = rolePropertyName;
     }
 
-    public Long getTokenExpire() {
+    public String getTokenHeaderName() {
 
-        return this.tokenExpire;
+        return tokenHeaderName;
     }
 
-    public void setTokenExpire(Long tokenExpire) {
+    public void setTokenHeaderName(String tokenHeaderName) {
 
-        this.tokenExpire = tokenExpire;
+        this.tokenHeaderName = tokenHeaderName;
     }
 
-    public Long getUserExpire() {
+    public Long getTokenExpirationTime() {
 
-        return this.userExpire;
+        return tokenExpirationTime;
     }
 
-    public void setUserExpire(Long userExpire) {
+    public void setTokenExpirationTime(Long tokenExpirationTime) {
 
-        this.userExpire = userExpire;
+        this.tokenExpirationTime = tokenExpirationTime;
+    }
+
+    public Long getUserExpirationTime() {
+
+        return userExpirationTime;
+    }
+
+    public void setUserExpirationTime(Long userExpirationTime) {
+
+        this.userExpirationTime = userExpirationTime;
     }
 
     public String[] getExcludePathPatterns() {
 
-        return this.excludePathPatterns;
+        return excludePathPatterns;
     }
 
     public void setExcludePathPatterns(String[] excludePathPatterns) {

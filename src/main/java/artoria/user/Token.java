@@ -1,12 +1,14 @@
 package artoria.user;
 
+import artoria.data.AbstractExtraData;
+
 import java.io.Serializable;
 
 /**
  * Token object.
  * @author Kahle
  */
-public class Token implements Serializable {
+public class Token extends AbstractExtraData implements Serializable {
     /**
      * Token id.
      */
@@ -16,25 +18,26 @@ public class Token implements Serializable {
      */
     private String userId;
     /**
-     * Device information.
+     * User agent.
+     * @see <a href="https://en.wikipedia.org/wiki/User_agent">User agent</a>
      */
-    private String device;
+    private String userAgent;
     /**
-     * Platform information.
+     * Access time.
      */
-    private String platform;
+    private String accessTime;
     /**
-     * Last accessed time.
+     * Client application id.
      */
-    private Long lastAccessedTime;
+    private String clientAppId;
     /**
-     * Last accessed address.
+     * Client network address.
      */
-    private String lastAccessedAddress;
+    private String clientNetAddress;
 
     public String getId() {
 
-        return this.id;
+        return id;
     }
 
     public void setId(String id) {
@@ -44,7 +47,7 @@ public class Token implements Serializable {
 
     public String getUserId() {
 
-        return this.userId;
+        return userId;
     }
 
     public void setUserId(String userId) {
@@ -52,44 +55,44 @@ public class Token implements Serializable {
         this.userId = userId;
     }
 
-    public String getDevice() {
+    public String getUserAgent() {
 
-        return this.device;
+        return userAgent;
     }
 
-    public void setDevice(String device) {
+    public void setUserAgent(String userAgent) {
 
-        this.device = device;
+        this.userAgent = userAgent;
     }
 
-    public String getPlatform() {
+    public String getAccessTime() {
 
-        return this.platform;
+        return accessTime;
     }
 
-    public void setPlatform(String platform) {
+    public void setAccessTime(String accessTime) {
 
-        this.platform = platform;
+        this.accessTime = accessTime;
     }
 
-    public Long getLastAccessedTime() {
+    public String getClientAppId() {
 
-        return this.lastAccessedTime;
+        return clientAppId;
     }
 
-    public void setLastAccessedTime(Long lastAccessedTime) {
+    public void setClientAppId(String clientAppId) {
 
-        this.lastAccessedTime = lastAccessedTime;
+        this.clientAppId = clientAppId;
     }
 
-    public String getLastAccessedAddress() {
+    public String getClientNetAddress() {
 
-        return this.lastAccessedAddress;
+        return clientNetAddress;
     }
 
-    public void setLastAccessedAddress(String lastAccessedAddress) {
+    public void setClientNetAddress(String clientNetAddress) {
 
-        this.lastAccessedAddress = lastAccessedAddress;
+        this.clientNetAddress = clientNetAddress;
     }
 
 }
