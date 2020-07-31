@@ -1,53 +1,57 @@
 package artoria.exchange;
 
+import artoria.util.ArrayUtils;
 import artoria.util.Assert;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.lang.reflect.Type;
 
+import static artoria.exchange.JsonFormat.PRETTY_FORMAT;
+
 /**
  * Json provider simple implement by gson.
  * @author Kahle
  */
 public class GsonProvider implements JsonProvider {
-    private boolean prettyFormat;
+    private Gson prettyFormatGson;
     private Gson gson;
 
     public GsonProvider() {
 
-        this(false);
+        this(new Gson());
     }
 
     public GsonProvider(Gson gson) {
         Assert.notNull(gson, "Parameter \"gson\" must not null. ");
-        this.prettyFormat = false;
         this.gson = gson;
-    }
-
-    public GsonProvider(boolean prettyFormat) {
-        this.prettyFormat = prettyFormat;
         GsonBuilder gsonBuilder = new GsonBuilder();
-        if (prettyFormat) { gsonBuilder.setPrettyPrinting(); }
-        this.gson = gsonBuilder.create();
+        gsonBuilder.setPrettyPrinting();
+        this.prettyFormatGson = gsonBuilder.create();
+    }
+
+    protected Gson getGson(JsonFeature... features) {
+        if (ArrayUtils.isEmpty(features)) { return gson; }
+        for (JsonFeature jsonFeature : features) {
+            if (jsonFeature == null) { continue; }
+            if (jsonFeature instanceof JsonFormat
+                    && PRETTY_FORMAT.equals(jsonFeature)) {
+                return prettyFormatGson;
+            }
+        }
+        return gson;
     }
 
     @Override
-    public boolean getPrettyFormat() {
+    public String toJsonString(Object object, JsonFeature... features) {
 
-        return prettyFormat;
+        return getGson(features).toJson(object);
     }
 
     @Override
-    public String toJsonString(Object object) {
+    public <T> T parseObject(String jsonString, Type type, JsonFeature... features) {
 
-        return gson.toJson(object);
-    }
-
-    @Override
-    public <T> T parseObject(String jsonString, Type type) {
-
-        return gson.fromJson(jsonString, type);
+        return getGson(features).fromJson(jsonString, type);
     }
 
 }

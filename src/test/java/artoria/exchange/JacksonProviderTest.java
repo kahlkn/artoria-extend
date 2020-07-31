@@ -11,7 +11,7 @@ import java.util.List;
 
 import static artoria.exchange.JsonFormat.PRETTY_FORMAT;
 
-public class FastJsonProviderTest {
+public class JacksonProviderTest {
     private Student data = new Student();
     private List<Student> data1 = new ArrayList<Student>();
     private String jsonString = null;
@@ -19,7 +19,7 @@ public class FastJsonProviderTest {
 
     @Before
     public void init() {
-        JsonUtils.setJsonProvider(new FastJsonProvider());
+        JsonUtils.setJsonProvider(new JacksonProvider());
         data = RandomUtils.nextObject(Student.class);
         for (int i = 0; i < 5; i++) {
             data1.add(RandomUtils.nextObject(Student.class));
@@ -37,7 +37,7 @@ public class FastJsonProviderTest {
 
     @Test
     public void test2() {
-        JsonUtils.setJsonProvider(new FastJsonProvider());
+        JsonUtils.setJsonProvider(new JacksonProvider());
         Student student = JsonUtils.parseObject(jsonString, Student.class);
         List<Student> list = JsonUtils.parseObject(jsonString1
                 , TypeUtils.parameterizedOf(List.class, Student.class));

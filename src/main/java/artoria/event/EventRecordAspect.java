@@ -27,7 +27,7 @@ public class EventRecordAspect {
     private static ThreadLocal<Map<Method, Long>> accessTimeMapLocal = new ThreadLocal<Map<Method, Long>>();
     private static Logger log = LoggerFactory.getLogger(EventRecordAspect.class);
 
-    private Method fetchMethod(JoinPoint joinPoint) {
+    private Method getMethod(JoinPoint joinPoint) {
         if (joinPoint == null) { return null; }
         Signature signature = joinPoint.getSignature();
         if (!(signature instanceof MethodSignature)) {
@@ -105,7 +105,7 @@ public class EventRecordAspect {
     public Object eventAround(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = null;
         try {
-            method = fetchMethod(joinPoint);
+            method = getMethod(joinPoint);
             setupAccessTime(method);
         }
         catch (Exception e) {
@@ -131,7 +131,7 @@ public class EventRecordAspect {
     @AfterThrowing(pointcut = "eventPointcut()", throwing = "th")
     public void eventAfterThrowing(JoinPoint joinPoint, Throwable th) {
         try {
-            Method method = fetchMethod(joinPoint);
+            Method method = getMethod(joinPoint);
             Long processTime = calcProcessTime(method);
             clearAccessTime(method);
             Map<String, Object> properties = new LinkedHashMap<String, Object>();
