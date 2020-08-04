@@ -10,20 +10,6 @@ public class BusinessException extends UncheckedException {
     private String description;
     private String code;
 
-    private static String buildMessage(String code, String description) {
-        description += " (Error Code: " + code + ")";
-        return description;
-    }
-
-    private static String buildMessage(ErrorCode errorCode) {
-        if (errorCode == null) {
-            return buildMessage(null, null);
-        }
-        String description = errorCode.getDescription();
-        String code = errorCode.getCode();
-        return buildMessage(code, description);
-    }
-
     public BusinessException() {
 
         super();
@@ -45,19 +31,20 @@ public class BusinessException extends UncheckedException {
     }
 
     public BusinessException(String code, String description) {
-        super(buildMessage(code, description));
+        super(description + " (Error Code: " + code + ")");
         this.description = description;
         this.code = code;
     }
 
     public BusinessException(String code, String description, Throwable cause) {
-        super(buildMessage(code, description), cause);
+        super(description + " (Error Code: " + code + ")", cause);
         this.description = description;
         this.code = code;
     }
 
     public BusinessException(ErrorCode errorCode) {
-        super(buildMessage(errorCode));
+        super(errorCode != null ? errorCode.getDescription() +
+                " (Error Code: " + errorCode.getCode() + ")" : "null (Error Code: null)");
         if (errorCode != null) {
             this.description = errorCode.getDescription();
             this.code = errorCode.getCode();
@@ -65,7 +52,8 @@ public class BusinessException extends UncheckedException {
     }
 
     public BusinessException(ErrorCode errorCode, Throwable cause) {
-        super(buildMessage(errorCode), cause);
+        super(errorCode != null ? errorCode.getDescription() +
+                " (Error Code: " + errorCode.getCode() + ")" : "null (Error Code: null)", cause);
         if (errorCode != null) {
             this.description = errorCode.getDescription();
             this.code = errorCode.getCode();

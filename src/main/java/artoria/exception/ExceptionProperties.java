@@ -1,7 +1,8 @@
 package artoria.exception;
 
-import artoria.util.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
 
 /**
  * Exception properties.
@@ -25,6 +26,10 @@ public class ExceptionProperties {
      * Default error message.
      */
     private String defaultErrorMessage = "Internal server error. ";
+    /**
+     * Exception message configuration.
+     */
+    private List<ExceptionMessage> messages;
 
     public Boolean getEnabled() {
 
@@ -42,7 +47,7 @@ public class ExceptionProperties {
     }
 
     public void setInternalErrorPage(Boolean internalErrorPage) {
-        if (internalErrorPage == null) { return; }
+
         this.internalErrorPage = internalErrorPage;
     }
 
@@ -52,7 +57,7 @@ public class ExceptionProperties {
     }
 
     public void setBaseTemplatePath(String baseTemplatePath) {
-        if (StringUtils.isBlank(baseTemplatePath)) { return; }
+
         this.baseTemplatePath = baseTemplatePath;
     }
 
@@ -62,8 +67,55 @@ public class ExceptionProperties {
     }
 
     public void setDefaultErrorMessage(String defaultErrorMessage) {
-        if (defaultErrorMessage == null) { return; }
+
         this.defaultErrorMessage = defaultErrorMessage;
+    }
+
+    public List<ExceptionMessage> getMessages() {
+
+        return messages;
+    }
+
+    public void setMessages(List<ExceptionMessage> messages) {
+
+        this.messages = messages;
+    }
+
+    public static class ExceptionMessage {
+        private Class<Exception>[] classes;
+        private String errorMessage;
+        private String errorCode;
+
+        public Class<Exception>[] getClasses() {
+
+            return classes;
+        }
+
+        public void setClasses(Class<Exception>[] classes) {
+
+            this.classes = classes;
+        }
+
+        public String getErrorMessage() {
+
+            return errorMessage;
+        }
+
+        public void setErrorMessage(String errorMessage) {
+
+            this.errorMessage = errorMessage;
+        }
+
+        public String getErrorCode() {
+
+            return errorCode;
+        }
+
+        public void setErrorCode(String errorCode) {
+
+            this.errorCode = errorCode;
+        }
+
     }
 
 }

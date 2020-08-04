@@ -1,5 +1,6 @@
 package artoria.exception;
 
+import artoria.common.ErrorCode;
 import artoria.common.Result;
 import artoria.util.Assert;
 import artoria.util.StringUtils;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import static artoria.common.Constants.DEFAULT_ENCODING_NAME;
 import static artoria.common.Constants.SLASH;
@@ -22,17 +24,21 @@ import static artoria.common.Constants.SLASH;
 public class SimpleErrorHandler implements ErrorHandler {
     private static Logger log = LoggerFactory.getLogger(SimpleErrorHandler.class);
     private static final String TEXT_HTML = "text/html";
+    private Map<Class, ErrorCode> errorCodeMap;
     private Boolean internalErrorPage;
     private String baseTemplatePath;
     private String defaultErrorMessage;
 
-    public SimpleErrorHandler(Boolean internalErrorPage, String baseTemplatePath, String defaultErrorMessage) {
+    public SimpleErrorHandler(Boolean internalErrorPage, String baseTemplatePath,
+                              String defaultErrorMessage, Map<Class, ErrorCode> errorCodeMap) {
         Assert.notBlank(defaultErrorMessage, "Parameter \"defaultErrorMessage\" must not blank. ");
         Assert.notBlank(baseTemplatePath, "Parameter \"baseTemplatePath\" must not blank. ");
         Assert.notNull(internalErrorPage, "Parameter \"internalErrorPage\" must not null. ");
+        Assert.notNull(errorCodeMap, "Parameter \"errorCodeMap\" must not null. ");
         this.defaultErrorMessage = defaultErrorMessage;
         this.baseTemplatePath = baseTemplatePath;
         this.internalErrorPage = internalErrorPage;
+        this.errorCodeMap = errorCodeMap;
     }
 
     protected Object createPageResult(HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
@@ -42,6 +48,16 @@ public class SimpleErrorHandler implements ErrorHandler {
             BusinessException businessEx = (BusinessException) throwable;
             errorMessage = businessEx.getDescription();
             errorCode = businessEx.getCode();
+        }
+        else {
+            if (throwable != null) {
+                Class<? extends Throwable> clazz = throwable.getClass();
+                ErrorCode errorCodeObj = errorCodeMap.get(clazz);
+                if (errorCodeObj != null) {
+                    errorMessage = errorCodeObj.getDescription();
+                    errorCode = errorCodeObj.getCode();
+                }
+            }
         }
         if (StringUtils.isBlank(errorMessage)) {
             errorMessage = defaultErrorMessage;
@@ -96,6 +112,16 @@ public class SimpleErrorHandler implements ErrorHandler {
             BusinessException businessEx = (BusinessException) throwable;
             description = businessEx.getDescription();
             code = businessEx.getCode();
+        }
+        else {
+            if (throwable != null) {
+                Class<? extends Throwable> clazz = throwable.getClass();
+                ErrorCode errorCodeObj = errorCodeMap.get(clazz);
+                if (errorCodeObj != null) {
+                    description = errorCodeObj.getDescription();
+                    code = errorCodeObj.getCode();
+                }
+            }
         }
         if (StringUtils.isBlank(description)) {
             description = defaultErrorMessage;

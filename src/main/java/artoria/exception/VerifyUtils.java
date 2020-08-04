@@ -13,6 +13,7 @@ import java.util.Map;
  * Data verification tools.
  * @author Kahle
  */
+@Deprecated
 public class VerifyUtils {
 
     public static void state(boolean expression, ErrorCode errorCode) {
