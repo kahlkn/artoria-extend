@@ -2,6 +2,9 @@ package artoria.exception;
 
 import artoria.common.ErrorCode;
 import artoria.common.SimpleErrorCode;
+import artoria.util.ArrayUtils;
+import artoria.util.CollectionUtils;
+import artoria.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -20,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static artoria.common.Constants.TEN;
+import static artoria.common.Constants.TWENTY;
 
 /**
  * Exception auto configuration.
@@ -56,16 +59,19 @@ public class ExceptionAutoConfiguration implements InitializingBean, DisposableB
         String baseTemplatePath = exceptionProperties.getBaseTemplatePath();
         Boolean internalErrorPage = exceptionProperties.getInternalErrorPage();
         List<ExceptionProperties.ExceptionMessage> messages = exceptionProperties.getMessages();
-        Map<Class, ErrorCode> errorCodeMap = new HashMap<Class, ErrorCode>(TEN);
-        for (ExceptionProperties.ExceptionMessage message : messages) {
-            if (message == null) { continue; }
-            Class<Exception>[] classes = message.getClasses();
-            String errorMessage = message.getErrorMessage();
-            String errorCode = message.getErrorCode();
-
-            for (Class<Exception> clazz : classes) {
-                if (clazz == null) { continue; }
-                errorCodeMap.put(clazz, new SimpleErrorCode(errorCode, errorMessage));
+        Map<Class, ErrorCode> errorCodeMap = new HashMap<Class, ErrorCode>(TWENTY);
+        if (CollectionUtils.isNotEmpty(messages)) {
+            for (ExceptionProperties.ExceptionMessage message : messages) {
+                if (message == null) { continue; }
+                Class<Exception>[] classes = message.getClasses();
+                if (ArrayUtils.isEmpty(classes)) { continue; }
+                String errorMessage = message.getErrorMessage();
+                if (StringUtils.isBlank(errorMessage)) { continue; }
+                String errorCode = message.getErrorCode();
+                for (Class<Exception> clazz : classes) {
+                    if (clazz == null) { continue; }
+                    errorCodeMap.put(clazz, new SimpleErrorCode(errorCode, errorMessage));
+                }
             }
         }
         return new SimpleErrorHandler(internalErrorPage, baseTemplatePath, defaultErrorMessage, errorCodeMap);
