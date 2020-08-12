@@ -7,7 +7,7 @@ import artoria.util.ObjectUtils;
 import static artoria.common.Constants.DEFAULT;
 
 public abstract class AbstractPropertyProvider implements PropertyProvider {
-    protected static final String DISPLAY_RELOAD_LOG = "display_log_property_provider_reload";
+    protected static final String DISPLAY_RELOAD_LOG = "display_property_provider_reload_log";
 
     @Override
     public <T> T getRequiredProperty(String name, Class<T> targetType) {

@@ -10,10 +10,10 @@ public class PropertyProperties {
     private ReloadType reloadType = ReloadType.NONE;
     private TimeUnit reloadPeriodUnit = TimeUnit.MINUTES;
     private Long reloadPeriod = 3L;
-    private String tableName;
     private String groupColumnName;
     private String nameColumnName;
     private String valueColumnName;
+    private String tableName;
     private String whereContent;
 
     public ProviderType getProviderType() {
@@ -56,16 +56,6 @@ public class PropertyProperties {
         this.reloadPeriod = reloadPeriod;
     }
 
-    public String getTableName() {
-
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-
-        this.tableName = tableName;
-    }
-
     public String getGroupColumnName() {
 
         return groupColumnName;
@@ -94,6 +84,16 @@ public class PropertyProperties {
     public void setValueColumnName(String valueColumnName) {
 
         this.valueColumnName = valueColumnName;
+    }
+
+    public String getTableName() {
+
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+
+        this.tableName = tableName;
     }
 
     public String getWhereContent() {

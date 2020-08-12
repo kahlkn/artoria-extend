@@ -1,29 +1,24 @@
 package artoria.property;
 
 import artoria.thread.SimpleThreadFactory;
-import artoria.util.CollectionUtils;
+import artoria.util.Assert;
 import artoria.util.ShutdownHookUtils;
-import artoria.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static artoria.common.Constants.*;
+import static artoria.common.Constants.ONE;
+import static artoria.common.Constants.ZERO;
 import static java.lang.Boolean.TRUE;
 
 @Configuration
@@ -32,37 +27,19 @@ public class PropertyAutoConfiguration {
     private static final String THREAD_NAME_PREFIX = "property-provider-reload-executor";
     private static Logger log = LoggerFactory.getLogger(PropertyAutoConfiguration.class);
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
-    private StringRedisTemplate stringRedisTemplate;
-    private PropertyProperties propertyProperties;
-    private PropertyProvider propertyProvider;
-    private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public PropertyAutoConfiguration(PropertyProperties propertyProperties,
-                                     JdbcTemplate jdbcTemplate,
-                                     StringRedisTemplate stringRedisTemplate) {
-        this.stringRedisTemplate = stringRedisTemplate;
-        this.propertyProperties = propertyProperties;
-        this.jdbcTemplate = jdbcTemplate;
-        //
-        PropertyProperties.ProviderType providerType = propertyProperties.getProviderType();
-        if (PropertyProperties.ProviderType.REDIS.equals(providerType)) {
-            this.propertyProvider = new RedisPropertyProvider(stringRedisTemplate);
-        }
-        else {
-            this.propertyProvider = new SimplePropertyProvider();
-        }
-        PropertyUtils.setPropertyProvider(propertyProvider);
-        //
-        PropertyProperties.ReloadType reloadType = propertyProperties.getReloadType();
+    public PropertyAutoConfiguration(ApplicationContext appContext, PropertyProperties properties) {
+        PropertyProvider propertyProvider = propertyProvider(appContext, properties);
+        PropertyLoader propertyLoader = propertyLoader(appContext, properties);
+        if (propertyProvider != null) { PropertyUtils.setPropertyProvider(propertyProvider); }
+        PropertyProperties.ReloadType reloadType = properties.getReloadType();
         if (!PropertyProperties.ReloadType.NONE.equals(reloadType)) {
-            TimeUnit reloadPeriodUnit = propertyProperties.getReloadPeriodUnit();
-            Long reloadPeriod = propertyProperties.getReloadPeriod();
+            TimeUnit reloadPeriodUnit = properties.getReloadPeriodUnit();
+            Long reloadPeriod = properties.getReloadPeriod();
             ThreadFactory threadFactory = new SimpleThreadFactory(THREAD_NAME_PREFIX, TRUE);
             scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(ONE, threadFactory);
-            Runnable runnable = new PropertyReloader(
-                    propertyProvider, propertyProperties, jdbcTemplate, stringRedisTemplate
-            );
+            Runnable runnable = new PropertyReloadRunnable(propertyProvider, propertyLoader);
             scheduledThreadPoolExecutor.scheduleAtFixedRate(runnable, ZERO, reloadPeriod, reloadPeriodUnit);
             ShutdownHookUtils.addExecutorService(scheduledThreadPoolExecutor);
         }
@@ -71,116 +48,79 @@ public class PropertyAutoConfiguration {
         }
     }
 
-    @Bean
-    public PropertyProvider propertyProvider() {
-
+    protected PropertyProvider propertyProvider(ApplicationContext context, PropertyProperties prop) {
+        PropertyProvider propertyProvider;
+        try {
+            propertyProvider = context.getBean(PropertyProvider.class);
+            return propertyProvider;
+        }
+        catch (Exception e) {
+            log.debug("Failed to get \"propertyProvider\" from application context. ", e);
+        }
+        PropertyProperties.ProviderType providerType = prop.getProviderType();
+        if (PropertyProperties.ProviderType.REDIS.equals(providerType)) {
+            StringRedisTemplate redisTemplate = context.getBean(StringRedisTemplate.class);
+            propertyProvider = new RedisPropertyProvider(redisTemplate);
+        }
+        else {
+            propertyProvider = new SimplePropertyProvider();
+        }
         return propertyProvider;
     }
 
-    public static class PropertyReloader implements Runnable {
-        private static Logger log = LoggerFactory.getLogger(PropertyReloader.class);
-        private StringRedisTemplate stringRedisTemplate;
-        private PropertyProperties propertyProperties;
+    protected PropertyLoader propertyLoader(ApplicationContext context, PropertyProperties prop) {
+        PropertyLoader propertyLoader;
+        try {
+            propertyLoader = context.getBean(PropertyLoader.class);
+            return propertyLoader;
+        }
+        catch (Exception e) {
+            log.debug("Failed to get \"propertyLoader\" from application context. ", e);
+        }
+        PropertyProperties.ReloadType reloadType = prop.getReloadType();
+        if (PropertyProperties.ReloadType.JDBC.equals(reloadType)) {
+            JdbcTemplate jdbcTemplate = context.getBean(JdbcTemplate.class);
+            String groupColumnName = prop.getGroupColumnName();
+            String nameColumnName = prop.getNameColumnName();
+            String valueColumnName = prop.getValueColumnName();
+            String tableName = prop.getTableName();
+            String whereContent = prop.getWhereContent();
+            propertyLoader = new JdbcPropertyLoader(jdbcTemplate, groupColumnName,
+                    nameColumnName, valueColumnName, tableName, whereContent);
+        }
+        else if (PropertyProperties.ReloadType.REDIS.equals(reloadType)) {
+            StringRedisTemplate redisTemplate = context.getBean(StringRedisTemplate.class);
+            propertyLoader = new RedisPropertyLoader(redisTemplate);
+        }
+        else {
+            propertyLoader = null;
+        }
+        return propertyLoader;
+    }
+
+    protected static class PropertyReloadRunnable implements Runnable {
+        private static Logger log = LoggerFactory.getLogger(PropertyReloadRunnable.class);
         private PropertyProvider propertyProvider;
-        private JdbcTemplate jdbcTemplate;
+        private PropertyLoader propertyLoader;
 
-        public PropertyReloader(PropertyProvider propertyProvider,
-                                PropertyProperties propertyProperties,
-                                JdbcTemplate jdbcTemplate,
-                                StringRedisTemplate stringRedisTemplate) {
-            this.stringRedisTemplate = stringRedisTemplate;
-            this.propertyProperties = propertyProperties;
+        PropertyReloadRunnable(PropertyProvider propertyProvider, PropertyLoader propertyLoader) {
+            Assert.notNull(propertyProvider, "Parameter \"propertyProvider\" must not null. ");
+            Assert.notNull(propertyLoader, "Parameter \"propertyLoader\" must not null. ");
             this.propertyProvider = propertyProvider;
-            this.jdbcTemplate = jdbcTemplate;
-        }
-
-        private Map<String, Map<String, Object>> loadByJdbc() {
-            try {
-                String groupColumnName = propertyProperties.getGroupColumnName();
-                String nameColumnName = propertyProperties.getNameColumnName();
-                String valueColumnName = propertyProperties.getValueColumnName();
-                String whereContent = propertyProperties.getWhereContent();
-                String tableName = propertyProperties.getTableName();
-                String sql = String.format(
-                        "select `%s` as 'group', `%s` as 'name', `%s` as 'value' from `%s` %s",
-                        groupColumnName, nameColumnName, valueColumnName, tableName, whereContent
-                );
-                List<Map<String, Object>> mapList = jdbcTemplate.queryForList(sql);
-                Map<String, Map<String, Object>> result =
-                        new HashMap<String, Map<String, Object>>(ONE_HUNDRED);
-                for (Map<String, Object> map : mapList) {
-                    if (map == null) { continue; }
-                    String group = (String) map.get("group");
-                    String name = (String) map.get("name");
-                    Object value = map.get("value");
-                    if (StringUtils.isBlank(group)) { continue; }
-                    if (StringUtils.isBlank(name)) { continue; }
-                    Map<String, Object> groupMap = result.get(group);
-                    if (groupMap == null) {
-                        groupMap = new HashMap<String, Object>(TWENTY);
-                        result.put(group, groupMap);
-                    }
-                    groupMap.put(name, value);
-                }
-                return result;
-            }
-            catch (Exception e) {
-                log.error("An error occurred while executing the \"loadByJdbc\". ", e);
-                return null;
-            }
-        }
-
-        private Map<String, Map<String, Object>> loadByRedis() {
-            try {
-                Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>(ONE_HUNDRED);
-                HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
-                Map<Object, Object> entries = opsForHash.entries("PROPERTY:NAME_VALUE");
-                // TODO: Need to optimize.
-                Set<String> keys = stringRedisTemplate.keys("PROPERTY:GROUP_NAME:" + ASTERISK);
-                SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
-                if (CollectionUtils.isNotEmpty(keys)) {
-                    for (String key : keys) {
-                        if (StringUtils.isBlank(key)) { continue; }
-                        Set<String> members = opsForSet.members(key);
-                        if (CollectionUtils.isEmpty(members)) { continue; }
-                        String group = key.substring("PROPERTY:GROUP_NAME:".length());
-                        Map<String, Object> groupMap = result.get(group);
-                        if (groupMap == null) {
-                            groupMap = new HashMap<String, Object>(TWENTY);
-                            result.put(group, groupMap);
-                        }
-                        for (String member : members) {
-                            if (StringUtils.isBlank(member)) {
-                                continue;
-                            }
-                            Object value = entries.get(member);
-                            groupMap.put(member, value);
-                        }
-                    }
-                }
-                return result;
-            }
-            catch (Exception e) {
-                log.error("An error occurred while executing the \"loadByRedis\". ", e);
-                return null;
-            }
+            this.propertyLoader = propertyLoader;
         }
 
         @Override
         public void run() {
-            PropertyProperties.ReloadType reloadType = propertyProperties.getReloadType();
-            if (PropertyProperties.ReloadType.JDBC.equals(reloadType)) {
-                Map<String, Map<String, Object>> map = loadByJdbc();
-                if (map != null) { propertyProvider.reload(map); }
+            try {
+                Map<String, Map<String, Object>> data = propertyLoader.loadAll();
+                if (data != null) { propertyProvider.reload(data); }
             }
-            else if (PropertyProperties.ReloadType.REDIS.equals(reloadType)) {
-                Map<String, Map<String, Object>> map = loadByRedis();
-                if (map != null) { propertyProvider.reload(map); }
+            catch (Exception e) {
+                log.error("An error occurred while reloading the data. ", e);
             }
-            else {
-            }//
         }
-
+        //
     }
 
 }
