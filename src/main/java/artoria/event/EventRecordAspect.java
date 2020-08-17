@@ -1,8 +1,13 @@
 package artoria.event;
 
+import artoria.beans.BeanMap;
+import artoria.beans.BeanUtils;
 import artoria.exception.ExceptionUtils;
 import artoria.user.UserInfo;
 import artoria.user.UserUtils;
+import artoria.util.ArrayUtils;
+import artoria.util.CollectionUtils;
+import artoria.util.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -14,10 +19,10 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static artoria.common.Constants.FOUR;
 import static artoria.common.Constants.ZERO;
@@ -26,6 +31,58 @@ import static artoria.common.Constants.ZERO;
 public class EventRecordAspect {
     private static ThreadLocal<Map<Method, Long>> accessTimeMapLocal = new ThreadLocal<Map<Method, Long>>();
     private static Logger log = LoggerFactory.getLogger(EventRecordAspect.class);
+
+    private List<Object> getArguments(JoinPoint joinPoint) {
+        if (joinPoint == null) { return null; }
+        Object[] args = joinPoint.getArgs();
+        if (ArrayUtils.isEmpty(args)) {
+            return Collections.emptyList();
+        }
+        List<Object> result = new ArrayList<Object>();
+        for (Object arg : args) {
+            if (arg instanceof HttpServletRequest) {
+                continue;
+            }
+            if (arg instanceof HttpServletResponse) {
+                continue;
+            }
+            result.add(arg);
+        }
+        return result;
+    }
+
+    private String tryExtract(List<Object> arguments) {
+        if (CollectionUtils.isEmpty(arguments)) { return null; }
+        for (Object argument : arguments) {
+            if (argument == null) { continue; }
+            BeanMap beanMap = BeanUtils.createBeanMap(argument);
+            if (beanMap.containsKey("userId") &&
+                    beanMap.get("userId") != null) {
+                return String.valueOf(beanMap.get("userId"));
+            }
+            if (beanMap.containsKey("uid") &&
+                    beanMap.get("uid") != null) {
+                return String.valueOf(beanMap.get("uid"));
+            }
+            if (beanMap.containsKey("user") &&
+                    beanMap.get("user") != null) {
+                return "{\"user\":\"" + beanMap.get("user") + "\"}";
+            }
+            if (beanMap.containsKey("account") &&
+                    beanMap.get("account") != null) {
+                return "{\"account\":\"" + beanMap.get("account") + "\"}";
+            }
+            if (beanMap.containsKey("username") &&
+                    beanMap.get("username") != null) {
+                return "{\"username\":\"" + beanMap.get("username") + "\"}";
+            }
+            if (beanMap.containsKey("userName") &&
+                    beanMap.get("userName") != null) {
+                return "{\"userName\":\"" + beanMap.get("userName") + "\"}";
+            }
+        }
+        return null;
+    }
 
     private Method getMethod(JoinPoint joinPoint) {
         if (joinPoint == null) { return null; }
@@ -47,15 +104,6 @@ public class EventRecordAspect {
         accessTimeMap.put(method, System.nanoTime());
     }
 
-    private Long calcProcessTime(Method method) {
-        if (method == null) { return null; }
-        Map<Method, Long> accessTimeMap = accessTimeMapLocal.get();
-        if (accessTimeMap == null) { return null; }
-        Long accessTime = accessTimeMap.get(method);
-        if (accessTime == null) { return null; }
-        return (System.nanoTime() - accessTime) / 1000000;
-    }
-
     private void clearAccessTime(Method method) {
         Map<Method, Long> accessTimeMap = accessTimeMapLocal.get();
         if (accessTimeMap == null) { return; }
@@ -65,6 +113,15 @@ public class EventRecordAspect {
         if (accessTimeMap.size() == ZERO) {
             accessTimeMapLocal.remove();
         }
+    }
+
+    private Long calcProcessTime(Method method) {
+        if (method == null) { return null; }
+        Map<Method, Long> accessTimeMap = accessTimeMapLocal.get();
+        if (accessTimeMap == null) { return null; }
+        Long accessTime = accessTimeMap.get(method);
+        if (accessTime == null) { return null; }
+        return (System.nanoTime() - accessTime) / 1000000;
     }
 
     private void addEvent(JoinPoint joinPoint, Map<String, Object> properties, Object result) {
@@ -78,11 +135,11 @@ public class EventRecordAspect {
         boolean input = eventRecord.input();
         boolean output = eventRecord.output();
 
+        List<Object> args = getArguments(joinPoint);
         if (output) {
             properties.put("output", result);
         }
         if (input) {
-            Object[] args = joinPoint.getArgs();
             properties.put("input", args);
         }
 
@@ -93,6 +150,7 @@ public class EventRecordAspect {
 
         UserInfo userInfo = UserUtils.getUserInfo();
         String userId = userInfo != null ? userInfo.getId() : null;
+        if (StringUtils.isBlank(userId)) { userId = tryExtract(args); }
         EventUtils.addEvent(event, type, userId, null, properties);
     }
 
