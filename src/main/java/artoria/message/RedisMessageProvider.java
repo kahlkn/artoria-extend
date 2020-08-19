@@ -169,7 +169,7 @@ public class RedisMessageProvider implements MessageProvider {
     }
 
     @Override
-    public void listening(String subdivision, String destination, MessageListener listener) throws MessageException {
+    public void listening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
         Assert.notBlank(destination, "Parameter \"destination\" must not blank. ");
         Assert.notNull(listener, "Parameter \"listener\" must not null. ");
         destination = destination.toUpperCase();
@@ -182,7 +182,7 @@ public class RedisMessageProvider implements MessageProvider {
     }
 
     @Override
-    public void removeListening(String subdivision, String destination, MessageListener listener) throws MessageException {
+    public void removeListening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
         Assert.notBlank(destination, "Parameter \"destination\" must not blank. ");
         Assert.notNull(listener, "Parameter \"listener\" must not null. ");
         destination = destination.toUpperCase();
@@ -234,7 +234,7 @@ public class RedisMessageProvider implements MessageProvider {
     }
 
     @Override
-    public Message receive(String subdivision, String destination) throws MessageException {
+    public Message receive(String destination, Map<String, Object> properties) throws MessageException {
         Assert.notBlank(destination, "Parameter \"destination\" must not blank. ");
         destination = destination.toUpperCase();
         String messageDestinationKey = messageDestinationKey(destination, true);
@@ -244,7 +244,7 @@ public class RedisMessageProvider implements MessageProvider {
     }
 
     @Override
-    public Message receive(String subdivision, String destination, long timeoutMillis) throws MessageException {
+    public Message receive(String destination, Map<String, Object> properties, long timeoutMillis) throws MessageException {
         Assert.notBlank(destination, "Parameter \"destination\" must not blank. ");
         destination = destination.toUpperCase();
         String messageDestinationKey = messageDestinationKey(destination, true);

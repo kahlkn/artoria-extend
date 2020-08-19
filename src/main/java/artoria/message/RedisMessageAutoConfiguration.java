@@ -43,10 +43,10 @@ public class RedisMessageAutoConfiguration implements DisposableBean {
         Collection<TargetedMessageListener> listeners = map.values();
         for (TargetedMessageListener listener : listeners) {
             if (listener == null) { continue; }
-            String subdivision = listener.getSubdivision();
             String destination = listener.getDestination();
+            Map<String, Object> properties = listener.getProperties();
             if (StringUtils.isBlank(destination)) { continue; }
-            messageProvider.listening(subdivision, destination, listener);
+            messageProvider.listening(destination, properties, listener);
         }
         return messageProvider;
     }

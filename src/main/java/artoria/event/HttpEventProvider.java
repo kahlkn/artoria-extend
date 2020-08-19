@@ -98,7 +98,6 @@ public class HttpEventProvider implements EventProvider {
             eventRecord.put("anonymousId", anonymousId);
 
             Message message = new SimpleMessage();
-            message.setSubdivision(subdivision);
             message.setDestination(destination);
             message.setBody(eventRecord);
             MessageUtils.send(message);

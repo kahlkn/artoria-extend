@@ -2,10 +2,8 @@ package artoria.message;
 
 import artoria.common.AsyncCallback;
 import artoria.lifecycle.LifecycleException;
-import artoria.util.StringUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.lang.NonNull;
@@ -50,21 +48,19 @@ public class KafkaMessageProvider implements MessageProvider {
 
     private ListenableFuture<SendResult<String, Object>> doSend(Message message) {
         Map<String, Object> properties = message.getProperties();
-        String subdivision = message.getSubdivision();
         String destination = message.getDestination();
         String messageId = message.getMessageId();
         Object body = message.getBody();
         Map<String, Object> headers = new LinkedHashMap<String, Object>();
         headers.put("messageId", messageId);
-        headers.put("subdivision", subdivision);
         headers.put("destination", destination);
         headers.putAll(properties);
-        if (StringUtils.isNotBlank(destination)) {
-            headers.put(KafkaHeaders.MESSAGE_KEY, destination);
-        }
+//        if (StringUtils.isNotBlank(destination)) {
+//            headers.put(KafkaHeaders.MESSAGE_KEY, destination);
+//        }
         org.springframework.messaging.Message<Object> input = new GenericMessage<Object>(body, headers);
         RecordMessageConverter messageConverter = (RecordMessageConverter) kafkaTemplate.getMessageConverter();
-        ProducerRecord<String, Object> producerRecord = cast(messageConverter.fromMessage(input, subdivision));
+        ProducerRecord<String, Object> producerRecord = cast(messageConverter.fromMessage(input, destination));
         return kafkaTemplate.send(producerRecord);
     }
 
@@ -74,13 +70,13 @@ public class KafkaMessageProvider implements MessageProvider {
     }
 
     @Override
-    public void listening(String subdivision, String destination, MessageListener listener) throws MessageException {
+    public void listening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void removeListening(String subdivision, String destination, MessageListener listener) throws MessageException {
+    public void removeListening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
@@ -114,13 +110,13 @@ public class KafkaMessageProvider implements MessageProvider {
     }
 
     @Override
-    public Message receive(String subdivision, String destination) throws MessageException {
+    public Message receive(String destination, Map<String, Object> properties) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message receive(String subdivision, String destination, long timeoutMillis) throws MessageException {
+    public Message receive(String destination, Map<String, Object> properties, long timeoutMillis) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
