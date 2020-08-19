@@ -115,7 +115,7 @@ public class RedisPropertyProvider extends AbstractPropertyProvider {
             opsForHash.putAll(NAME_VALUE_KEY, nameValueMap);
         }
         if (CollectionUtils.isNotEmpty(willDelete)) {
-            opsForHash.delete(NAME_VALUE_KEY, willDelete);
+            opsForHash.delete(NAME_VALUE_KEY, willDelete.toArray());
         }
         SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
         for (Map.Entry<String, List<String>> entry : groupNameListMap.entrySet()) {
@@ -132,7 +132,7 @@ public class RedisPropertyProvider extends AbstractPropertyProvider {
             values = list.toArray(values);
             opsForSet.add(groupKey, values);
             if (CollectionUtils.isNotEmpty(willDelete)) {
-                opsForSet.remove(groupKey, willDelete);
+                opsForSet.remove(groupKey, willDelete.toArray());
             }
         }
         if (PropertyUtils.getBooleanProperty(DISPLAY_RELOAD_LOG)) {
