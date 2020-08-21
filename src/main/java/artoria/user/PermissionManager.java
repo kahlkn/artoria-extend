@@ -9,28 +9,18 @@ import java.util.Collection;
 public interface PermissionManager {
 
     /**
-     *
-     * @param resource
-     * @param roleCodes
      */
     void save(String resource, Collection<String> roleCodes);
 
     /**
-     *
-     * @param resource
-     * @param roleCodes
      */
     void remove(String resource, Collection<String> roleCodes);
 
     /**
-     *
      */
     void clear();
 
     /**
-     *
-     * @param resource
-     * @return
      */
     Collection<String> findByResource(String resource);
 
@@ -53,7 +43,6 @@ public interface PermissionManager {
     /**
      * Authenticate.
      * @param resource Resource to be accessed
-     * @param roleCode The visitor's role code
      * @return Whether to allow access
      */
     boolean authenticate(String resource, Collection<String> roleCodes);

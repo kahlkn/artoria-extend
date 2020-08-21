@@ -1,13 +1,9 @@
 package artoria.event;
 
-import artoria.beans.BeanMap;
-import artoria.beans.BeanUtils;
 import artoria.exception.ExceptionUtils;
 import artoria.user.UserInfo;
 import artoria.user.UserUtils;
 import artoria.util.ArrayUtils;
-import artoria.util.CollectionUtils;
-import artoria.util.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -49,39 +45,6 @@ public class EventRecordAspect {
             result.add(arg);
         }
         return result;
-    }
-
-    private String tryExtract(List<Object> arguments) {
-        if (CollectionUtils.isEmpty(arguments)) { return null; }
-        for (Object argument : arguments) {
-            if (argument == null) { continue; }
-            BeanMap beanMap = BeanUtils.createBeanMap(argument);
-            if (beanMap.containsKey("userId") &&
-                    beanMap.get("userId") != null) {
-                return String.valueOf(beanMap.get("userId"));
-            }
-            if (beanMap.containsKey("uid") &&
-                    beanMap.get("uid") != null) {
-                return String.valueOf(beanMap.get("uid"));
-            }
-            if (beanMap.containsKey("user") &&
-                    beanMap.get("user") != null) {
-                return "{\"user\":\"" + beanMap.get("user") + "\"}";
-            }
-            if (beanMap.containsKey("account") &&
-                    beanMap.get("account") != null) {
-                return "{\"account\":\"" + beanMap.get("account") + "\"}";
-            }
-            if (beanMap.containsKey("username") &&
-                    beanMap.get("username") != null) {
-                return "{\"username\":\"" + beanMap.get("username") + "\"}";
-            }
-            if (beanMap.containsKey("userName") &&
-                    beanMap.get("userName") != null) {
-                return "{\"userName\":\"" + beanMap.get("userName") + "\"}";
-            }
-        }
-        return null;
     }
 
     private Method getMethod(JoinPoint joinPoint) {
@@ -150,7 +113,6 @@ public class EventRecordAspect {
 
         UserInfo userInfo = UserUtils.getUserInfo();
         String userId = userInfo != null ? userInfo.getId() : null;
-        if (StringUtils.isBlank(userId)) { userId = tryExtract(args); }
         EventUtils.addEvent(event, type, userId, null, properties);
     }
 

@@ -33,7 +33,6 @@ public interface TokenManager {
 
     /**
      *
-     * @param userId
      */
     void removeByUserId(String userId);
 

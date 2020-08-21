@@ -9,14 +9,14 @@ import java.util.Map;
 public interface TargetedMessageListener extends MessageListener {
 
     /**
-     * Get the queue name or get the routing key.
-     * @return The queue name or the routing key
+     * Get the destination.
+     * @return The destination the message is expected to arrive at
      */
     String getDestination();
 
     /**
      * Get the properties.
-     * @return The properties
+     * @return Supplement any fields that may appear that need to be passed
      */
     Map<String, Object> getProperties();
 
