@@ -19,23 +19,17 @@ import static artoria.common.Constants.HOST_NAME;
 
 public class HttpEventProvider implements EventProvider {
     private static Logger log = LoggerFactory.getLogger(HttpEventProvider.class);
-    private String subdivision;
-    private String destination;
     private String serverAppId;
+    private String destination;
     private String anonymousIdName;
     private String tokenIdName;
     private String clientAppIdName;
 
-    public HttpEventProvider(String subdivision, String destination, String serverAppId,
+    public HttpEventProvider(String serverAppId, String destination,
                              String anonymousIdName, String tokenIdName, String clientAppIdName) {
-        if (StringUtils.isBlank(subdivision) && StringUtils.isBlank(destination)) {
-            throw new IllegalArgumentException(
-                    "Parameter \"subdivision\" and parameter \"destination\" cannot both be blank. "
-            );
-        }
-        this.subdivision = subdivision;
-        this.destination = destination;
+        Assert.notBlank(destination, "Parameter \"destination\" must not blank. ");
         this.serverAppId = serverAppId;
+        this.destination = destination;
         this.anonymousIdName = anonymousIdName;
         this.tokenIdName = tokenIdName;
         this.clientAppIdName = clientAppIdName;
@@ -69,9 +63,10 @@ public class HttpEventProvider implements EventProvider {
     }
 
     @Override
-    public void addEvent(String event, String type, Long time, String userId, String anonymousId, Map<String, Object> properties) {
+    public void addEvent(String eventName, String eventType, String distinctId, String anonymousId, Map<String, Object> properties) {
         try {
-            Assert.notBlank(event, "Parameter \"event\" must not blank. ");
+            Assert.notBlank(eventName, "Parameter \"eventName\" must not blank. ");
+            Long time = (Long) properties.get("time");
             if (time == null) { time = System.currentTimeMillis(); }
 
             HttpServletRequest request = RequestContextUtils.getRequest();
@@ -83,18 +78,18 @@ public class HttpEventProvider implements EventProvider {
                 properties = handleProperties(request, properties);
             }
 
-            if (StringUtils.isBlank(userId) && StringUtils.isBlank(anonymousId)) {
+            if (StringUtils.isBlank(distinctId) && StringUtils.isBlank(anonymousId)) {
                 throw new IllegalArgumentException(
-                        "Parameter \"userId\" and parameter \"anonymousId\" cannot both be blank. "
+                        "Parameter \"distinctId\" and parameter \"anonymousId\" cannot both be blank. "
                 );
             }
 
             Map<String, Object> eventRecord = new LinkedHashMap<String, Object>();
-            eventRecord.put("properties", properties);
-            eventRecord.put("event",  event);
-            eventRecord.put("type",   type);
-            eventRecord.put("time",   time);
-            eventRecord.put("userId", userId);
+            eventRecord.put("properties",  properties);
+            eventRecord.put("eventName",   eventName);
+            eventRecord.put("eventType",   eventType);
+            eventRecord.put("time",        time);
+            eventRecord.put("distinctId",  distinctId);
             eventRecord.put("anonymousId", anonymousId);
 
             Message message = new SimpleMessage();

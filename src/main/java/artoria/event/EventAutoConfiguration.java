@@ -34,7 +34,6 @@ public class EventAutoConfiguration {
     @Bean
     public EventProvider eventProvider(EventProperties eventProperties) {
         Assert.notNull(eventProperties, "Parameter \"eventProperties\" must not null. ");
-        String subdivision = eventProperties.getSubdivision();
         String destination = eventProperties.getDestination();
         String anonymousIdName = eventProperties.getAnonymousIdName();
         String tokenIdName = eventProperties.getTokenIdName();
@@ -42,8 +41,8 @@ public class EventAutoConfiguration {
         if (StringUtils.isBlank(destination)) {
             destination = "event_record";
         }
-        EventProvider eventProvider = new HttpEventProvider(subdivision,
-                destination, serverAppId, anonymousIdName, tokenIdName, clientAppIdName);
+        EventProvider eventProvider = new HttpEventProvider(
+                serverAppId, destination, anonymousIdName, tokenIdName, clientAppIdName);
         EventUtils.setEventProvider(eventProvider);
         log.info("Event tools set destination success. ");
         return eventProvider;

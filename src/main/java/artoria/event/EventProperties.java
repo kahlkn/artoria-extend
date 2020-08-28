@@ -13,10 +13,6 @@ public class EventProperties {
      */
     private Boolean enabled;
     /**
-     * The subdivision where the event is sent.
-     */
-    private String subdivision;
-    /**
      * The destination where the event is sent.
      */
     private String destination;
@@ -41,16 +37,6 @@ public class EventProperties {
     public void setEnabled(Boolean enabled) {
 
         this.enabled = enabled;
-    }
-
-    public String getSubdivision() {
-
-        return subdivision;
-    }
-
-    public void setSubdivision(String subdivision) {
-
-        this.subdivision = subdivision;
     }
 
     public String getDestination() {

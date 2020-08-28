@@ -93,8 +93,8 @@ public class EventRecordAspect {
         Method method = methodSign.getMethod();
 
         EventRecord eventRecord = method.getAnnotation(EventRecord.class);
-        String event = eventRecord.event();
-        String type = eventRecord.type();
+        String eventName = eventRecord.name();
+        String eventType = eventRecord.type();
         boolean input = eventRecord.input();
         boolean output = eventRecord.output();
 
@@ -113,7 +113,7 @@ public class EventRecordAspect {
 
         UserInfo userInfo = UserUtils.getUserInfo();
         String userId = userInfo != null ? userInfo.getId() : null;
-        EventUtils.addEvent(event, type, userId, null, properties);
+        EventUtils.addEvent(eventName, eventType, userId, null, properties);
     }
 
     @Pointcut("@annotation(artoria.event.EventRecord)")

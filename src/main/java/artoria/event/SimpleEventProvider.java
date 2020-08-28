@@ -12,18 +12,19 @@ public class SimpleEventProvider implements EventProvider {
     private static Logger log = LoggerFactory.getLogger(SimpleEventProvider.class);
 
     @Override
-    public void addEvent(String event, String type, Long time, String userId, String anonymousId, Map<String, Object> properties) {
+    public void addEvent(String eventName, String eventType, String distinctId, String anonymousId, Map<String, Object> properties) {
         try {
-            Assert.notBlank(event, "Parameter \"event\" must not blank. ");
-            if (StringUtils.isBlank(userId) && StringUtils.isBlank(anonymousId)) {
+            Assert.notBlank(eventName, "Parameter \"eventName\" must not blank. ");
+            if (StringUtils.isBlank(distinctId) && StringUtils.isBlank(anonymousId)) {
                 throw new IllegalArgumentException(
-                        "Parameter \"userId\" and parameter \"anonymousId\" cannot both be blank. "
+                        "Parameter \"distinctId\" and parameter \"anonymousId\" cannot both be blank. "
                 );
             }
+            Long time = (Long) properties.get("time");
             if (time == null) { time = System.currentTimeMillis(); }
             String format = "User \"%s\" performed \"%s\" operation in \"%s\". ";
-            String user = StringUtils.isNotBlank(userId) ? userId : anonymousId;
-            log.info(String.format(format, user, event, DateUtils.format(time)));
+            String user = StringUtils.isNotBlank(distinctId) ? distinctId : anonymousId;
+            log.info(String.format(format, user, eventName, DateUtils.format(time)));
         }
         catch (Exception e) {
             log.error(getClass().getSimpleName() + ": An error has occurred. ", e);

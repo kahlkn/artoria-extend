@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventRecord {
 
-    String event();
+    String name();
 
     String type() default "";
 

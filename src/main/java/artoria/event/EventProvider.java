@@ -7,6 +7,6 @@ public interface EventProvider {
     /**
      * Who did what and when.
      */
-    void addEvent(String event, String type, Long time, String userId, String anonymousId, Map<String, Object> properties);
+    void addEvent(String eventName, String eventType, String distinctId, String anonymousId, Map<String, Object> properties);
 
 }

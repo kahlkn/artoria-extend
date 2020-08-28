@@ -22,24 +22,24 @@ public class EventUtils {
         EventUtils.eventProvider = eventProvider;
     }
 
-    public static void addEvent(String event, String userId, Map<String, Object> properties) {
+    public static void addEvent(String eventName, String eventType, String distinctId) {
 
-        getEventProvider().addEvent(event, null, null, userId, null, properties);
+        getEventProvider().addEvent(eventName, eventType, distinctId, null, null);
     }
 
-    public static void addEvent(String event, String userId, String anonymousId, Map<String, Object> properties) {
+    public static void addEvent(String eventName, String eventType, String distinctId, String anonymousId) {
 
-        getEventProvider().addEvent(event, null, null, userId, anonymousId, properties);
+        getEventProvider().addEvent(eventName, eventType, distinctId, anonymousId, null);
     }
 
-    public static void addEvent(String event, String type, String userId, String anonymousId, Map<String, Object> properties) {
+    public static void addEvent(String eventName, String eventType, String distinctId, Map<String, Object> properties) {
 
-        getEventProvider().addEvent(event, type, null, userId, anonymousId, properties);
+        getEventProvider().addEvent(eventName, eventType, distinctId, null, properties);
     }
 
-    public static void addEvent(String event, String type, Long time, String userId, String anonymousId, Map<String, Object> properties) {
+    public static void addEvent(String eventName, String eventType, String distinctId, String anonymousId, Map<String, Object> properties) {
 
-        getEventProvider().addEvent(event, type, time, userId, anonymousId, properties);
+        getEventProvider().addEvent(eventName, eventType, distinctId, anonymousId, properties);
     }
 
 }
