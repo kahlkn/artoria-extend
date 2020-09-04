@@ -15,9 +15,9 @@ public interface TargetedMessageListener extends MessageListener {
     String getDestination();
 
     /**
-     * Get the properties.
+     * Get the parameters.
      * @return Supplement any fields that may appear that need to be passed
      */
-    Map<String, Object> getProperties();
+    Map<String, Object> getParameters();
 
 }

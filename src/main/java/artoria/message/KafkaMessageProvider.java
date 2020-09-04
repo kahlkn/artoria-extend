@@ -70,13 +70,13 @@ public class KafkaMessageProvider implements MessageProvider {
     }
 
     @Override
-    public void listening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
+    public void listening(String destination, Map<String, Object> parameters, MessageListener listener) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void removeListening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
+    public void removeListening(String destination, Map<String, Object> parameters, MessageListener listener) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
@@ -110,13 +110,13 @@ public class KafkaMessageProvider implements MessageProvider {
     }
 
     @Override
-    public Message receive(String destination, Map<String, Object> properties) throws MessageException {
+    public Message receive(String destination, Map<String, Object> parameters) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message receive(String destination, Map<String, Object> properties, long timeoutMillis) throws MessageException {
+    public Message receive(String destination, Map<String, Object> parameters, long timeoutMillis) throws MessageException {
 
         throw new UnsupportedOperationException();
     }

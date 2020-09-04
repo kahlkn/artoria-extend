@@ -35,7 +35,7 @@ public class SimpleMessageAutoConfiguration implements DisposableBean {
         for (TargetedMessageListener listener : listeners) {
             if (listener == null) { continue; }
             String destination = listener.getDestination();
-            Map<String, Object> properties = listener.getProperties();
+            Map<String, Object> properties = listener.getParameters();
             if (StringUtils.isBlank(destination)) { continue; }
             messageProvider.listening(destination, properties, listener);
         }

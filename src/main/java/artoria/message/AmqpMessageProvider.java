@@ -30,13 +30,13 @@ public class AmqpMessageProvider implements MessageProvider {
     }
 
     @Override
-    public void listening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
+    public void listening(String destination, Map<String, Object> parameters, MessageListener listener) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void removeListening(String destination, Map<String, Object> properties, MessageListener listener) throws MessageException {
+    public void removeListening(String destination, Map<String, Object> parameters, MessageListener listener) throws MessageException {
 
         throw new UnsupportedOperationException();
     }
@@ -96,12 +96,12 @@ public class AmqpMessageProvider implements MessageProvider {
     }
 
     @Override
-    public Message receive(String destination, Map<String, Object> properties) throws MessageException {
+    public Message receive(String destination, Map<String, Object> parameters) throws MessageException {
         org.springframework.amqp.core.Message message = amqpTemplate.receive(destination);
         Message result = new SimpleMessage();
         result.setDestination(destination);
-        if (MapUtils.isNotEmpty(properties)) {
-            result.addProperties(properties);
+        if (MapUtils.isNotEmpty(parameters)) {
+            result.addProperties(parameters);
         }
         byte[] body = message.getBody();
         MessageProperties messageProperties = message.getMessageProperties();
@@ -112,12 +112,12 @@ public class AmqpMessageProvider implements MessageProvider {
     }
 
     @Override
-    public Message receive(String destination, Map<String, Object> properties, long timeoutMillis) throws MessageException {
+    public Message receive(String destination, Map<String, Object> parameters, long timeoutMillis) throws MessageException {
         org.springframework.amqp.core.Message message = amqpTemplate.receive(destination, timeoutMillis);
         Message result = new SimpleMessage();
         result.setDestination(destination);
-        if (MapUtils.isNotEmpty(properties)) {
-            result.addProperties(properties);
+        if (MapUtils.isNotEmpty(parameters)) {
+            result.addProperties(parameters);
         }
         byte[] body = message.getBody();
         MessageProperties messageProperties = message.getMessageProperties();
