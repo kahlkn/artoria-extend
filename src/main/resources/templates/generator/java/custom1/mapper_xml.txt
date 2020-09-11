@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="${table.mapperPackageName}.${table.mapperClassName}" >
+
+    <!-- **** (Start) This will be covered, please do not modify. **** -->
+    <resultMap id="BaseResultMap" type="${table.entityPackageName}.${table.entityClassName}" >
+#foreach(${column} in ${table.columnList})
+#if($column.primaryKey)
+        <id column="${column.name}" property="${column.fieldName}" />
+#else
+        <result column="${column.name}" property="${column.fieldName}" />
+#end
+#end
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+#set($temp = 1)
+#foreach(${column} in ${table.columnList})
+        `${column.name}`#if($temp < $table.columnList.size()),
+#set($temp = $temp + 1)#end
+#end
+
+    </sql>
+
+    <sql id="Base_Selective_Where" >
+#foreach(${column} in ${table.columnList})
+        <if test="${column.fieldName} != null#if($column.javaType != "Date" && $column.javaType != "java.util.Date" && $column.javaType != "Integer" && $column.javaType != "java.lang.Integer") and ${column.fieldName} != ''#end">and `${column.name}` = #{${column.fieldName}}</if>
+#end
+    </sql>
+
+    <insert id="insert" parameterType="${table.entityPackageName}.${table.entityClassName}" >
+        insert into `${table.name}` (
+            <include refid="Base_Column_List" />
+        )
+        values (
+#set($temp = 1)#foreach(${column} in ${table.columnList})
+            #{${column.fieldName}}#if($temp < $table.columnList.size()),
+#set($temp = $temp + 1)
+#end
+#end
+
+        )
+    </insert>
+
+    <insert id="insertBatch" >
+        insert into `${table.name}` (
+            <include refid="Base_Column_List" />
+        )
+        values
+        <foreach collection="recordList" index="index" item="item" separator="," >
+        (
+#set($temp = 1)#foreach(${column} in ${table.columnList})
+            #{item.${column.fieldName}}#if($temp < $table.columnList.size()),
+#set($temp = $temp + 1)
+#end
+#end
+
+        )
+        </foreach>
+    </insert>
+
+    <insert id="insertSelective" parameterType="${table.entityPackageName}.${table.entityClassName}" >
+        insert into `${table.name}`
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+#foreach(${column} in ${table.columnList})
+            <if test="${column.fieldName} != null" >`${column.name}`, </if>
+#end
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+#foreach( ${column} in ${table.columnList} )
+            <if test="${column.fieldName} != null" >#{${column.fieldName}}, </if>
+#end
+        </trim>
+    </insert>
+
+    <delete id="deleteByPrimaryKey" >
+        update `${table.name}`
+        set
+            `update_user` = #{updateUser},
+            `update_date` = NOW(),
+            `alive_flag` = 0
+        where `alive_flag` = 1
+#foreach(${column} in ${table.columnList})
+#if($column.primaryKey)
+            and `${column.name}` = #{${column.fieldName}}
+#end#end
+    </delete>
+
+    <delete id="deleteByPrimaryKeyList" >
+        update `${table.name}`
+        set
+            `update_user` = #{updateUser},
+            `update_date` = NOW(),
+            `alive_flag` = 0
+        where `alive_flag` = 1
+#foreach(${column} in ${table.columnList})
+#if($column.primaryKey)
+            and `${column.name}` in
+            <foreach collection="${column.fieldName}List" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+            </foreach>
+#end#end
+    </delete>
+
+    <delete id="deleteSelective" parameterType="${table.entityPackageName}.${table.entityClassName}" >
+        update `${table.name}`
+        set
+            `update_user` = #{updateUser},
+            `update_date` = NOW(),
+            `alive_flag` = 0
+        where `alive_flag` = 1
+#foreach(${column} in ${table.columnList})
+#if($column.name != "update_user")
+            <if test="${column.fieldName} != null" >and `${column.name}` = #{${column.fieldName}}</if>
+#end
+#end
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="${table.entityPackageName}.${table.entityClassName}" >
+        update `${table.name}`
+        set
+#set($temp = 1)#foreach(${column} in ${table.columnList})
+            `${column.name}` = #{${column.fieldName}}#if($temp < $table.columnList.size()),
+#set($temp = $temp + 1)
+#end
+#end
+
+        where `alive_flag` = 1
+#foreach(${column} in ${table.columnList})
+#if($column.primaryKey)
+            and `${column.name}` = #{${column.fieldName}}
+#end#end
+    </update>
+
+    <update id="updateByPrimaryKeySelective" parameterType="${table.entityPackageName}.${table.entityClassName}" >
+        update `${table.name}`
+        <set>
+#foreach(${column} in ${table.columnList})
+            <if test="${column.fieldName} != null" >`${column.name}` = #{${column.fieldName}}, </if>
+#end
+        </set>
+        where `alive_flag` = 1
+#foreach(${column} in ${table.columnList})
+#if($column.primaryKey)
+            and `${column.name}` = #{${column.fieldName}}
+#end#end
+    </update>
+
+    <select id="countSelective" resultType="int" parameterType="${table.entityPackageName}.${table.entityClassName}" >
+        select
+            count(0)
+        from `${table.name}`
+        where `alive_flag` = 1
+            <include refid="Base_Selective_Where" />
+    </select>
+
+    <select id="queryByPrimaryKey" resultMap="BaseResultMap" >
+        select
+            <include refid="Base_Column_List" />
+        from `${table.name}`
+        where `alive_flag` = 1
+#foreach(${column} in ${table.columnList})
+#if($column.primaryKey)
+            and `${column.name}` = #{${column.fieldName}}
+#end#end
+    </select>
+
+    <select id="queryByPrimaryKeyList" resultMap="BaseResultMap" >
+        select
+            <include refid="Base_Column_List" />
+        from `${table.name}`
+        where `alive_flag` = 1
+#foreach(${column} in ${table.columnList})
+#if($column.primaryKey)
+            and `${column.name}` in
+            <foreach collection="${column.fieldName}List" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+            </foreach>
+#end#end
+    </select>
+
+    <select id="findOne" resultMap="BaseResultMap" parameterType="${table.entityPackageName}.${table.entityClassName}">
+        select
+            <include refid="Base_Column_List" />
+        from `${table.name}`
+        where `alive_flag` = 1
+            <include refid="Base_Selective_Where" />
+        limit 1
+    </select>
+
+    <select id="querySelective" resultMap="BaseResultMap" parameterType="${table.entityPackageName}.${table.entityClassName}">
+        select
+            <include refid="Base_Column_List" />
+        from `${table.name}`
+        where `alive_flag` = 1
+            <include refid="Base_Selective_Where" />
+    </select>
+    <!-- **** (End) This will be covered, please do not modify. **** -->
+    <!-- Generated by artoria-extend in ${generatedTime}. -->
+
+</mapper>

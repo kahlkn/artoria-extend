@@ -1,0 +1,17 @@
+package ${table.servicePackageName};
+
+import artoria.common.Input;
+import artoria.common.PageResult;
+import artoria.common.Result;
+import ${table.entityPackageName}.${table.entityClassName};
+
+import java.util.List;
+
+/**
+ * ${table.serviceClassName}.
+ * @author $!{author}
+ * @date $!{date}
+ */
+public interface ${table.serviceClassName} {
+
+}

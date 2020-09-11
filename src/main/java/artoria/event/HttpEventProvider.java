@@ -1,8 +1,6 @@
 package artoria.event;
 
-import artoria.message.Message;
 import artoria.message.MessageUtils;
-import artoria.message.SimpleMessage;
 import artoria.servlet.RequestUtils;
 import artoria.spring.RequestContextUtils;
 import artoria.util.Assert;
@@ -66,8 +64,8 @@ public class HttpEventProvider implements EventProvider {
     public void addEvent(String eventName, String eventType, String distinctId, String anonymousId, Map<String, Object> properties) {
         try {
             Assert.notBlank(eventName, "Parameter \"eventName\" must not blank. ");
-            Long time = (Long) properties.get("time");
-            if (time == null) { time = System.currentTimeMillis(); }
+            Long eventTime = (Long) properties.get("eventTime");
+            if (eventTime == null) { eventTime = System.currentTimeMillis(); }
 
             HttpServletRequest request = RequestContextUtils.getRequest();
             if (request != null) {
@@ -85,17 +83,14 @@ public class HttpEventProvider implements EventProvider {
             }
 
             Map<String, Object> eventRecord = new LinkedHashMap<String, Object>();
-            eventRecord.put("properties",  properties);
             eventRecord.put("eventName",   eventName);
             eventRecord.put("eventType",   eventType);
-            eventRecord.put("time",        time);
+            eventRecord.put("eventTime",   eventTime);
             eventRecord.put("distinctId",  distinctId);
             eventRecord.put("anonymousId", anonymousId);
+            eventRecord.put("properties",  properties);
 
-            Message message = new SimpleMessage();
-            message.setDestination(destination);
-            message.setBody(eventRecord);
-            MessageUtils.send(message);
+            MessageUtils.send(destination, eventRecord);
         }
         catch (Exception e) {
             log.error(getClass().getSimpleName() + ": An error has occurred. ", e);

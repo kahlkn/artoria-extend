@@ -20,11 +20,11 @@ public class SimpleEventProvider implements EventProvider {
                         "Parameter \"distinctId\" and parameter \"anonymousId\" cannot both be blank. "
                 );
             }
-            Long time = (Long) properties.get("time");
-            if (time == null) { time = System.currentTimeMillis(); }
+            Long eventTime = (Long) properties.get("eventTime");
+            if (eventTime == null) { eventTime = System.currentTimeMillis(); }
             String format = "User \"%s\" performed \"%s\" operation in \"%s\". ";
             String user = StringUtils.isNotBlank(distinctId) ? distinctId : anonymousId;
-            log.info(String.format(format, user, eventName, DateUtils.format(time)));
+            log.info(String.format(format, user, eventName, DateUtils.format(eventTime)));
         }
         catch (Exception e) {
             log.error(getClass().getSimpleName() + ": An error has occurred. ", e);

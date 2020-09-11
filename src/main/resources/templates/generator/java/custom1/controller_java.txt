@@ -1,0 +1,42 @@
+package ${table.controllerPackageName};
+
+import artoria.beans.BeanUtils;
+import artoria.common.Input;
+import artoria.common.PageResult;
+import artoria.common.Result;
+import artoria.util.PagingUtils;
+import ${table.entityPackageName}.${table.entityClassName};
+import ${table.dtoPackageName}.${table.dtoClassName};
+import ${table.voPackageName}.${table.voClassName};
+import ${table.servicePackageName}.${table.serviceClassName};
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * ${table.controllerClassName}.
+ * @author $!{author}
+ * @date $!{date}
+ */
+@Slf4j
+@Controller
+public class ${table.controllerClassName} {
+
+    @Autowired
+    private ${table.serviceClassName} ${table.serviceObjectName};
+
+    /*@ResponseBody
+    @RequestMapping(value = "/hello", method = RequestMethod.POST)
+    public Result<Object> hello(@RequestBody ${table.voClassName} ${table.voObjectName}) {
+
+        return new Result<Object>("Hello, World! ");
+    }*/
+
+}
