@@ -42,7 +42,7 @@ public interface ${table.mapperClassName} {
 #if($column.primaryKey)
      * @param ${column.fieldName} Primary key
 #end#end
-     * @param updateUser Current operator
+     * @param updaterId Current operator
      * @return Number of rows effected
      */
     int deleteByPrimaryKey(#set($temp = 0)
@@ -50,7 +50,7 @@ public interface ${table.mapperClassName} {
 #if($column.primaryKey)
 #if($temp > 0), #end#set($temp = $temp + 1)#*
 *#@Param("${column.fieldName}") ${column.javaType} ${column.fieldName}#end
-#end, @Param("updateUser") String updateUser);
+#end, @Param("updaterId") String updaterId);
 
     /**
      * Delete by primary key list.
@@ -58,7 +58,7 @@ public interface ${table.mapperClassName} {
 #if($column.primaryKey)
      * @param ${column.fieldName}List Primary key list
 #end#end
-     * @param updateUser Current operator
+     * @param updaterId Current operator
      * @return Number of rows effected
      */
     int deleteByPrimaryKeyList(#set($temp = 0)
@@ -66,7 +66,7 @@ public interface ${table.mapperClassName} {
 #if($column.primaryKey)
 #if($temp > 0), #end#set($temp = $temp + 1)#*
 *#@Param("${column.fieldName}List") List<${column.javaType}> ${column.fieldName}List#end
-#end, @Param("updateUser") String updateUser);
+#end, @Param("updaterId") String updaterId);
 
     /**
      * Delete selective.
