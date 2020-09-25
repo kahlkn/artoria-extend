@@ -54,6 +54,11 @@ public class PropertyUtils {
         return getProperty(name, Integer.class, defaultValue);
     }
 
+    public static boolean containsProperty(String name) {
+
+        return getPropertyProvider().containsProperty(name);
+    }
+
     public static <T> T getRequiredProperty(String name, Class<T> targetType) {
 
         return getPropertyProvider().getRequiredProperty(name, targetType);
@@ -64,24 +69,9 @@ public class PropertyUtils {
         return getPropertyProvider().getProperty(name, targetType, defaultValue);
     }
 
-    public static boolean containsProperty(String name) {
-
-        return getPropertyProvider().containsProperty(name);
-    }
-
-    public static Map<String, Object> getProperties(String group) {
-
-        return getPropertyProvider().getProperties(group);
-    }
-
     public static Object getProperty(String name, Object defaultValue) {
 
         return getPropertyProvider().getProperty(name, defaultValue);
-    }
-
-    public static Object removeProperty(String name) {
-
-        return getPropertyProvider().removeProperty(name);
     }
 
     public static Object setProperty(String name, Object value) {
@@ -92,6 +82,16 @@ public class PropertyUtils {
     public static Object setProperty(String group, String name, Object value) {
 
         return getPropertyProvider().setProperty(group, name, value);
+    }
+
+    public static Object removeProperty(String name) {
+
+        return getPropertyProvider().removeProperty(name);
+    }
+
+    public static Map<String, Object> getProperties(String group) {
+
+        return getPropertyProvider().getProperties(group);
     }
 
 }

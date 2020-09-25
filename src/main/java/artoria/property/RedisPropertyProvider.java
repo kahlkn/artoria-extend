@@ -30,31 +30,25 @@ public class RedisPropertyProvider extends AbstractPropertyProvider {
     }
 
     @Override
-    public Map<String, Object> getProperties(String group) {
-        if (StringUtils.isBlank(group)) {
-            return Collections.emptyMap();
-        }
-        String groupKey = GROUP_NAME_KEY_PREFIX + group;
-        SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
-        Set<String> members = opsForSet.members(groupKey);
-        if (CollectionUtils.isEmpty(members)) {
-            return Collections.emptyMap();
-        }
-        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
-        Map<String, Object> result = new HashMap<String, Object>(members.size());
-        for (String name : members) {
-            Object value = opsForHash.get(NAME_VALUE_KEY, name);
-            result.put(name, value);
-        }
-        return Collections.unmodifiableMap(result);
-    }
-
-    @Override
     public Object getProperty(String name, Object defaultValue) {
         if (StringUtils.isBlank(name)) { return null; }
         HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
         Object value = opsForHash.get(NAME_VALUE_KEY, name);
         return value != null ? value : defaultValue;
+    }
+
+    @Override
+    public Object setProperty(String group, String name, Object value) {
+        Assert.notBlank(group, "Parameter \"group\" must not blank. ");
+        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
+        Assert.notNull(value, "Parameter \"value\" must not null. ");
+        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+        Object oldValue = opsForHash.get(NAME_VALUE_KEY, name);
+        opsForHash.put(NAME_VALUE_KEY, name, value);
+        SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
+        String groupKey = GROUP_NAME_KEY_PREFIX + group;
+        opsForSet.add(groupKey, name);
+        return oldValue;
     }
 
     @Override
@@ -76,25 +70,32 @@ public class RedisPropertyProvider extends AbstractPropertyProvider {
     }
 
     @Override
-    public Object setProperty(String group, String name, Object value) {
-        Assert.notBlank(group, "Parameter \"group\" must not blank. ");
-        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        Assert.notNull(value, "Parameter \"value\" must not null. ");
-        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
-        Object oldValue = opsForHash.get(NAME_VALUE_KEY, name);
-        opsForHash.put(NAME_VALUE_KEY, name, value);
-        SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
+    public Map<String, Object> getProperties(String group) {
+        if (StringUtils.isBlank(group)) {
+            return Collections.emptyMap();
+        }
         String groupKey = GROUP_NAME_KEY_PREFIX + group;
-        opsForSet.add(groupKey, name);
-        return oldValue;
+        SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
+        Set<String> members = opsForSet.members(groupKey);
+        if (CollectionUtils.isEmpty(members)) {
+            return Collections.emptyMap();
+        }
+        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+        Map<String, Object> result = new HashMap<String, Object>(members.size());
+        for (String name : members) {
+            Object value = opsForHash.get(NAME_VALUE_KEY, name);
+            result.put(name, value);
+        }
+        return Collections.unmodifiableMap(result);
     }
 
     @Override
-    public void reload(Map<String, Map<String, Object>> data) {
+    public void reload(Object data) {
         Assert.notNull(data, "Parameter \"data\" must not null. ");
-        Map<String, List<String>> groupNameListMap = new HashMap<String, List<String>>(data.size());
+        Map<String, Map<String, Object>> dataMap = ObjectUtils.cast(data);
+        Map<String, List<String>> groupNameListMap = new HashMap<String, List<String>>(dataMap.size());
         Map<String, Object> nameValueMap = new HashMap<String, Object>(ONE_HUNDRED);
-        for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
+        for (Map.Entry<String, Map<String, Object>> entry : dataMap.entrySet()) {
             Map<String, Object> properties = entry.getValue();
             String group = entry.getKey();
             if (MapUtils.isEmpty(properties)) { continue; }

@@ -2,10 +2,7 @@ package artoria.property;
 
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
-import artoria.util.Assert;
-import artoria.util.CollectionUtils;
-import artoria.util.MapUtils;
-import artoria.util.StringUtils;
+import artoria.util.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,35 +32,10 @@ public class SimplePropertyProvider extends AbstractPropertyProvider {
     }
 
     @Override
-    public Map<String, Object> getProperties(String group) {
-        if (StringUtils.isBlank(group)) {
-            return Collections.emptyMap();
-        }
-        List<String> list = groupNameListMap.get(group);
-        if (CollectionUtils.isEmpty(list)) {
-            return Collections.emptyMap();
-        }
-        Map<String, Object> result = new HashMap<String, Object>(list.size());
-        for (String name : list) {
-            result.put(name, nameValueMap.get(name));
-        }
-        return Collections.unmodifiableMap(result);
-    }
-
-    @Override
     public Object getProperty(String name, Object defaultValue) {
         if (StringUtils.isBlank(name)) { return null; }
         Object value = nameValueMap.get(name);
         return value != null ? value : defaultValue;
-    }
-
-    @Override
-    public Object removeProperty(String name) {
-        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        List<String> list = nameNameListMap.get(name);
-        list.remove(name);
-        nameNameListMap.remove(name);
-        return nameValueMap.remove(name);
     }
 
     @Override
@@ -84,12 +56,38 @@ public class SimplePropertyProvider extends AbstractPropertyProvider {
     }
 
     @Override
-    public void reload(Map<String, Map<String, Object>> data) {
+    public Object removeProperty(String name) {
+        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
+        List<String> list = nameNameListMap.get(name);
+        list.remove(name);
+        nameNameListMap.remove(name);
+        return nameValueMap.remove(name);
+    }
+
+    @Override
+    public Map<String, Object> getProperties(String group) {
+        if (StringUtils.isBlank(group)) {
+            return Collections.emptyMap();
+        }
+        List<String> list = groupNameListMap.get(group);
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyMap();
+        }
+        Map<String, Object> result = new HashMap<String, Object>(list.size());
+        for (String name : list) {
+            result.put(name, nameValueMap.get(name));
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    @Override
+    public void reload(Object data) {
         Assert.notNull(data, "Parameter \"data\" must not null. ");
-        Map<String, List<String>> newGroupNameListMap = new HashMap<String, List<String>>(data.size());
+        Map<String, Map<String, Object>> dataMap = ObjectUtils.cast(data);
+        Map<String, List<String>> newGroupNameListMap = new HashMap<String, List<String>>(dataMap.size());
         Map<String, List<String>> newNameNameListMap = new HashMap<String, List<String>>(ONE_HUNDRED);
         Map<String, Object> newNameValueMap = new HashMap<String, Object>(ONE_HUNDRED);
-        for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
+        for (Map.Entry<String, Map<String, Object>> entry : dataMap.entrySet()) {
             Map<String, Object> properties = entry.getValue();
             String group = entry.getKey();
             if (MapUtils.isEmpty(properties)) { continue; }
