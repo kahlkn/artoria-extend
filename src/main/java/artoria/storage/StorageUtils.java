@@ -4,8 +4,7 @@ import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.util.Assert;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,19 +42,68 @@ public class StorageUtils {
         return storageProvider;
     }
 
-    public static StorageObject getObject(String providerName, String containerName, String objectKey) {
-
-        return getStorageProvider(providerName).getObject(containerName, objectKey);
+    public static StorageResult putObject(String container, String key, byte[] bytes, Map<String, Object> metadata) {
+        StorageProvider storageProvider = getStorageProvider("");
+        StorageObject storageObject = new StorageObject();
+        storageObject.setContainerName(container);
+        storageObject.setObjectKey(key);
+        storageObject.setMetadata(metadata);
+        storageObject.setObjectContent(new ByteArrayInputStream(bytes));
+        return storageProvider.putObject(storageObject);
     }
 
-    public static StorageResult putObject(String providerName, String containerName, String objectKey, File file, Map<String, Object> metadata) {
-
-        return getStorageProvider(providerName).putObject(containerName, objectKey, file, metadata);
+    public static StorageResult putObject(String container, String key, File file, Map<String, Object> metadata) {
+        StorageProvider storageProvider = getStorageProvider("");
+        StorageObject storageObject = new StorageObject();
+        storageObject.setContainerName(container);
+        storageObject.setObjectKey(key);
+        storageObject.setMetadata(metadata);
+        try {
+            storageObject.setObjectContent(new FileInputStream(file));
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return storageProvider.putObject(storageObject);
     }
 
-    public static StorageResult putObject(String providerName, String containerName, String objectKey, InputStream inputStream, Map<String, Object> metadata) {
-
-        return getStorageProvider(providerName).putObject(containerName, objectKey, inputStream, metadata);
+    public static StorageResult putObject(String container, String key, InputStream in, Map<String, Object> metadata) {
+        StorageProvider storageProvider = getStorageProvider("");
+        StorageObject storageObject = new StorageObject();
+        storageObject.setContainerName(container);
+        storageObject.setObjectKey(key);
+        storageObject.setMetadata(metadata);
+        storageObject.setObjectContent(in);
+        return storageProvider.putObject(storageObject);
     }
+
+    public static void deleteObject(String container, String key) {
+
+    }
+
+    public static boolean doesObjectExist(String container, String key) {
+
+        return false;
+    }
+
+    public static ListObjectsResult listObjects(String container, String prefix) {
+
+        return null;
+    }
+
+    public static Map<String, Object> getMetadata(String container, String key) {
+
+        return null;
+    }
+
+    public static StorageObject getObject(String container, String key) {
+
+        return null;
+    }
+
+//    public static StorageObject getObject(String providerName, String containerName, String objectKey) {
+//
+//        return getStorageProvider(providerName).getObject(containerName, objectKey);
+//    }
 
 }

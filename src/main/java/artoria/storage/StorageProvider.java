@@ -1,17 +1,25 @@
 package artoria.storage;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.Map;
 
 public interface StorageProvider {
 
-    StorageObject getObject(String containerName, String objectKey);
+    String getDefaultBucketName();
 
-    StorageResult putObject(String containerName, String objectKey, File file, Map<String, Object> metadata);
+    void setDefaultBucketName(String defaultBucketName);
 
-    StorageResult putObject(String containerName, String objectKey, InputStream inputStream, Map<String, Object> metadata);
+    StorageResult putObject(StorageObject storageObject);
 
-    void deleteObject(String bucketName, String key);
+    void deleteObject(StorageModel storageModel);
+
+    DeleteObjectsResult deleteObjects(DeleteObjectsModel deleteObjectsModel);
+
+    boolean doesObjectExist(StorageModel storageModel);
+
+    Map<String, Object> getMetadata(StorageModel storageModel);
+
+    StorageObject getObject(StorageModel storageModel);
+
+    ListObjectsResult listObjects(ListObjectsModel listObjectsModel);
 
 }

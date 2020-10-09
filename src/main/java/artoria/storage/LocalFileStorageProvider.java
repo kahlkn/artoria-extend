@@ -17,7 +17,6 @@ import java.util.Properties;
 
 public class LocalFileStorageProvider implements StorageProvider {
 
-    @Override
     public StorageObject getObject(String containerName, String objectKey) {
         InputStream metadataInputStream = null;
         try {
@@ -42,7 +41,7 @@ public class LocalFileStorageProvider implements StorageProvider {
             }
 
             StorageObject storageObject = new StorageObject();
-            storageObject.setContainerName(containerName);
+            storageObject.setBucketName(containerName);
             storageObject.setObjectKey(objectKey);
             storageObject.setObjectContent(inputStream);
             storageObject.setMetadata(metadata);
@@ -56,17 +55,6 @@ public class LocalFileStorageProvider implements StorageProvider {
         }
     }
 
-    @Override
-    public StorageResult putObject(String containerName, String objectKey, File file, Map<String, Object> metadata) {
-        try {
-            return putObject(containerName, objectKey, new FileInputStream(file), metadata);
-        }
-        catch (Exception e) {
-            throw ExceptionUtils.wrap(e);
-        }
-    }
-
-    @Override
     public StorageResult putObject(String containerName, String objectKey, InputStream inputStream, Map<String, Object> metadata) {
         FileOutputStream outputStream = null;
         try {
@@ -96,8 +84,48 @@ public class LocalFileStorageProvider implements StorageProvider {
     }
 
     @Override
-    public void deleteObject(String bucketName, String key) {
+    public String getDefaultBucketName() {
+        return null;
+    }
 
+    @Override
+    public void setDefaultBucketName(String defaultBucketName) {
+
+    }
+
+    @Override
+    public StorageResult putObject(StorageObject storageObject) {
+        return null;
+    }
+
+    @Override
+    public void deleteObject(StorageModel storageModel) {
+
+    }
+
+    @Override
+    public DeleteObjectsResult deleteObjects(DeleteObjectsModel deleteObjectsModel) {
+        return null;
+    }
+
+    @Override
+    public boolean doesObjectExist(StorageModel storageModel) {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMetadata(StorageModel storageModel) {
+        return null;
+    }
+
+    @Override
+    public StorageObject getObject(StorageModel storageModel) {
+        return null;
+    }
+
+    @Override
+    public ListObjectsResult listObjects(ListObjectsModel listObjectsModel) {
+        return null;
     }
 
 }

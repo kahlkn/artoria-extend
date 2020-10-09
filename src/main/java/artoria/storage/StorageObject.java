@@ -1,7 +1,6 @@
 package artoria.storage;
 
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,40 +8,24 @@ import java.util.Map;
  * Object in the object storage.
  * @author Kahle
  */
-public class StorageObject implements Serializable {
-    /**
-     * Object's bucket name.containerName
-     */
-    private String containerName;
-    /**
-     * Object key (name).
-     */
-    private String objectKey;
-    /**
-     * Object's content.
-     */
-    private InputStream objectContent;
+public class StorageObject extends StorageModel {
     /**
      * Object's metadata.
      */
     private Map<String, Object> metadata = new LinkedHashMap<String, Object>();
+    /**
+     * Object's content.
+     */
+    private InputStream objectContent;
 
-    public String getContainerName() {
-        return containerName;
+    public Map<String, Object> getMetadata() {
+
+        return metadata;
     }
 
-    public void setContainerName(String containerName) {
-        this.containerName = containerName;
-    }
+    public void setMetadata(Map<String, Object> metadata) {
 
-    public String getObjectKey() {
-
-        return objectKey;
-    }
-
-    public void setObjectKey(String objectKey) {
-
-        this.objectKey = objectKey;
+        this.metadata = metadata;
     }
 
     public InputStream getObjectContent() {
@@ -53,16 +36,6 @@ public class StorageObject implements Serializable {
     public void setObjectContent(InputStream objectContent) {
 
         this.objectContent = objectContent;
-    }
-
-    public Map<String, Object> getMetadata() {
-
-        return metadata;
-    }
-
-    public void setMetadata(Map<String, Object> metadata) {
-
-        this.metadata = metadata;
     }
 
 }
