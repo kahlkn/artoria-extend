@@ -1,7 +1,6 @@
 package artoria.storage;
 
 import java.io.InputStream;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -12,11 +11,19 @@ public class StorageObject extends StorageModel {
     /**
      * Object's metadata.
      */
-    private Map<String, Object> metadata = new LinkedHashMap<String, Object>();
+    private Map<String, Object> metadata;
     /**
      * Object's content.
      */
     private InputStream objectContent;
+
+    public StorageObject() {
+    }
+
+    public StorageObject(String bucketName, String objectKey) {
+
+        super(bucketName, objectKey);
+    }
 
     public Map<String, Object> getMetadata() {
 

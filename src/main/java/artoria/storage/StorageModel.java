@@ -14,6 +14,14 @@ public class StorageModel extends AbstractExtraData implements Serializable {
      */
     private String objectKey;
 
+    public StorageModel() {
+    }
+
+    public StorageModel(String bucketName, String objectKey) {
+        this.bucketName = bucketName;
+        this.objectKey = objectKey;
+    }
+
     public String getBucketName() {
 
         return bucketName;
