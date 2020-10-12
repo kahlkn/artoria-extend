@@ -31,6 +31,7 @@ public class RedisMessageAutoConfiguration implements DisposableBean {
 
     @Autowired
     public RedisMessageAutoConfiguration(StringRedisTemplate stringRedisTemplate) {
+        // TODO : Need to reconsider
         messageProvider = new RedisMessageProvider(stringRedisTemplate);
         MessageUtils.setMessageProvider(messageProvider);
     }

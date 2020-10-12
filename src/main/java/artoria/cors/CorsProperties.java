@@ -11,13 +11,7 @@ import java.util.List;
 @ConfigurationProperties("artoria.cors")
 public class CorsProperties {
     private Boolean enabled;
-    private List<String> urlPatterns;
-    private List<String> allowedOrigins;
-    private List<String> allowedHeaders;
-    private List<String> exposedHeaders;
-    private List<String> allowedMethods;
-    private Boolean allowCredentials;
-    private Long maxAge;
+    private List<CorsConfig> configs;
 
     public Boolean getEnabled() {
 
@@ -29,74 +23,95 @@ public class CorsProperties {
         this.enabled = enabled;
     }
 
-    public List<String> getUrlPatterns() {
+    public List<CorsConfig> getConfigs() {
 
-        return urlPatterns;
+        return configs;
     }
 
-    public void setUrlPatterns(List<String> urlPatterns) {
+    public void setConfigs(List<CorsConfig> configs) {
 
-        this.urlPatterns = urlPatterns;
+        this.configs = configs;
     }
 
-    public List<String> getAllowedOrigins() {
+    public static class CorsConfig {
+        private String urlPattern;
+        private List<String> allowedOrigins;
+        private List<String> allowedHeaders;
+        private List<String> exposedHeaders;
+        private List<String> allowedMethods;
+        private Boolean allowCredentials;
+        private Long maxAge;
 
-        return allowedOrigins;
-    }
+        public String getUrlPattern() {
 
-    public void setAllowedOrigins(List<String> allowedOrigins) {
+            return urlPattern;
+        }
 
-        this.allowedOrigins = allowedOrigins;
-    }
+        public void setUrlPattern(String urlPattern) {
 
-    public List<String> getAllowedHeaders() {
+            this.urlPattern = urlPattern;
+        }
 
-        return allowedHeaders;
-    }
+        public List<String> getAllowedOrigins() {
 
-    public void setAllowedHeaders(List<String> allowedHeaders) {
+            return allowedOrigins;
+        }
 
-        this.allowedHeaders = allowedHeaders;
-    }
+        public void setAllowedOrigins(List<String> allowedOrigins) {
 
-    public List<String> getExposedHeaders() {
+            this.allowedOrigins = allowedOrigins;
+        }
 
-        return exposedHeaders;
-    }
+        public List<String> getAllowedHeaders() {
 
-    public void setExposedHeaders(List<String> exposedHeaders) {
+            return allowedHeaders;
+        }
 
-        this.exposedHeaders = exposedHeaders;
-    }
+        public void setAllowedHeaders(List<String> allowedHeaders) {
 
-    public List<String> getAllowedMethods() {
+            this.allowedHeaders = allowedHeaders;
+        }
 
-        return allowedMethods;
-    }
+        public List<String> getExposedHeaders() {
 
-    public void setAllowedMethods(List<String> allowedMethods) {
+            return exposedHeaders;
+        }
 
-        this.allowedMethods = allowedMethods;
-    }
+        public void setExposedHeaders(List<String> exposedHeaders) {
 
-    public Boolean getAllowCredentials() {
+            this.exposedHeaders = exposedHeaders;
+        }
 
-        return allowCredentials;
-    }
+        public List<String> getAllowedMethods() {
 
-    public void setAllowCredentials(Boolean allowCredentials) {
+            return allowedMethods;
+        }
 
-        this.allowCredentials = allowCredentials;
-    }
+        public void setAllowedMethods(List<String> allowedMethods) {
 
-    public Long getMaxAge() {
+            this.allowedMethods = allowedMethods;
+        }
 
-        return maxAge;
-    }
+        public Boolean getAllowCredentials() {
 
-    public void setMaxAge(Long maxAge) {
+            return allowCredentials;
+        }
 
-        this.maxAge = maxAge;
+        public void setAllowCredentials(Boolean allowCredentials) {
+
+            this.allowCredentials = allowCredentials;
+        }
+
+        public Long getMaxAge() {
+
+            return maxAge;
+        }
+
+        public void setMaxAge(Long maxAge) {
+
+            this.maxAge = maxAge;
+        }
+
     }
 
 }

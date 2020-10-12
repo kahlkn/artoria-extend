@@ -2,7 +2,6 @@ package artoria.cors;
 
 import artoria.util.Assert;
 import artoria.util.CollectionUtils;
-import artoria.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,39 +38,40 @@ public class CorsFilterAutoConfiguration {
 
     @Bean
     public CorsFilter corsFilter() {
-        List<String> allowedOrigins = corsProperties.getAllowedOrigins();
-        List<String> allowedHeaders = corsProperties.getAllowedHeaders();
-        List<String> exposedHeaders = corsProperties.getExposedHeaders();
-        List<String> allowedMethods = corsProperties.getAllowedMethods();
-        Boolean allowCredentials = corsProperties.getAllowCredentials();
-        Long maxAge = corsProperties.getMaxAge();
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        if (CollectionUtils.isNotEmpty(allowedOrigins)) {
-            corsConfiguration.setAllowedOrigins(allowedOrigins);
-        }
-        else {
-            log.warn("Cors is enabled but the allowed origins is not configured. ");
-        }
-        if (CollectionUtils.isNotEmpty(allowedHeaders)) {
-            corsConfiguration.setAllowedHeaders(allowedHeaders);
-        }
-        if (CollectionUtils.isNotEmpty(exposedHeaders)) {
-            corsConfiguration.setExposedHeaders(exposedHeaders);
-        }
-        if (CollectionUtils.isNotEmpty(allowedMethods)) {
-            corsConfiguration.setAllowedMethods(allowedMethods);
-        }
-        if (allowCredentials != null) {
-            corsConfiguration.setAllowCredentials(allowCredentials);
-        }
-        if (maxAge != null && maxAge > ZERO) {
-            corsConfiguration.setMaxAge(maxAge);
-        }
-        List<String> urlPatterns = corsProperties.getUrlPatterns();
-        Assert.notEmpty(urlPatterns, "Parameter \"pathPattern\" must not empty. ");
+        List<CorsProperties.CorsConfig> configs = corsProperties.getConfigs();
+        Assert.notEmpty(configs, "Parameter \"configs\" must not empty. ");
         UrlBasedCorsConfigurationSource configurationSource = new UrlBasedCorsConfigurationSource();
-        for (String urlPattern : urlPatterns) {
-            if (StringUtils.isBlank(urlPattern)) { continue; }
+        for (CorsProperties.CorsConfig config : configs) {
+            String urlPattern = config.getUrlPattern();
+            Assert.notBlank(urlPattern, "Parameter \"urlPattern\" must not blank. ");
+            List<String> allowedOrigins = config.getAllowedOrigins();
+            List<String> allowedHeaders = config.getAllowedHeaders();
+            List<String> exposedHeaders = config.getExposedHeaders();
+            List<String> allowedMethods = config.getAllowedMethods();
+            Boolean allowCredentials = config.getAllowCredentials();
+            Long maxAge = config.getMaxAge();
+            CorsConfiguration corsConfiguration = new CorsConfiguration();
+            if (CollectionUtils.isNotEmpty(allowedOrigins)) {
+                corsConfiguration.setAllowedOrigins(allowedOrigins);
+            }
+            else {
+                log.warn("Cors is enabled but the allowed origins is not configured. ");
+            }
+            if (CollectionUtils.isNotEmpty(allowedHeaders)) {
+                corsConfiguration.setAllowedHeaders(allowedHeaders);
+            }
+            if (CollectionUtils.isNotEmpty(exposedHeaders)) {
+                corsConfiguration.setExposedHeaders(exposedHeaders);
+            }
+            if (CollectionUtils.isNotEmpty(allowedMethods)) {
+                corsConfiguration.setAllowedMethods(allowedMethods);
+            }
+            if (allowCredentials != null) {
+                corsConfiguration.setAllowCredentials(allowCredentials);
+            }
+            if (maxAge != null && maxAge > ZERO) {
+                corsConfiguration.setMaxAge(maxAge);
+            }
             configurationSource.registerCorsConfiguration(urlPattern, corsConfiguration);
         }
         CorsFilter corsFilter = new CorsFilter(configurationSource);
