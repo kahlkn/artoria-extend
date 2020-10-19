@@ -6,6 +6,7 @@ import artoria.util.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.Map;
@@ -23,20 +24,20 @@ import static artoria.util.ObjectUtils.cast;
 public class RedisUserManager implements UserManager {
     private static final String USER_INFO_PREFIX = "USER_INFO:";
     private static Logger log = LoggerFactory.getLogger(RedisUserManager.class);
-    private final StringRedisTemplate stringRedisTemplate;
+    private final RedisTemplate<String, Object> strObjRedisTemplate;
     private final UserLoader userLoader;
     private final Long userExpirationTime;
 
-    public RedisUserManager(StringRedisTemplate stringRedisTemplate, Long userExpirationTime) {
+    public RedisUserManager(RedisTemplate<String, Object> strObjRedisTemplate, Long userExpirationTime) {
 
-        this(stringRedisTemplate, userExpirationTime, null);
+        this(strObjRedisTemplate, userExpirationTime, null);
     }
 
-    public RedisUserManager(StringRedisTemplate stringRedisTemplate, Long userExpirationTime, UserLoader userLoader) {
-        Assert.notNull(stringRedisTemplate, "Parameter \"stringRedisTemplate\" must not null. ");
+    public RedisUserManager(RedisTemplate<String, Object> strObjRedisTemplate, Long userExpirationTime, UserLoader userLoader) {
+        Assert.notNull(strObjRedisTemplate, "Parameter \"strObjRedisTemplate\" must not null. ");
         Assert.notNull(userExpirationTime, "Parameter \"userExpirationTime\" must not null. ");
         if (userExpirationTime <= ZERO) { userExpirationTime = -1L; }
-        this.stringRedisTemplate = stringRedisTemplate;
+        this.strObjRedisTemplate = strObjRedisTemplate;
         this.userExpirationTime = userExpirationTime;
         this.userLoader = userLoader;
     }
@@ -52,10 +53,10 @@ public class RedisUserManager implements UserManager {
         String userId = userInfo.getId();
         Assert.notBlank(userId, "Parameter \"userId\" must not blank. ");
         String redisKey = USER_INFO_PREFIX + userId;
-        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+        HashOperations<String, Object, Object> opsForHash = strObjRedisTemplate.opsForHash();
         opsForHash.putAll(redisKey, userInfo.toMap());
         if (userExpirationTime <= ZERO) { return; }
-        stringRedisTemplate.expire(redisKey, userExpirationTime, TimeUnit.MILLISECONDS);
+        strObjRedisTemplate.expire(redisKey, userExpirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -63,25 +64,25 @@ public class RedisUserManager implements UserManager {
         Assert.notBlank(userId, "Parameter \"userId\" must not blank. ");
         if (userExpirationTime <= ZERO) { return; }
         String redisKey = USER_INFO_PREFIX + userId;
-        Boolean hasKey = stringRedisTemplate.hasKey(redisKey);
+        Boolean hasKey = strObjRedisTemplate.hasKey(redisKey);
         if (hasKey == null || !hasKey) { return; }
-        stringRedisTemplate.expire(redisKey, userExpirationTime, TimeUnit.MILLISECONDS);
+        strObjRedisTemplate.expire(redisKey, userExpirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void remove(String userId) {
         Assert.notBlank(userId, "Parameter \"userId\" must not blank. ");
         String redisKey = USER_INFO_PREFIX + userId;
-        stringRedisTemplate.delete(redisKey);
+        strObjRedisTemplate.delete(redisKey);
     }
 
     @Override
     public void clear() {
         final String pattern = USER_INFO_PREFIX + ASTERISK;
-        Set<String> keys = stringRedisTemplate.keys(pattern);
+        Set<String> keys = strObjRedisTemplate.keys(pattern);
         if (CollectionUtils.isEmpty(keys)) { return; }
-        stringRedisTemplate.delete(keys);
-//        stringRedisTemplate.execute(new RedisCallback<Object>() {
+        strObjRedisTemplate.delete(keys);
+//        strStrRedisTemplate.execute(new RedisCallback<Object>() {
 //            @Override
 //            public Object doInRedis(@Nullable RedisConnection connection) throws DataAccessException {
 //                if (connection == null) {
@@ -109,9 +110,9 @@ public class RedisUserManager implements UserManager {
     public UserInfo findById(String userId) {
         Assert.notBlank(userId, "Parameter \"userId\" must not blank. ");
         String redisKey = USER_INFO_PREFIX + userId;
-        Boolean hasKey = stringRedisTemplate.hasKey(redisKey);
+        Boolean hasKey = strObjRedisTemplate.hasKey(redisKey);
         if (hasKey != null && hasKey) {
-            HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+            HashOperations<String, Object, Object> opsForHash = strObjRedisTemplate.opsForHash();
             Map<String, Object> entries = cast(opsForHash.entries(redisKey));
             if (MapUtils.isEmpty(entries)) { return null; }
             UserInfo userInfo = new UserInfo();

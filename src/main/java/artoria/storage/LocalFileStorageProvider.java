@@ -5,6 +5,7 @@ import artoria.file.FileUtils;
 import artoria.file.FilenameUtils;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
+import artoria.time.DateUtils;
 import artoria.util.*;
 
 import java.io.File;
@@ -59,6 +60,8 @@ public class LocalFileStorageProvider implements StorageProvider {
             FileUtils.write(objectContent, new File(bucketName, objectKey));
 
             Properties properties = new Properties();
+            properties.setProperty("create-time", String.valueOf(DateUtils.getTimestamp()));
+            properties.setProperty("last-update-time", String.valueOf(DateUtils.getTimestamp()));
             if (MapUtils.isNotEmpty(metadata)) {
                 properties.putAll(metadata);
             }

@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
 @AutoConfigureAfter({RedisAutoConfiguration.class})
@@ -30,29 +30,36 @@ public class RedisUserAutoConfiguration {
     private final UserManager userManager;
 
     @Autowired(required = false)
-    public RedisUserAutoConfiguration(StringRedisTemplate stringRedisTemplate, UserProperties userProperties) {
+    public RedisUserAutoConfiguration(RedisTemplate<String, String> strStrRedisTemplate,
+                                      RedisTemplate<String, Object> strObjRedisTemplate,
+                                      UserProperties userProperties) {
 
-        this(stringRedisTemplate, userProperties, null, null);
+        this(strStrRedisTemplate, strObjRedisTemplate, userProperties, null, null);
     }
 
     @Autowired(required = false)
-    public RedisUserAutoConfiguration(StringRedisTemplate stringRedisTemplate, UserProperties userProperties
-            , UserLoader userLoader) {
+    public RedisUserAutoConfiguration(RedisTemplate<String, String> strStrRedisTemplate,
+                                      RedisTemplate<String, Object> strObjRedisTemplate,
+                                      UserProperties userProperties,
+                                      UserLoader userLoader) {
 
-        this(stringRedisTemplate, userProperties, userLoader, null);
+        this(strStrRedisTemplate, strObjRedisTemplate, userProperties, userLoader, null);
     }
 
     @Autowired(required = false)
-    public RedisUserAutoConfiguration(StringRedisTemplate stringRedisTemplate, UserProperties userProperties
-            , UserLoader userLoader, PermissionLoader permissionLoader) {
-        Assert.notNull(stringRedisTemplate, "Parameter \"stringRedisTemplate\" must not null. ");
+    public RedisUserAutoConfiguration(RedisTemplate<String, String> strStrRedisTemplate,
+                                      RedisTemplate<String, Object> strObjRedisTemplate,
+                                      UserProperties userProperties,
+                                      UserLoader userLoader,
+                                      PermissionLoader permissionLoader) {
+        Assert.notNull(strStrRedisTemplate, "Parameter \"strStrRedisTemplate\" must not null. ");
         Assert.notNull(userProperties, "Parameter \"userProperties\" must not null. ");
         String rolePropertyName = userProperties.getRolePropertyName();
         Long userExpirationTime = userProperties.getUserExpirationTime();
         Long tokenExpirationTime = userProperties.getTokenExpirationTime();
-        this.tokenManager = new RedisTokenManager(stringRedisTemplate, tokenExpirationTime);
-        this.userManager = new RedisUserManager(stringRedisTemplate, userExpirationTime, userLoader);
-        this.permissionManager = new RedisPermissionManager(stringRedisTemplate,
+        this.tokenManager = new RedisTokenManager(strStrRedisTemplate, tokenExpirationTime);
+        this.userManager = new RedisUserManager(strObjRedisTemplate, userExpirationTime, userLoader);
+        this.permissionManager = new RedisPermissionManager(strStrRedisTemplate,
                 rolePropertyName, userManager, tokenManager, permissionLoader, null);
     }
 

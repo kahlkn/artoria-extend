@@ -24,8 +24,8 @@ public class StorageUtilsTest {
     public void test1() {
         File file = new File("E:\\test.png");
         Map<String, Object> metadata = new LinkedHashMap<String, Object>();
-        metadata.put("test.metadata", "metadata");
-        metadata.put("file.type", "png");
+        metadata.put("test-metadata", "metadata");
+        metadata.put("file-type", "png");
         StorageUtils.putObject(bucketName, "2019\\09\\15\\01\\20190915163400.png", file, metadata);
     }
 

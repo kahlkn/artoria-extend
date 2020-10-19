@@ -5,7 +5,7 @@ import artoria.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -28,23 +28,23 @@ public class RedisPermissionManager implements PermissionManager {
     private static final long DEFAULT_RELOAD_PERIOD = 60000L;
     private static Logger log = LoggerFactory.getLogger(RedisPermissionManager.class);
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
-    private final StringRedisTemplate stringRedisTemplate;
+    private final RedisTemplate<String, String> strStrRedisTemplate;
     private final PermissionLoader permissionLoader;
     private final TokenManager tokenManager;
     private final UserManager userManager;
     private final String rolePropertyName;
 
-    public RedisPermissionManager(StringRedisTemplate stringRedisTemplate,
+    public RedisPermissionManager(RedisTemplate<String, String> strStrRedisTemplate,
                                   String rolePropertyName,
                                   UserManager userManager,
                                   TokenManager tokenManager,
                                   PermissionLoader permissionLoader,
                                   Long reloadPeriod) {
-        Assert.notNull(stringRedisTemplate, "Parameter \"stringRedisTemplate\" must not null. ");
+        Assert.notNull(strStrRedisTemplate, "Parameter \"strStrRedisTemplate\" must not null. ");
         Assert.notBlank(rolePropertyName, "Parameter \"rolePropertyName\" must not blank. ");
         Assert.notNull(tokenManager, "Parameter \"tokenManager\" must not null. ");
         Assert.notNull(userManager, "Parameter \"userManager\" must not null. ");
-        this.stringRedisTemplate = stringRedisTemplate;
+        this.strStrRedisTemplate = strStrRedisTemplate;
         this.rolePropertyName = rolePropertyName;
         this.userManager = userManager;
         this.tokenManager = tokenManager;
@@ -71,7 +71,7 @@ public class RedisPermissionManager implements PermissionManager {
                     log.info("The permission loader didn't load anything. ");
                     return;
                 }
-                HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+                HashOperations<String, Object, Object> opsForHash = strStrRedisTemplate.opsForHash();
                 Map<Object, Object> entries = opsForHash.entries(PERMISSION_KEY);
                 if (MapUtils.isNotEmpty(entries)) {
                     Set<Object> keySet = entries.keySet();
@@ -93,7 +93,7 @@ public class RedisPermissionManager implements PermissionManager {
     public void save(String resource, Collection<String> roleCodes) {
         Assert.notBlank(resource, "Parameter \"resource\" must not blank. ");
         Assert.notEmpty(roleCodes, "Parameter \"roleCodes\" must not empty. ");
-        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+        HashOperations<String, Object, Object> opsForHash = strStrRedisTemplate.opsForHash();
         StringBuilder stringBuilder = new StringBuilder();
         for (String roleCode : roleCodes) {
             stringBuilder.append(roleCode);
@@ -111,7 +111,7 @@ public class RedisPermissionManager implements PermissionManager {
     public void remove(String resource, Collection<String> roleCodes) {
         Assert.notBlank(resource, "Parameter \"resource\" must not blank. ");
         Assert.notEmpty(roleCodes, "Parameter \"roleCodes\" must not empty. ");
-        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+        HashOperations<String, Object, Object> opsForHash = strStrRedisTemplate.opsForHash();
         Collection<String> oldRoleCodes = findByResource(resource);
         if (oldRoleCodes.removeAll(roleCodes)
                 && CollectionUtils.isNotEmpty(oldRoleCodes)) {
@@ -123,13 +123,13 @@ public class RedisPermissionManager implements PermissionManager {
     @Override
     public void clear() {
 
-        stringRedisTemplate.delete(PERMISSION_KEY);
+        strStrRedisTemplate.delete(PERMISSION_KEY);
     }
 
     @Override
     public Collection<String> findByResource(String resource) {
         Assert.notBlank(resource, "Parameter \"resource\" must not blank. ");
-        HashOperations<String, Object, Object> opsForHash = stringRedisTemplate.opsForHash();
+        HashOperations<String, Object, Object> opsForHash = strStrRedisTemplate.opsForHash();
         String roleCodesStr = (String) opsForHash.get(PERMISSION_KEY, resource);
         if (StringUtils.isBlank(roleCodesStr)) { return null; }
         return new ArrayList<String>(Arrays.asList(roleCodesStr.split(COMMA)));
