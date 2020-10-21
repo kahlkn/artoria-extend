@@ -31,7 +31,7 @@ public class StorageUtilsTest {
 
     @Test
     public void test2() throws Exception {
-        ListObjectsResult listObjectsResult = StorageUtils.listObjects("E:/Temp/", "/");
+        ListObjectsResult listObjectsResult = StorageUtils.listObjects("E:/Temp/", "");
         System.out.println(JSON.toJSONString(listObjectsResult.getObjects(), true));
         StorageObject storageObject = StorageUtils.getObject(bucketName, "2019\\09\\15\\01\\20190915163400.png");
 //        Map<String, Object> metadata = storageObject.getMetadata();

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.*;
 
 import static artoria.common.Constants.EMPTY_STRING;
+import static artoria.common.Constants.ONE;
 
 public class LocalFileStorageProvider implements StorageProvider {
     private static Logger log = LoggerFactory.getLogger(LocalFileStorageProvider.class);
@@ -194,9 +195,13 @@ public class LocalFileStorageProvider implements StorageProvider {
     public ListObjectsResult listObjects(ListObjectsModel listObjectsModel) {
         String bucketName = bucketName(listObjectsModel);
         String prefix = listObjectsModel.getPrefix();
+        if (StringUtils.isNotBlank(prefix) && !prefix.endsWith("/")) {
+            throw new StorageException();
+        }
         File file = new File(bucketName, prefix);
         File[] listFiles = file.listFiles();
-        List<StorageObject> objects = new ArrayList<StorageObject>();
+        List<StorageObject> objectSummaries = new ArrayList<StorageObject>();
+        List<String> commonPrefixes = new ArrayList<String>();
         if (ArrayUtils.isNotEmpty(listFiles)) {
             String bucketNameNew = new File(bucketName).toString();
             String prefixNew = null;
@@ -209,18 +214,26 @@ public class LocalFileStorageProvider implements StorageProvider {
                 String listFileStr = listFile.toString();
                 listFileStr = listFileStr.replace(bucketNameNew, EMPTY_STRING);
                 listFileStr = listFileStr.replaceAll("\\\\", "/");
-                listFileStr = listFileStr.startsWith("/") ? listFileStr : "/" + listFileStr;
+                if (listFileStr.startsWith("/")) {
+                    listFileStr = listFileStr.substring(ONE);
+                }
                 if (StringUtils.isNotBlank(prefixNew) && !listFileStr.startsWith(prefixNew)) {
                     continue;
                 }
                 StorageObject storageObject = new StorageObject(bucketName, listFileStr);
-                objects.add(storageObject);
+                objectSummaries.add(storageObject);
             }
         }
         ListObjectsResult listObjectsResult = new ListObjectsResult();
+        listObjectsResult.setObjectSummaries(objectSummaries);
+        listObjectsResult.setCommonPrefixes(commonPrefixes);
         listObjectsResult.setBucketName(bucketName);
         listObjectsResult.setPrefix(prefix);
-        listObjectsResult.setObjects(objects);
+        listObjectsResult.setMarker(listObjectsModel.getMarker());
+        listObjectsResult.setDelimiter(listObjectsModel.getDelimiter());
+        listObjectsResult.setMaxKeys(listObjectsModel.getMaxKeys());
+//        listObjectsResult.setTruncated();
+//        listObjectsResult.setNextMarker();
         return listObjectsResult;
     }
 
