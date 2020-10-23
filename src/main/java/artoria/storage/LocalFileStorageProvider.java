@@ -2,7 +2,6 @@ package artoria.storage;
 
 import artoria.exception.ExceptionUtils;
 import artoria.file.FileUtils;
-import artoria.file.FilenameUtils;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.time.DateUtils;
@@ -14,58 +13,41 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.*;
 
-import static artoria.common.Constants.EMPTY_STRING;
-import static artoria.common.Constants.ONE;
+import static artoria.common.Constants.*;
 
 public class LocalFileStorageProvider implements StorageProvider {
     private static Logger log = LoggerFactory.getLogger(LocalFileStorageProvider.class);
-    private String defaultBucketName;
-
-    private String bucketName(StorageModel storageModel) {
-        String bucketName = storageModel.getBucketName();
-        if (StringUtils.isBlank(bucketName)) {
-            String defaultBucketName = getDefaultBucketName();
-            Assert.notBlank(defaultBucketName, "bucketName and defaultBucketName all is blank. ");
-            bucketName = defaultBucketName;
-        }
-        return bucketName;
-    }
-
-    @Override
-    public String getDefaultBucketName() {
-
-        return defaultBucketName;
-    }
-
-    @Override
-    public void setDefaultBucketName(String defaultBucketName) {
-        Assert.notBlank(defaultBucketName, "Parameter \"defaultBucketName\" must not blank. ");
-        log.info("Set default bucket name is \"{}\". ", defaultBucketName);
-        this.defaultBucketName = defaultBucketName;
-    }
 
     @Override
     public StorageResult putObject(StorageObject storageObject) {
-        String bucketName = bucketName(storageObject);
-        String objectKey = storageObject.getObjectKey();
         InputStream objectContent = storageObject.getObjectContent();
         Map<String, Object> metadata = storageObject.getMetadata();
+        String bucketName = storageObject.getBucketName();
+        String objectKey = storageObject.getObjectKey();
+        Assert.notNull(objectContent, "Parameter \"objectContent\" must not null. ");
+        Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
+        Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         FileOutputStream outputStream = null;
         try {
-            Assert.notBlank(bucketName, "Parameter \"parameter\" must not blank. ");
-            Assert.notBlank(objectKey, "Parameter \"parameter\" must not blank. ");
-            Assert.notNull(objectContent, "Parameter \"parameter\" must not blank. ");
+            String metadataPath = objectKey + ".metadata";
 
-            String metadataPath = FilenameUtils.removeExtension(objectKey) + ".metadata";
-
-            FileUtils.write(objectContent, new File(bucketName, objectKey));
+            File file = new File(bucketName, objectKey);
+            FileUtils.write(objectContent, file);
 
             Properties properties = new Properties();
-            properties.setProperty("create-time", String.valueOf(DateUtils.getTimestamp()));
-            properties.setProperty("last-update-time", String.valueOf(DateUtils.getTimestamp()));
             if (MapUtils.isNotEmpty(metadata)) {
                 properties.putAll(metadata);
             }
+            String timestamp = String.valueOf(DateUtils.getTimestamp());
+            if (!properties.containsKey("creation-time")) {
+                properties.setProperty("creation-time", timestamp);
+            }
+            if (!properties.containsKey("last-modified-time")) {
+                properties.setProperty("last-modified-time", timestamp);
+            }
+            Long lastModifiedTime = Long.valueOf(properties.getProperty("last-modified-time"));
+            boolean b = file.setLastModified(lastModifiedTime);
+
             outputStream = new FileOutputStream(new File(bucketName, metadataPath));
             properties.store(outputStream, getClass().getName());
 
@@ -85,16 +67,20 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public void deleteObject(StorageModel storageModel) {
-        String bucketName = bucketName(storageModel);
+        String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
+        Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
+        Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         File file = new File(bucketName, objectKey);
-        file.deleteOnExit();
+        boolean delete = file.delete();
     }
 
     @Override
     public DeleteObjectsResult deleteObjects(DeleteObjectsModel deleteObjectsModel) {
-        String bucketName = bucketName(deleteObjectsModel);
         List<String> objectKeys = deleteObjectsModel.getObjectKeys();
+        String bucketName = deleteObjectsModel.getBucketName();
+        Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
+        Assert.notEmpty(objectKeys, "Parameter \"objectKeys\" must not empty. ");
         List<String> deletedObjectKeys = new ArrayList<String>();
         for (String objectKey : objectKeys) {
             try {
@@ -113,20 +99,22 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public boolean doesObjectExist(StorageModel storageModel) {
-        String bucketName = bucketName(storageModel);
+        String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
+        Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
+        Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         return new File(bucketName, objectKey).exists();
     }
 
     @Override
     public Map<String, Object> getMetadata(StorageModel storageModel) {
-        String bucketName = bucketName(storageModel);
+        String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
+        Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
+        Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         InputStream metadataInputStream = null;
         try {
-            Assert.notBlank(objectKey, "Parameter \"parameter\" must not blank. ");
-
-            String metadataPath = FilenameUtils.removeExtension(objectKey) + ".metadata";
+            String metadataPath = objectKey + ".metadata";
 
             metadataInputStream = new FileInputStream(new File(bucketName, metadataPath));
             Map<String, Object> metadata = new LinkedHashMap<String, Object>();
@@ -153,13 +141,13 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public StorageObject getObject(StorageModel storageModel) {
-        String bucketName = bucketName(storageModel);
+        String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
+        Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
+        Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         InputStream metadataInputStream = null;
         try {
-            Assert.notBlank(objectKey, "Parameter \"parameter\" must not blank. ");
-
-            String metadataPath = FilenameUtils.removeExtension(objectKey) + ".metadata";
+            String metadataPath = objectKey + ".metadata";
 
             InputStream inputStream = new FileInputStream(new File(bucketName, objectKey));
 
@@ -193,47 +181,55 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public ListObjectsResult listObjects(ListObjectsModel listObjectsModel) {
-        String bucketName = bucketName(listObjectsModel);
+        String bucketName = listObjectsModel.getBucketName();
+        String delimiter = listObjectsModel.getDelimiter();
         String prefix = listObjectsModel.getPrefix();
-        if (StringUtils.isNotBlank(prefix) && !prefix.endsWith("/")) {
-            throw new StorageException();
+        Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
+        if (StringUtils.isBlank(delimiter)) { delimiter = SLASH; }
+        if (StringUtils.isNotBlank(prefix) && !prefix.endsWith(SLASH)) {
+            throw new StorageException("Parameter \"prefix\" must end With \"/\". ");
         }
-        File file = new File(bucketName, prefix);
-        File[] listFiles = file.listFiles();
+        bucketName = bucketName.replaceAll("\\\\", SLASH);
+        bucketName = bucketName.endsWith(SLASH) ? bucketName : bucketName + SLASH;
         List<StorageObject> objectSummaries = new ArrayList<StorageObject>();
         List<String> commonPrefixes = new ArrayList<String>();
-        if (ArrayUtils.isNotEmpty(listFiles)) {
-            String bucketNameNew = new File(bucketName).toString();
-            String prefixNew = null;
-            if (StringUtils.isNotBlank(prefix)) {
-                prefixNew = prefix.replaceAll("\\\\", "/");
-                prefixNew = prefixNew.startsWith("/") ? prefix : "/" + prefix;
-            }
-            for (File listFile : listFiles) {
-                if (listFile.isDirectory()) { continue; }
-                String listFileStr = listFile.toString();
-                listFileStr = listFileStr.replace(bucketNameNew, EMPTY_STRING);
-                listFileStr = listFileStr.replaceAll("\\\\", "/");
-                if (listFileStr.startsWith("/")) {
-                    listFileStr = listFileStr.substring(ONE);
-                }
-                if (StringUtils.isNotBlank(prefixNew) && !listFileStr.startsWith(prefixNew)) {
-                    continue;
-                }
-                StorageObject storageObject = new StorageObject(bucketName, listFileStr);
-                objectSummaries.add(storageObject);
-            }
-        }
         ListObjectsResult listObjectsResult = new ListObjectsResult();
         listObjectsResult.setObjectSummaries(objectSummaries);
         listObjectsResult.setCommonPrefixes(commonPrefixes);
         listObjectsResult.setBucketName(bucketName);
+        listObjectsResult.setDelimiter(delimiter);
         listObjectsResult.setPrefix(prefix);
         listObjectsResult.setMarker(listObjectsModel.getMarker());
-        listObjectsResult.setDelimiter(listObjectsModel.getDelimiter());
         listObjectsResult.setMaxKeys(listObjectsModel.getMaxKeys());
-//        listObjectsResult.setTruncated();
-//        listObjectsResult.setNextMarker();
+        //listObjectsResult.setTruncated();
+        //listObjectsResult.setNextMarker();
+        File filePath = new File(bucketName, prefix);
+        File[] files = filePath.listFiles();
+        if (ArrayUtils.isEmpty(files)) { return listObjectsResult; }
+        String bucketNameNew = new File(bucketName).toString();
+        String prefixNew = null;
+        if (StringUtils.isNotBlank(prefix)) {
+            prefixNew = prefix.replaceAll("\\\\", SLASH);
+            prefixNew = prefixNew.startsWith(SLASH) ? prefixNew.substring(ONE) : prefix;
+        }
+        for (File file : files) {
+            if (file == null) { continue; }
+            String fileStr = file.toString();
+            fileStr = fileStr.replace(bucketNameNew, EMPTY_STRING);
+            fileStr = fileStr.replaceAll("\\\\", SLASH);
+            fileStr = fileStr.startsWith(SLASH) ? fileStr.substring(ONE) : fileStr;
+            if (StringUtils.isNotBlank(prefixNew) && !fileStr.startsWith(prefixNew)) {
+                continue;
+            }
+            if (file.isDirectory()) {
+                fileStr = fileStr.endsWith(SLASH) ? fileStr : fileStr + SLASH;
+                commonPrefixes.add(fileStr);
+            }
+            else {
+                StorageObject storageObject = new StorageObject(bucketName, fileStr);
+                objectSummaries.add(storageObject);
+            }
+        }
         return listObjectsResult;
     }
 

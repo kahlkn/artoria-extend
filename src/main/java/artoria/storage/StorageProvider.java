@@ -4,10 +4,6 @@ import java.util.Map;
 
 public interface StorageProvider {
 
-    String getDefaultBucketName();
-
-    void setDefaultBucketName(String defaultBucketName);
-
     StorageResult putObject(StorageObject storageObject);
 
     void deleteObject(StorageModel storageModel);
