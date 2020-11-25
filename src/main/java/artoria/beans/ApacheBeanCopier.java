@@ -1,6 +1,6 @@
 package artoria.beans;
 
-import artoria.convert.TypeConverter;
+import artoria.convert.type.TypeConverter;
 import artoria.exception.ExceptionUtils;
 import org.apache.commons.beanutils.BeanUtils;
 

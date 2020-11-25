@@ -21,6 +21,14 @@ public class StorageUtils {
         StorageUtils.setDefaultProviderName("local");
     }
 
+    public static void register(String providerName, StorageProvider storageProvider) {
+        Assert.notBlank(providerName, "Parameter \"providerName\" must not blank. ");
+        Assert.notNull(storageProvider, "Parameter \"storageProvider\" must not null. ");
+        String className = storageProvider.getClass().getName();
+        log.info("Register \"{}\" to \"{}\". ", className, providerName);
+        PROVIDER_MAP.put(providerName, storageProvider);
+    }
+
     public static StorageProvider unregister(String providerName) {
         Assert.notBlank(providerName, "Parameter \"providerName\" must not blank. ");
         StorageProvider remove = PROVIDER_MAP.remove(providerName);
@@ -29,14 +37,6 @@ public class StorageUtils {
             log.info("Unregister \"{}\" to \"{}\". ", className, providerName);
         }
         return remove;
-    }
-
-    public static void register(String providerName, StorageProvider storageProvider) {
-        Assert.notBlank(providerName, "Parameter \"providerName\" must not blank. ");
-        Assert.notNull(storageProvider, "Parameter \"storageProvider\" must not null. ");
-        String className = storageProvider.getClass().getName();
-        log.info("Register \"{}\" to \"{}\". ", className, providerName);
-        PROVIDER_MAP.put(providerName, storageProvider);
     }
 
     public static String getDefaultProviderName() {

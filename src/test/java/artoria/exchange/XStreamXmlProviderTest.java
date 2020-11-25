@@ -1,9 +1,9 @@
 package artoria.exchange;
 
 import artoria.entity.Student;
+import artoria.fake.FakeUtils;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
-import artoria.random.RandomUtils;
 import com.alibaba.fastjson.JSON;
 import org.junit.Test;
 
@@ -17,8 +17,8 @@ public class XStreamXmlProviderTest {
     @Test
     public void test1() {
         List<Student> list = new ArrayList<Student>();
-        list.add(RandomUtils.nextObject(Student.class));
-        list.add(RandomUtils.nextObject(Student.class));
+        list.add(FakeUtils.fake(Student.class));
+        list.add(FakeUtils.fake(Student.class));
 
         XmlFeature[] features = new XmlFeature[] {
                 new XmlFieldAlias("id", Student.class, "studentId"),

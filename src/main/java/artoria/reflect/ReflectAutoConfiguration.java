@@ -42,12 +42,12 @@ public class ReflectAutoConfiguration implements InitializingBean, DisposableBea
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Reflecter reflection = ReflectUtils.getReflecter();
-        if (reflection != null) {
-            ReflecterInterceptor intr = new ReflecterInterceptor(reflection);
-            Reflecter instance = (Reflecter) Enhancer.enhance(reflection, intr);
-            ReflectUtils.setReflecter(instance);
-            log.info("Add cache to reflection tools success. ");
+        ReflectProvider reflectProvider = ReflectUtils.getReflectProvider();
+        if (reflectProvider != null) {
+            ReflectProviderInterceptor intr = new ReflectProviderInterceptor(reflectProvider);
+            ReflectProvider instance = (ReflectProvider) Enhancer.enhance(reflectProvider, intr);
+            ReflectUtils.setReflectProvider(instance);
+            log.info("Add cache to reflect provider success. ");
         }
     }
 
@@ -55,11 +55,11 @@ public class ReflectAutoConfiguration implements InitializingBean, DisposableBea
     public void destroy() throws Exception {
     }
 
-    private static class ReflecterInterceptor implements Interceptor {
+    private static class ReflectProviderInterceptor implements Interceptor {
         private Map<String, Object> cache;
-        private Reflecter original;
+        private ReflectProvider original;
 
-        ReflecterInterceptor(Reflecter original) {
+        ReflectProviderInterceptor(ReflectProvider original) {
             this.cache = new ConcurrentReferenceHashMap<String, Object>(64, WEAK);
             this.original = original;
         }
