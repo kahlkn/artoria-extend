@@ -7,7 +7,10 @@
 #foreach(${column} in ${table.columnList})
 #if($column.primaryKey)
         <id column="${column.name}" property="${column.fieldName}" />
-#else
+#end
+#end
+#foreach(${column} in ${table.columnList})
+#if(!$column.primaryKey)
         <result column="${column.name}" property="${column.fieldName}" />
 #end
 #end
