@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.kahlkn</groupId>
     <artifactId>artoria-extend</artifactId>
-    <version>1.0.0.20190645-SNAPSHOT</version>
+    <version>1.0.0.20191022.beta</version>
     <packaging>jar</packaging>
     <name>Artoria Extend</name>
     <url>https://github.com/kahlkn/artoria-extend</url>
@@ -504,6 +504,13 @@
             <scope>provided</scope>
         </dependency>
         <!-- ///// end redisson //// -->
+
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.17.2</version>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 

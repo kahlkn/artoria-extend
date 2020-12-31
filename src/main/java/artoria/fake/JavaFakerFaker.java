@@ -17,10 +17,10 @@ import static artoria.common.Constants.DOT;
 import static artoria.common.Constants.ZERO;
 
 public class JavaFakerFaker extends AbstractFaker {
-    private static final List<String> EXCLUDE_METHOD_NAME = Arrays.asList(
+    private static final List<String> EXCLUDE_METHOD_NAMES = Arrays.asList(
             "wait", "equals", "toString", "hashCode", "getClass", "notify", "notifyAll"
     );
-    private static final List<String> EXCLUDE_FIELD_NAME = Arrays.asList(
+    private static final List<String> EXCLUDE_FIELD_NAMES = Arrays.asList(
             "randomService", "fakeValuesService"
     );
     private static Logger log = LoggerFactory.getLogger(JavaFakerFaker.class);
@@ -33,6 +33,7 @@ public class JavaFakerFaker extends AbstractFaker {
         if ("phone_number".equals(fakerName)) { return "phone_number"; }
         if ("address".equals(fakerName)) { return "full_address"; }
         if ("number".equals(fakerName)) { return "digit"; }
+        if ("avatar".equals(fakerName)) { return "image"; }
         if ("name".equals(fakerName)) { return "name"; }
         if ("bool".equals(fakerName)) { return "bool"; }
         if ("job".equals(fakerName)) { return "title"; }
@@ -48,7 +49,7 @@ public class JavaFakerFaker extends AbstractFaker {
         // Create the field name and handle the faker name.
         String fieldName = StringUtils.underlineToCamel(fakerName);
         fieldName = StringUtils.uncapitalize(fieldName);
-        if (EXCLUDE_FIELD_NAME.contains(fieldName)) {
+        if (EXCLUDE_FIELD_NAMES.contains(fieldName)) {
             throw new IllegalArgumentException("The faker name is invalid. ");
         }
         fakerName = StringUtils.camelToUnderline(fieldName);
@@ -69,7 +70,7 @@ public class JavaFakerFaker extends AbstractFaker {
             for (Method method : methods) {
                 // Loop and filter.
                 String methodName = method.getName();
-                if (EXCLUDE_METHOD_NAME.contains(methodName)) { continue; }
+                if (EXCLUDE_METHOD_NAMES.contains(methodName)) { continue; }
                 Class<?>[] paramTypes = method.getParameterTypes();
                 if (paramTypes.length > ZERO) { continue; }
                 Class<?> returnType = method.getReturnType();

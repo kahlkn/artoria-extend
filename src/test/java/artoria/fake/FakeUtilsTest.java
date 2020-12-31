@@ -21,6 +21,7 @@ public class FakeUtilsTest {
 
     @Test
     public void testFake2() {
+//        new JavaFakerAutoConfiguration();
         Faker faker = new Faker();
         FakeUtils.register(new JavaFakerFaker(faker, "job"));
         FakeUtils.register(new JavaFakerFaker(faker, "lorem"));

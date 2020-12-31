@@ -15,6 +15,7 @@ artoria.identifier.IdentifierAutoConfiguration,\
 artoria.lock.LockAutoConfiguration,\
 artoria.exchange.JsonAutoConfiguration,\
 artoria.exchange.XmlAutoConfiguration,\
+artoria.fake.JavaFakerAutoConfiguration,\
 artoria.feign.FeignSupportAutoConfiguration,\
 artoria.redis.RedisAutoConfiguration,\
 artoria.cache.RedisCacheAutoConfiguration,\
