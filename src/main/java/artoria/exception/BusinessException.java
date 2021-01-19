@@ -17,7 +17,7 @@ public class BusinessException extends UncheckedException {
 
     public BusinessException(String message) {
 
-        super(message);
+        this(null, message);
     }
 
     public BusinessException(Throwable cause) {
@@ -27,7 +27,7 @@ public class BusinessException extends UncheckedException {
 
     public BusinessException(String message, Throwable cause) {
 
-        super(message, cause);
+        this(null, message, cause);
     }
 
     public BusinessException(String code, String description) {

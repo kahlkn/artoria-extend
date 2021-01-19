@@ -16,13 +16,14 @@ import java.util.Map;
 import java.util.Properties;
 
 import static artoria.common.Constants.DEFAULT_CHARSET_NAME;
+import static artoria.common.Constants.DEFAULT_ENCODING_NAME;
 import static org.apache.velocity.app.Velocity.*;
 
 /**
  * Velocity template renderer.
  * @author Kahle
  */
-public class VelocityRenderer implements Renderer {
+public class VelocityTemplateEngine extends AbstractTemplateEngine {
     private static final String FILE_LOADER_CLASS = "file.resource.loader.class";
     private static final String CLASS_LOADER_CLASS = "class.resource.loader.class";
     private static final String JAR_LOADER_CLASS = "jar.resource.loader.class";
@@ -45,17 +46,17 @@ public class VelocityRenderer implements Renderer {
     private Boolean isInit = false;
     private VelocityEngine engine;
 
-    public VelocityRenderer() {
+    public VelocityTemplateEngine() {
 
         this.isInit = RuntimeSingleton.getRuntimeServices().isInitialized();
     }
 
-    public VelocityRenderer(VelocityEngine engine) {
+    public VelocityTemplateEngine(VelocityEngine engine) {
         Assert.notNull(engine, "Parameter \"engine\" must not null. ");
         this.engine = engine;
     }
 
-    private Context handleContext(Object data) {
+    private Context handle(Object data) {
         Context context;
         if (data instanceof Context) {
             context = (Context) data;
@@ -75,37 +76,44 @@ public class VelocityRenderer implements Renderer {
     }
 
     @Override
-    public void render(Object data, Object output, String name, Object input, String charsetName) {
-        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        Assert.state((output instanceof Writer)
-                , "Parameter \"output\" must instance of \"Writer\". ");
-        if ((input instanceof Reader) || (input instanceof String)) {
-            Reader reader = input instanceof Reader
-                    ? (Reader) input : new StringReader((String) input);
-            Context context = this.handleContext(data);
-            if (this.isInit) {
-                Velocity.evaluate(context, (Writer) output, name, reader);
-            }
-            else if (this.engine != null) {
-                this.engine.evaluate(context, (Writer) output, name, reader);
-            }
-            else {
-                defaultEngine.evaluate(context, (Writer) output, name, reader);
-            }
+    public void render(Object data, Writer output, String logTag, String template) {
+        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
+        render(data, output, logTag, new StringReader(template));
+    }
+
+    @Override
+    public void render(Object data, Writer output, String logTag, Reader reader) {
+        Assert.notBlank(logTag, "Parameter \"logTag\" must not blank. ");
+        Assert.notNull(reader, "Parameter \"reader\" must not null. ");
+        Assert.notNull(output, "Parameter \"output\" must not null. ");
+        Assert.notNull(data, "Parameter \"data\" must not null. ");
+        Context context = handle(data);
+        if (isInit) {
+            Velocity.evaluate(context, output, logTag, reader);
+        }
+        else if (engine != null) {
+            engine.evaluate(context, output, logTag, reader);
         }
         else {
-            charsetName = StringUtils.isNotBlank(charsetName)
-                    ? charsetName : DEFAULT_CHARSET_NAME;
-            Context context = this.handleContext(data);
-            if (this.isInit) {
-                Velocity.mergeTemplate(name, charsetName, context, (Writer) output);
-            }
-            else if (this.engine != null) {
-                this.engine.mergeTemplate(name, charsetName, context, (Writer) output);
-            }
-            else {
-                defaultEngine.mergeTemplate(name, charsetName, context, (Writer) output);
-            }
+            defaultEngine.evaluate(context, output, logTag, reader);
+        }
+    }
+
+    @Override
+    public void render(String name, String encoding, Object data, Writer output) {
+        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
+        Assert.notNull(output, "Parameter \"output\" must not null. ");
+        Assert.notNull(data, "Parameter \"data\" must not null. ");
+        if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
+        Context context = handle(data);
+        if (isInit) {
+            Velocity.mergeTemplate(name, encoding, context, output);
+        }
+        else if (engine != null) {
+            engine.mergeTemplate(name, encoding, context, output);
+        }
+        else {
+            defaultEngine.mergeTemplate(name, encoding, context, output);
         }
     }
 

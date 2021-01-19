@@ -16,10 +16,12 @@ import java.util.*;
 import static artoria.common.Constants.*;
 
 public class LocalFileStorageProvider implements StorageProvider {
+    private static final String METADATA_SUFFIX = ".metadata";
     private static Logger log = LoggerFactory.getLogger(LocalFileStorageProvider.class);
 
     @Override
     public StorageResult putObject(StorageObject storageObject) {
+        Assert.notNull(storageObject, "Parameter \"storageObject\" must not null. ");
         InputStream objectContent = storageObject.getObjectContent();
         Map<String, Object> metadata = storageObject.getMetadata();
         String bucketName = storageObject.getBucketName();
@@ -29,19 +31,21 @@ public class LocalFileStorageProvider implements StorageProvider {
         Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         FileOutputStream outputStream = null;
         try {
-            String metadataPath = objectKey + ".metadata";
-
+            //
+            String metadataPath = objectKey + METADATA_SUFFIX;
             File file = new File(bucketName, objectKey);
             FileUtils.write(objectContent, file);
-
             Properties properties = new Properties();
             if (MapUtils.isNotEmpty(metadata)) {
                 properties.putAll(metadata);
             }
+            //
             String timestamp = String.valueOf(DateUtils.getTimestamp());
+            // creationTime
             if (!properties.containsKey("creation-time")) {
                 properties.setProperty("creation-time", timestamp);
             }
+            // lastModifiedTime
             if (!properties.containsKey("last-modified-time")) {
                 properties.setProperty("last-modified-time", timestamp);
             }
@@ -49,7 +53,7 @@ public class LocalFileStorageProvider implements StorageProvider {
             boolean b = file.setLastModified(lastModifiedTime);
 
             outputStream = new FileOutputStream(new File(bucketName, metadataPath));
-            properties.store(outputStream, getClass().getName());
+            properties.store(outputStream, EMPTY_STRING);
 
             StorageResult storageResult = new StorageResult();
             storageResult.setBucketName(bucketName);
@@ -67,6 +71,7 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public void deleteObject(StorageModel storageModel) {
+        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
         String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
@@ -77,6 +82,7 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public DeleteObjectsResult deleteObjects(DeleteObjectsModel deleteObjectsModel) {
+        Assert.notNull(deleteObjectsModel, "Parameter \"deleteObjectsModel\" must not null. ");
         List<String> objectKeys = deleteObjectsModel.getObjectKeys();
         String bucketName = deleteObjectsModel.getBucketName();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
@@ -99,6 +105,7 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public boolean doesObjectExist(StorageModel storageModel) {
+        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
         String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
@@ -108,13 +115,14 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public Map<String, Object> getMetadata(StorageModel storageModel) {
+        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
         String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
         Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         InputStream metadataInputStream = null;
         try {
-            String metadataPath = objectKey + ".metadata";
+            String metadataPath = objectKey + METADATA_SUFFIX;
 
             metadataInputStream = new FileInputStream(new File(bucketName, metadataPath));
             Map<String, Object> metadata = new LinkedHashMap<String, Object>();
@@ -141,6 +149,7 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public StorageObject getObject(StorageModel storageModel) {
+        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
         String bucketName = storageModel.getBucketName();
         String objectKey = storageModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
@@ -181,6 +190,7 @@ public class LocalFileStorageProvider implements StorageProvider {
 
     @Override
     public ListObjectsResult listObjects(ListObjectsModel listObjectsModel) {
+        Assert.notNull(listObjectsModel, "Parameter \"listObjectsModel\" must not null. ");
         String bucketName = listObjectsModel.getBucketName();
         String delimiter = listObjectsModel.getDelimiter();
         String prefix = listObjectsModel.getPrefix();

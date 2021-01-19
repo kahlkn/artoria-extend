@@ -2,7 +2,7 @@ package artoria.generator;
 
 import artoria.jdbc.DatabaseClient;
 import artoria.jdbc.SimpleDataSource;
-import artoria.template.VelocityRenderer;
+import artoria.template.VelocityTemplateEngine;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class JavaCodeGeneratorTest {
 //                .setBaseTemplatePath("classpath:templates/generator/java/custom")
                 .setBaseOutputPath("src\\test\\java")
                 .setBasePackageName("artoria.generator.out")
-                .setRenderer(new VelocityRenderer())
+                .setTemplateEngine(new VelocityTemplateEngine())
                 .addRemovedTableNamePrefixes("t_")
 //                .addExcludedTables("t_15_user")
 //                .addReservedTables("t_user")

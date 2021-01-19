@@ -1,7 +1,7 @@
 package artoria.logging;
 
-import artoria.template.LoggerRenderer;
-import artoria.template.Renderer;
+import artoria.template.LoggerTemplateEngine;
+import artoria.template.TemplateEngine;
 import artoria.util.Assert;
 
 import static artoria.common.Constants.EMPTY_STRING;
@@ -16,40 +16,40 @@ public class Log4jProvider implements LoggerProvider {
      */
     private static org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
     /**
-     * Logger renderer.
+     * Logger template engine.
      */
-    private Renderer loggerRenderer;
+    private TemplateEngine loggerTemplateEngine;
 
     public Log4jProvider() {
 
-        this(new LoggerRenderer());
+        this(new LoggerTemplateEngine());
     }
 
-    public Log4jProvider(Renderer loggerRenderer) {
+    public Log4jProvider(TemplateEngine loggerTemplateEngine) {
 
-        this.setLoggerRenderer(loggerRenderer);
+        setLoggerTemplateEngine(loggerTemplateEngine);
     }
 
-    public Renderer getLoggerRenderer() {
+    public TemplateEngine getLoggerTemplateEngine() {
 
-        return loggerRenderer;
+        return loggerTemplateEngine;
     }
 
-    public void setLoggerRenderer(Renderer loggerRenderer) {
-        Assert.notNull(loggerRenderer, "Parameter \"loggerRenderer\" must not null. ");
-        this.loggerRenderer = loggerRenderer;
+    public void setLoggerTemplateEngine(TemplateEngine loggerTemplateEngine) {
+        Assert.notNull(loggerTemplateEngine, "Parameter \"loggerTemplateEngine\" must not null. ");
+        this.loggerTemplateEngine = loggerTemplateEngine;
     }
 
     @Override
     public Logger getLogger(Class<?> clazz) {
         String name = clazz == null ? EMPTY_STRING : clazz.getName();
-        return new Log4jLogger(org.apache.log4j.Logger.getLogger(name), this.getLoggerRenderer());
+        return new Log4jLogger(org.apache.log4j.Logger.getLogger(name), getLoggerTemplateEngine());
     }
 
     @Override
     public Logger getLogger(String clazz) {
         org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(clazz);
-        return new Log4jLogger(logger, this.getLoggerRenderer());
+        return new Log4jLogger(logger, getLoggerTemplateEngine());
     }
 
     @Override

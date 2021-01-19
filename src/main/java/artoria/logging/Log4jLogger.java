@@ -1,7 +1,7 @@
 package artoria.logging;
 
 import artoria.io.StringBuilderWriter;
-import artoria.template.Renderer;
+import artoria.template.TemplateEngine;
 import org.apache.log4j.Logger;
 
 import static artoria.common.Constants.TWO;
@@ -11,11 +11,11 @@ import static artoria.common.Constants.TWO;
  * @author Kahle
  */
 public class Log4jLogger implements artoria.logging.Logger {
-    private final Renderer loggerRenderer;
+    private final TemplateEngine templateEngine;
     private final Logger logger;
 
-    public Log4jLogger(Logger logger, Renderer loggerRenderer) {
-        this.loggerRenderer = loggerRenderer;
+    public Log4jLogger(Logger logger, TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
         this.logger = logger;
     }
 
@@ -24,7 +24,7 @@ public class Log4jLogger implements artoria.logging.Logger {
         StackTraceElement element = new Throwable().getStackTrace()[TWO];
         String clazzName = element.getClassName();
         StringBuilderWriter writer = new StringBuilderWriter();
-        loggerRenderer.render(arguments, writer, null, format, null);
+        templateEngine.render(arguments, writer, null, format);
         String message = writer.toString();
         logger.log(clazzName, level, message, throwable);
     }
@@ -32,61 +32,61 @@ public class Log4jLogger implements artoria.logging.Logger {
     @Override
     public void trace(String format, Object... arguments) {
 
-        this.log(org.apache.log4j.Level.TRACE, format, arguments, null);
+        log(org.apache.log4j.Level.TRACE, format, arguments, null);
     }
 
     @Override
     public void trace(String message, Throwable throwable) {
 
-        this.log(org.apache.log4j.Level.TRACE, message, null, throwable);
+        log(org.apache.log4j.Level.TRACE, message, null, throwable);
     }
 
     @Override
     public void debug(String format, Object... arguments) {
 
-        this.log(org.apache.log4j.Level.DEBUG, format, arguments, null);
+        log(org.apache.log4j.Level.DEBUG, format, arguments, null);
     }
 
     @Override
     public void debug(String message, Throwable throwable) {
 
-        this.log(org.apache.log4j.Level.DEBUG, message, null, throwable);
+        log(org.apache.log4j.Level.DEBUG, message, null, throwable);
     }
 
     @Override
     public void info(String format, Object... arguments) {
 
-        this.log(org.apache.log4j.Level.INFO, format, arguments, null);
+        log(org.apache.log4j.Level.INFO, format, arguments, null);
     }
 
     @Override
     public void info(String message, Throwable throwable) {
 
-        this.log(org.apache.log4j.Level.INFO, message, null, throwable);
+        log(org.apache.log4j.Level.INFO, message, null, throwable);
     }
 
     @Override
     public void warn(String format, Object... arguments) {
 
-        this.log(org.apache.log4j.Level.WARN, format, arguments, null);
+        log(org.apache.log4j.Level.WARN, format, arguments, null);
     }
 
     @Override
     public void warn(String message, Throwable throwable) {
 
-        this.log(org.apache.log4j.Level.WARN, message, null, throwable);
+        log(org.apache.log4j.Level.WARN, message, null, throwable);
     }
 
     @Override
     public void error(String format, Object... arguments) {
 
-        this.log(org.apache.log4j.Level.ERROR, format, arguments, null);
+        log(org.apache.log4j.Level.ERROR, format, arguments, null);
     }
 
     @Override
     public void error(String message, Throwable throwable) {
 
-        this.log(org.apache.log4j.Level.ERROR, message, null, throwable);
+        log(org.apache.log4j.Level.ERROR, message, null, throwable);
     }
 
     @Override
