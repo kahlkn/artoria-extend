@@ -20,23 +20,27 @@ public class FakeUtilsTest1 {
 
     @Test
     public void testFake1() {
-        User user = FakeUtils.fake(User.class,
-                "name=name|gender=dog.gender|nickname=name.firstName|phoneNumber=phone_number|introduce=lorem.paragraph");
+        String expression = "name=name|gender=dog.gender|nickname=name.firstName|" +
+                "phoneNumber=phone_number|introduce=lorem.paragraph";
+        User user = FakeUtils.fake(expression, User.class);
         log.info("Fake user: {}", JSON.toJSONString(user, TRUE));
-        Book book = FakeUtils.fake(Book.class, "name=book.title|author=book.author|publisher=book.publisher");
+        expression = "name=book.title|author=book.author|publisher=book.publisher";
+        Book book = FakeUtils.fake(expression, Book.class);
         log.info("Fake book: {}", JSON.toJSONString(book, TRUE));
     }
 
     @Test
     public void testFakeList1() {
-        List<User> userList = FakeUtils.fakeList(User.class,
-                "name=name|gender=dog.gender|nickname=name.firstName|phoneNumber=phone_number|introduce=lorem.paragraph");
+        String expression = "name=name|gender=dog.gender|nickname=name.firstName|" +
+                "phoneNumber=phone_number|introduce=lorem.paragraph";
+        List<User> userList = FakeUtils.fakeList(expression, User.class);
         log.info("Fake user list: {}", JSON.toJSONString(userList, TRUE));
     }
 
     @Test
     public void testFakeList2() {
-        List<Book> bookList = FakeUtils.fakeList(Book.class, "name=book.title|author=book.author|publisher=book.publisher");
+        String expression = "name=book.title|author=book.author|publisher=book.publisher";
+        List<Book> bookList = FakeUtils.fakeList(expression, Book.class);
         log.info("Fake book list: {}", JSON.toJSONString(bookList, TRUE));
     }
 

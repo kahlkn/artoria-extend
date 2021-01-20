@@ -98,8 +98,8 @@ public class JavaFakerFaker extends AbstractFaker {
     }
 
     @Override
-    public <T> T fake(Class<T> clazz, String expression) {
-        verifyParameters(clazz, expression);
+    public <T> T fake(String expression, Class<T> clazz) {
+        verifyParameters(expression, clazz);
         try {
             String directive = parseDirective(expression);
             if (StringUtils.isBlank(directive)) {
