@@ -1,5 +1,6 @@
 package artoria.exception;
 
+import artoria.common.ErrorCode;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class VerifyUtilsTest {
     public void test3() {
         try {
             Map<String, Object> data = new HashMap<String, Object>();
-            VerifyUtils.notEmpty(data, null);
+            VerifyUtils.notEmpty(data, (ErrorCode) null);
         }
         catch (BusinessException e) {
             log.error(e.getMessage(), e);

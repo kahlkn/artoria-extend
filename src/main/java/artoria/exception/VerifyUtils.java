@@ -28,6 +28,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isFalse(boolean expression, String message) {
+        if (expression) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void isTrue(boolean expression, ErrorCode errorCode) {
         if (!expression) {
             throw new BusinessException(errorCode);
@@ -37,6 +43,12 @@ public class VerifyUtils {
     public static void isTrue(boolean expression, String code, String description) {
         if (!expression) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void isTrue(boolean expression, String message) {
+        if (!expression) {
+            throw new BusinessException(message);
         }
     }
 
@@ -52,6 +64,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isNull(Object object, String message) {
+        if (object != null) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notNull(Object object, ErrorCode errorCode) {
         if (object == null) {
             throw new BusinessException(errorCode);
@@ -61,6 +79,12 @@ public class VerifyUtils {
     public static void notNull(Object object, String code, String description) {
         if (object == null) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notNull(Object object, String message) {
+        if (object == null) {
+            throw new BusinessException(message);
         }
     }
 
@@ -76,6 +100,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isEmpty(byte[] array, String message) {
+        if (ArrayUtils.isNotEmpty(array)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notEmpty(byte[] array, ErrorCode errorCode) {
         if (ArrayUtils.isEmpty(array)) {
             throw new BusinessException(errorCode);
@@ -85,6 +115,12 @@ public class VerifyUtils {
     public static void notEmpty(byte[] array, String code, String description) {
         if (ArrayUtils.isEmpty(array)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notEmpty(byte[] array, String message) {
+        if (ArrayUtils.isEmpty(array)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -100,6 +136,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isEmpty(Object[] array, String message) {
+        if (ArrayUtils.isNotEmpty(array)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notEmpty(Object[] array, ErrorCode errorCode) {
         if (ArrayUtils.isEmpty(array)) {
             throw new BusinessException(errorCode);
@@ -109,6 +151,12 @@ public class VerifyUtils {
     public static void notEmpty(Object[] array, String code, String description) {
         if (ArrayUtils.isEmpty(array)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notEmpty(Object[] array, String message) {
+        if (ArrayUtils.isEmpty(array)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -124,6 +172,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isEmpty(Collection<?> collection, String message) {
+        if (CollectionUtils.isNotEmpty(collection)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notEmpty(Collection<?> collection, ErrorCode errorCode) {
         if (CollectionUtils.isEmpty(collection)) {
             throw new BusinessException(errorCode);
@@ -133,6 +187,12 @@ public class VerifyUtils {
     public static void notEmpty(Collection<?> collection, String code, String description) {
         if (CollectionUtils.isEmpty(collection)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notEmpty(Collection<?> collection, String message) {
+        if (CollectionUtils.isEmpty(collection)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -148,6 +208,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isEmpty(Map<?, ?> map, String message) {
+        if (MapUtils.isNotEmpty(map)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notEmpty(Map<?, ?> map, ErrorCode errorCode) {
         if (MapUtils.isEmpty(map)) {
             throw new BusinessException(errorCode);
@@ -157,6 +223,12 @@ public class VerifyUtils {
     public static void notEmpty(Map<?, ?> map, String code, String description) {
         if (MapUtils.isEmpty(map)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notEmpty(Map<?, ?> map, String message) {
+        if (MapUtils.isEmpty(map)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -172,6 +244,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isEmpty(String text, String message) {
+        if (StringUtils.isNotEmpty(text)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notEmpty(String text, ErrorCode errorCode) {
         if (StringUtils.isEmpty(text)) {
             throw new BusinessException(errorCode);
@@ -181,6 +259,12 @@ public class VerifyUtils {
     public static void notEmpty(String text, String code, String description) {
         if (StringUtils.isEmpty(text)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notEmpty(String text, String message) {
+        if (StringUtils.isEmpty(text)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -196,6 +280,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isBlank(String text, String message) {
+        if (StringUtils.isNotBlank(text)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notBlank(String text, ErrorCode errorCode) {
         if (StringUtils.isBlank(text)) {
             throw new BusinessException(errorCode);
@@ -205,6 +295,12 @@ public class VerifyUtils {
     public static void notBlank(String text, String code, String description) {
         if (StringUtils.isBlank(text)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notBlank(String text, String message) {
+        if (StringUtils.isBlank(text)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -220,6 +316,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isContain(String textToSearch, String substring, String message) {
+        if (!textToSearch.contains(substring)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void notContain(String textToSearch, String substring, ErrorCode errorCode) {
         if (textToSearch.contains(substring)) {
             throw new BusinessException(errorCode);
@@ -229,6 +331,12 @@ public class VerifyUtils {
     public static void notContain(String textToSearch, String substring, String code, String description) {
         if (textToSearch.contains(substring)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void notContain(String textToSearch, String substring, String message) {
+        if (textToSearch.contains(substring)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -244,6 +352,12 @@ public class VerifyUtils {
         }
     }
 
+    public static void isAssignable(Class<?> superType, Class<?> subType, String message) {
+        if (subType == null || !superType.isAssignableFrom(subType)) {
+            throw new BusinessException(message);
+        }
+    }
+
     public static void isInstanceOf(Class<?> type, Object object, ErrorCode errorCode) {
         if (!type.isInstance(object)) {
             throw new BusinessException(errorCode);
@@ -253,6 +367,12 @@ public class VerifyUtils {
     public static void isInstanceOf(Class<?> type, Object object, String code, String description) {
         if (!type.isInstance(object)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void isInstanceOf(Class<?> type, Object object, String message) {
+        if (!type.isInstance(object)) {
+            throw new BusinessException(message);
         }
     }
 
@@ -272,6 +392,14 @@ public class VerifyUtils {
         }
     }
 
+    public static void noNullElements(Object[] array, String message) {
+        for (Object element : array) {
+            if (element == null) {
+                throw new BusinessException(message);
+            }
+        }
+    }
+
     public static void validate(String name, Object target, ErrorCode errorCode) {
         if (!ValidatorUtils.validate(name, target)) {
             throw new BusinessException(errorCode);
@@ -281,6 +409,12 @@ public class VerifyUtils {
     public static void validate(String name, Object target, String code, String description) {
         if (!ValidatorUtils.validate(name, target)) {
             throw new BusinessException(code, description);
+        }
+    }
+
+    public static void validate(String name, Object target, String message) {
+        if (!ValidatorUtils.validate(name, target)) {
+            throw new BusinessException(message);
         }
     }
 
