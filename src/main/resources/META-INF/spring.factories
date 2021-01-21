@@ -32,6 +32,7 @@ artoria.user.UserAutoConfiguration,\
 artoria.zookeeper.ZookeeperAutoConfiguration,\
 artoria.data.mask.DataMaskAutoConfiguration,\
 artoria.schedule.DelayTaskAutoConfiguration,\
+artoria.option.OptionAutoConfiguration,\
 artoria.property.PropertyAutoConfiguration,\
 artoria.validate.ValidateAutoConfiguration
 
