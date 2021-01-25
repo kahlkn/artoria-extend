@@ -13,7 +13,7 @@ import static artoria.common.Constants.*;
  * Jdbc option provider.
  * @author Kahle
  */
-public class JdbcOptionProvider implements OptionProvider {
+public class JdbcOptionProvider extends AbstractOptionProvider {
     private static Logger log = LoggerFactory.getLogger(JdbcOptionProvider.class);
     private JdbcTemplate jdbcTemplate;
     private String ownerColumnName;

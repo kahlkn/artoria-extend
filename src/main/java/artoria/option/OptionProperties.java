@@ -2,14 +2,15 @@ package artoria.option;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Option properties.
+ * @author Kahle
+ */
 @ConfigurationProperties(prefix = "artoria.option")
 public class OptionProperties {
     private ProviderType providerType = ProviderType.SIMPLE;
-    private String ownerColumnName;
-    private String nameColumnName;
-    private String valueColumnName;
-    private String tableName;
-    private String whereContent;
+    private JdbcConfig jdbcConfig;
+    private CustomConfig customConfig;
 
     public ProviderType getProviderType() {
 
@@ -21,66 +22,125 @@ public class OptionProperties {
         this.providerType = providerType;
     }
 
-    public String getOwnerColumnName() {
+    public JdbcConfig getJdbcConfig() {
 
-        return ownerColumnName;
+        return jdbcConfig;
     }
 
-    public void setOwnerColumnName(String ownerColumnName) {
+    public void setJdbcConfig(JdbcConfig jdbcConfig) {
 
-        this.ownerColumnName = ownerColumnName;
+        this.jdbcConfig = jdbcConfig;
     }
 
-    public String getNameColumnName() {
+    public CustomConfig getCustomConfig() {
 
-        return nameColumnName;
+        return customConfig;
     }
 
-    public void setNameColumnName(String nameColumnName) {
+    public void setCustomConfig(CustomConfig customConfig) {
 
-        this.nameColumnName = nameColumnName;
-    }
-
-    public String getValueColumnName() {
-
-        return valueColumnName;
-    }
-
-    public void setValueColumnName(String valueColumnName) {
-
-        this.valueColumnName = valueColumnName;
-    }
-
-    public String getTableName() {
-
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-
-        this.tableName = tableName;
-    }
-
-    public String getWhereContent() {
-
-        return whereContent;
-    }
-
-    public void setWhereContent(String whereContent) {
-
-        this.whereContent = whereContent;
+        this.customConfig = customConfig;
     }
 
     public enum ProviderType {
         /**
-         * SIMPLE.
+         * Simple.
          */
         SIMPLE,
         /**
-         * JDBC.
+         * Jdbc.
          */
         JDBC,
+        /**
+         * Custom.
+         */
+        CUSTOM,
         ;
+    }
+
+    public static class JdbcConfig {
+        private String ownerColumnName;
+        private String nameColumnName;
+        private String valueColumnName;
+        private String tableName;
+        private String whereContent;
+
+        public String getOwnerColumnName() {
+
+            return ownerColumnName;
+        }
+
+        public void setOwnerColumnName(String ownerColumnName) {
+
+            this.ownerColumnName = ownerColumnName;
+        }
+
+        public String getNameColumnName() {
+
+            return nameColumnName;
+        }
+
+        public void setNameColumnName(String nameColumnName) {
+
+            this.nameColumnName = nameColumnName;
+        }
+
+        public String getValueColumnName() {
+
+            return valueColumnName;
+        }
+
+        public void setValueColumnName(String valueColumnName) {
+
+            this.valueColumnName = valueColumnName;
+        }
+
+        public String getTableName() {
+
+            return tableName;
+        }
+
+        public void setTableName(String tableName) {
+
+            this.tableName = tableName;
+        }
+
+        public String getWhereContent() {
+
+            return whereContent;
+        }
+
+        public void setWhereContent(String whereContent) {
+
+            this.whereContent = whereContent;
+        }
+
+    }
+
+    public static class CustomConfig {
+        private Class<? extends OptionProvider> springContextBeanType;
+        private String springContextBeanName;
+
+        public Class<? extends OptionProvider> getSpringContextBeanType() {
+
+            return springContextBeanType;
+        }
+
+        public void setSpringContextBeanType(Class<? extends OptionProvider> springContextBeanType) {
+
+            this.springContextBeanType = springContextBeanType;
+        }
+
+        public String getSpringContextBeanName() {
+
+            return springContextBeanName;
+        }
+
+        public void setSpringContextBeanName(String springContextBeanName) {
+
+            this.springContextBeanName = springContextBeanName;
+        }
+
     }
 
 }

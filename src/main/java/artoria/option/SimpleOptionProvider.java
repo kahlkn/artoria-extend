@@ -19,7 +19,7 @@ import static artoria.common.Constants.EMPTY_STRING;
  * Simple option provider.
  * @author Kahle
  */
-public class SimpleOptionProvider implements OptionProvider {
+public class SimpleOptionProvider extends AbstractOptionProvider {
     private static Logger log = LoggerFactory.getLogger(SimpleOptionProvider.class);
     private Map<String, List<String>> ownerNameListMap;
     private Map<String, Object> nameValueMap;
