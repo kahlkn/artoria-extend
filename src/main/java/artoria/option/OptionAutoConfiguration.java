@@ -1,5 +1,7 @@
 package artoria.option;
 
+import artoria.cache.CacheUtils;
+import artoria.cache.SimpleCache;
 import artoria.util.Assert;
 import artoria.util.StringUtils;
 import org.slf4j.Logger;
@@ -9,6 +11,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.concurrent.TimeUnit;
+
+import static artoria.collection.ReferenceMap.Type.SOFT;
 
 /**
  * Option auto configuration.
@@ -48,9 +54,22 @@ public class OptionAutoConfiguration {
         String whereContent = jdbcConfig.getWhereContent();
         OptionProvider optionProvider = new JdbcOptionProvider(jdbcTemplate,
                 ownerColumnName, nameColumnName, valueColumnName, tableName, whereContent);
-        /*if () {
-            optionProvider = new CacheOptionProvider();
-        }*/
+        OptionProperties.CacheConfig cacheConfig = jdbcConfig.getCacheConfig();
+        if (cacheConfig == null) {
+            cacheConfig = new OptionProperties.CacheConfig();
+        }
+        String cacheName = cacheConfig.getCacheName();
+        Long timeToLive = cacheConfig.getTimeToLive();
+        TimeUnit timeUnit = cacheConfig.getTimeUnit();
+        if (StringUtils.isBlank(cacheName)) {
+            cacheName = "jdbc-option-provider-cache";
+        }
+        if (timeToLive == null || timeUnit == null) {
+            timeToLive = 3L;
+            timeUnit = TimeUnit.MINUTES;
+        }
+        CacheUtils.register(new SimpleCache(cacheName, SOFT));
+        optionProvider = new CacheOptionProvider(optionProvider, cacheName, timeToLive, timeUnit);
         return optionProvider;
     }
 

@@ -2,6 +2,8 @@ package artoria.option;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Option properties.
  * @author Kahle
@@ -58,12 +60,50 @@ public class OptionProperties {
         ;
     }
 
+    public static class CacheConfig {
+        private String   cacheName;
+        private Long     timeToLive;
+        private TimeUnit timeUnit;
+
+        public String getCacheName() {
+
+            return cacheName;
+        }
+
+        public void setCacheName(String cacheName) {
+
+            this.cacheName = cacheName;
+        }
+
+        public Long getTimeToLive() {
+
+            return timeToLive;
+        }
+
+        public void setTimeToLive(Long timeToLive) {
+
+            this.timeToLive = timeToLive;
+        }
+
+        public TimeUnit getTimeUnit() {
+
+            return timeUnit;
+        }
+
+        public void setTimeUnit(TimeUnit timeUnit) {
+
+            this.timeUnit = timeUnit;
+        }
+
+    }
+
     public static class JdbcConfig {
         private String ownerColumnName;
         private String nameColumnName;
         private String valueColumnName;
         private String tableName;
         private String whereContent;
+        private CacheConfig cacheConfig;
 
         public String getOwnerColumnName() {
 
@@ -113,6 +153,16 @@ public class OptionProperties {
         public void setWhereContent(String whereContent) {
 
             this.whereContent = whereContent;
+        }
+
+        public CacheConfig getCacheConfig() {
+
+            return cacheConfig;
+        }
+
+        public void setCacheConfig(CacheConfig cacheConfig) {
+
+            this.cacheConfig = cacheConfig;
         }
 
     }

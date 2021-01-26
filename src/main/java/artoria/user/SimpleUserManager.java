@@ -7,6 +7,8 @@ import artoria.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 import static artoria.common.Constants.ZERO;
 import static artoria.util.ObjectUtils.cast;
 
@@ -17,7 +19,7 @@ public class SimpleUserManager implements UserManager {
     private final Long userExpirationTime;
 
     public SimpleUserManager(Long userExpirationTime) {
-
+        // todo Need to optimize.
         this(userExpirationTime, null);
     }
 
@@ -27,7 +29,7 @@ public class SimpleUserManager implements UserManager {
         this.userExpirationTime = userExpirationTime;
         this.userLoader = userLoader;
         this.cache = new SimpleCache(
-                getClass().getName(), ZERO, userExpirationTime, ReferenceMap.Type.SOFT
+                getClass().getName(), ReferenceMap.Type.SOFT
         );
     }
 
@@ -42,13 +44,14 @@ public class SimpleUserManager implements UserManager {
         String userId = userInfo.getId();
         Assert.notBlank(userId, "Parameter \"userId\" must not blank. ");
         cache.put(userId, userInfo);
+        cache.expire(userId, userExpirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void refresh(String userId) {
         Assert.notBlank(userId, "Parameter \"userId\" must not blank. ");
         if (userExpirationTime <= ZERO) { return; }
-        cache.get(userId);
+        cache.expire(userId, userExpirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override

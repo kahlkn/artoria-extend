@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static artoria.common.Constants.ZERO;
 import static artoria.util.ObjectUtils.cast;
@@ -22,11 +23,12 @@ public class SimpleTokenManager implements TokenManager {
     private final Cache cache;
 
     public SimpleTokenManager(Long tokenExpirationTime) {
+        // todo Need to optimize.
         Assert.notNull(tokenExpirationTime, "Parameter \"tokenExpirationTime\" must not null. ");
         if (tokenExpirationTime < ZERO) { tokenExpirationTime = 0L; }
         this.tokenExpirationTime = tokenExpirationTime;
         this.cache = new SimpleCache(
-                getClass().getName(), ZERO, tokenExpirationTime, ReferenceMap.Type.SOFT
+                getClass().getName(), ReferenceMap.Type.SOFT
         );
     }
 
@@ -40,13 +42,14 @@ public class SimpleTokenManager implements TokenManager {
             token.setId(tokenId = generateId());
         }
         cache.put(tokenId, token);
+        cache.expire(tokenId, tokenExpirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void refresh(String tokenId) {
         Assert.notBlank(tokenId, "Parameter \"tokenId\" must not blank. ");
         if (tokenExpirationTime <= ZERO) { return; }
-        cache.get(tokenId);
+        cache.expire(tokenId, tokenExpirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override

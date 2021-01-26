@@ -18,7 +18,6 @@ artoria.exchange.XmlAutoConfiguration,\
 artoria.fake.JavaFakerAutoConfiguration,\
 artoria.feign.FeignSupportAutoConfiguration,\
 artoria.redis.RedisAutoConfiguration,\
-artoria.cache.RedisCacheAutoConfiguration,\
 artoria.cache.CacheAutoConfiguration,\
 artoria.event.EventAutoConfiguration,\
 artoria.reflect.ReflectAutoConfiguration,\
