@@ -18,7 +18,7 @@ public abstract class AbstractOptionProvider implements OptionProvider {
     public <T> T getOption(String owner, String name, Class<T> type, T defaultValue) {
         Assert.notNull(type, "Parameter \"type\" must not null. ");
         Object value = getOption(owner, name, defaultValue);
-        if (value == null) { return null; }
+        if (value == null) { return defaultValue; }
         value = TypeConvertUtils.convert(value, type);
         return ObjectUtils.cast(value, type);
     }

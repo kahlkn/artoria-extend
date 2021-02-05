@@ -32,6 +32,8 @@ public class OptionUtils {
         return getOption(EMPTY_STRING, name, String.class, NULL_STR);
     }
 
+    // There is no "getStringOption(String name, String defaultValue)".
+
     public static String getStringOption(String owner, String name) {
 
         return getOption(owner, name, String.class, NULL_STR);
@@ -47,6 +49,11 @@ public class OptionUtils {
         return getOption(EMPTY_STRING, name, Boolean.class, false);
     }
 
+    public static boolean getBooleanOption(String name, boolean defaultValue) {
+
+        return getOption(EMPTY_STRING, name, Boolean.class, defaultValue);
+    }
+
     public static boolean getBooleanOption(String owner, String name) {
 
         return getOption(owner, name, Boolean.class, false);
@@ -60,6 +67,11 @@ public class OptionUtils {
     public static int getIntegerOption(String name) {
 
         return getOption(EMPTY_STRING, name, Integer.class, ZERO);
+    }
+
+    public static int getIntegerOption(String name, int defaultValue) {
+
+        return getOption(EMPTY_STRING, name, Integer.class, defaultValue);
     }
 
     public static int getIntegerOption(String owner, String name) {

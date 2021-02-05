@@ -122,6 +122,7 @@ public class JdbcOptionProvider extends AbstractOptionProvider {
         Assert.notBlank(name, "Parameter \"name\" must not blank. ");
         Assert.notNull(value, "Parameter \"value\" must not null. ");
         if (StringUtils.isBlank(owner)) { owner = EMPTY_STRING; }
+        if (value instanceof Boolean) { value = String.valueOf(value); }
         boolean containsOption = containsOption(owner, name);
         if (containsOption) {
             String updateSql = String.format("update `%s` set `%s` = ?", tableName, valueColumnName);
