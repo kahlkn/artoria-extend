@@ -1,6 +1,6 @@
 package artoria.storage;
 
-public class ListObjectsModel extends StorageModel {
+public class ListObjectsModel extends ObjectModel {
     /**
      * The objects returned whose key must start with this prefix.
      */

@@ -2,9 +2,9 @@ package artoria.storage;
 
 import java.util.List;
 
-public class ListObjectsResult extends StorageResult {
+public class ListObjectsResult extends ObjectResult {
     /**
-     * A list of summary information describing the objects stored in the container.
+     * A list of summary information describing the objects stored in the bucket.
      */
     private List<StorageObject> objectSummaries;
     private List<String> commonPrefixes;

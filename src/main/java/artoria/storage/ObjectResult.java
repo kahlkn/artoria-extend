@@ -8,7 +8,7 @@ import java.io.Serializable;
  * The stored result of the object.
  * @author Kahle
  */
-public class StorageResult extends AbstractExtraData implements Serializable {
+public class ObjectResult extends AbstractExtraData implements Serializable {
     /**
      * Object's bucket name.
      */

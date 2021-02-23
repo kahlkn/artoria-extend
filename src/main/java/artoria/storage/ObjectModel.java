@@ -4,7 +4,7 @@ import artoria.data.AbstractExtraData;
 
 import java.io.Serializable;
 
-public class StorageModel extends AbstractExtraData implements Serializable {
+public class ObjectModel extends AbstractExtraData implements Serializable {
     /**
      * Object's bucket name.
      */
@@ -14,10 +14,10 @@ public class StorageModel extends AbstractExtraData implements Serializable {
      */
     private String objectKey;
 
-    public StorageModel() {
+    public ObjectModel() {
     }
 
-    public StorageModel(String bucketName, String objectKey) {
+    public ObjectModel(String bucketName, String objectKey) {
         this.bucketName = bucketName;
         this.objectKey = objectKey;
     }

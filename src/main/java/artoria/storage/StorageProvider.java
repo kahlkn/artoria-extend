@@ -4,18 +4,20 @@ import java.util.Map;
 
 public interface StorageProvider {
 
-    StorageResult putObject(StorageObject storageObject);
+    ObjectResult putObject(StorageObject storageObject);
 
-    void deleteObject(StorageModel storageModel);
+    void deleteObject(ObjectModel objectModel);
 
     DeleteObjectsResult deleteObjects(DeleteObjectsModel deleteObjectsModel);
 
-    boolean doesObjectExist(StorageModel storageModel);
+    boolean doesObjectExist(ObjectModel objectModel);
 
-    Map<String, Object> getMetadata(StorageModel storageModel);
+    Map<String, Object> getMetadata(ObjectModel objectModel);
 
-    StorageObject getObject(StorageModel storageModel);
+    StorageObject getObject(ObjectModel objectModel);
 
     ListObjectsResult listObjects(ListObjectsModel listObjectsModel);
+
+    // CopyObjectResult copyObject(CopyObjectModel copyObjectModel);
 
 }

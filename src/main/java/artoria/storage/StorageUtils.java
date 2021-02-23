@@ -62,14 +62,14 @@ public class StorageUtils {
         return storageProvider;
     }
 
-    public static StorageResult putObject(String providerName, StorageObject storageObject) {
+    public static ObjectResult putObject(String providerName, StorageObject storageObject) {
 
         return getStorageProvider(providerName).putObject(storageObject);
     }
 
-    public static void deleteObject(String providerName, StorageModel storageModel) {
+    public static void deleteObject(String providerName, ObjectModel objectModel) {
 
-        getStorageProvider(providerName).deleteObject(storageModel);
+        getStorageProvider(providerName).deleteObject(objectModel);
     }
 
     public static DeleteObjectsResult deleteObjects(String providerName, DeleteObjectsModel deleteObjectsModel) {
@@ -77,19 +77,19 @@ public class StorageUtils {
         return getStorageProvider(providerName).deleteObjects(deleteObjectsModel);
     }
 
-    public static boolean doesObjectExist(String providerName, StorageModel storageModel) {
+    public static boolean doesObjectExist(String providerName, ObjectModel objectModel) {
 
-        return getStorageProvider(providerName).doesObjectExist(storageModel);
+        return getStorageProvider(providerName).doesObjectExist(objectModel);
     }
 
-    public static Map<String, Object> getMetadata(String providerName, StorageModel storageModel) {
+    public static Map<String, Object> getMetadata(String providerName, ObjectModel objectModel) {
 
-        return getStorageProvider(providerName).getMetadata(storageModel);
+        return getStorageProvider(providerName).getMetadata(objectModel);
     }
 
-    public static StorageObject getObject(String providerName, StorageModel storageModel) {
+    public static StorageObject getObject(String providerName, ObjectModel objectModel) {
 
-        return getStorageProvider(providerName).getObject(storageModel);
+        return getStorageProvider(providerName).getObject(objectModel);
     }
 
     public static ListObjectsResult listObjects(String providerName, ListObjectsModel listObjectsModel) {
@@ -97,34 +97,34 @@ public class StorageUtils {
         return getStorageProvider(providerName).listObjects(listObjectsModel);
     }
 
-    public static StorageResult putObject(String bucket, String key, byte[] bytes, Map<String, Object> metadata) {
+    public static ObjectResult putObject(String bucket, String key, byte[] bytes, Map<String, Object> metadata) {
 
         return putObject(EMPTY_STRING, bucket, key, bytes, metadata);
     }
 
-    public static StorageResult putObject(String provider, String b, String k, byte[] bytes, Map<String, Object> m) {
+    public static ObjectResult putObject(String provider, String b, String k, byte[] bytes, Map<String, Object> m) {
 
         return putObject(provider, b, k, new ByteArrayInputStream(bytes), m);
     }
 
-    public static StorageResult putObject(String bucket, String key, File file, Map<String, Object> metadata) {
+    public static ObjectResult putObject(String bucket, String key, File file, Map<String, Object> metadata) {
 
         return putObject(EMPTY_STRING, bucket, key, file, metadata);
     }
 
-    public static StorageResult putObject(String provider, String b, String k, File file, Map<String, Object> m) {
+    public static ObjectResult putObject(String provider, String b, String k, File file, Map<String, Object> m) {
         try {
             InputStream inputStream = new FileInputStream(file);
             return putObject(provider, b, k, inputStream, m);
         } catch (IOException e) { throw new StorageException(e); }
     }
 
-    public static StorageResult putObject(String bucket, String key, InputStream in, Map<String, Object> metadata) {
+    public static ObjectResult putObject(String bucket, String key, InputStream in, Map<String, Object> metadata) {
 
         return putObject(EMPTY_STRING, bucket, key, in, metadata);
     }
 
-    public static StorageResult putObject(String provider, String b, String k, InputStream in, Map<String, Object> m) {
+    public static ObjectResult putObject(String provider, String b, String k, InputStream in, Map<String, Object> m) {
         StorageObject storageObject = new StorageObject(b, k);
         storageObject.setMetadata(m);
         storageObject.setObjectContent(in);
@@ -137,8 +137,8 @@ public class StorageUtils {
     }
 
     public static void deleteObject(String providerName, String bucketName, String objectKey) {
-        StorageModel storageModel = new StorageModel(bucketName, objectKey);
-        getStorageProvider(providerName).deleteObject(storageModel);
+        ObjectModel objectModel = new ObjectModel(bucketName, objectKey);
+        getStorageProvider(providerName).deleteObject(objectModel);
     }
 
     public static boolean doesObjectExist(String bucketName, String objectKey) {
@@ -147,8 +147,8 @@ public class StorageUtils {
     }
 
     public static boolean doesObjectExist(String providerName, String bucketName, String objectKey) {
-        StorageModel storageModel = new StorageModel(bucketName, objectKey);
-        return getStorageProvider(providerName).doesObjectExist(storageModel);
+        ObjectModel objectModel = new ObjectModel(bucketName, objectKey);
+        return getStorageProvider(providerName).doesObjectExist(objectModel);
     }
 
     public static Map<String, Object> getMetadata(String bucketName, String objectKey) {
@@ -157,8 +157,8 @@ public class StorageUtils {
     }
 
     public static Map<String, Object> getMetadata(String providerName, String bucketName, String objectKey) {
-        StorageModel storageModel = new StorageModel(bucketName, objectKey);
-        return getStorageProvider(providerName).getMetadata(storageModel);
+        ObjectModel objectModel = new ObjectModel(bucketName, objectKey);
+        return getStorageProvider(providerName).getMetadata(objectModel);
     }
 
     public static StorageObject getObject(String bucketName, String objectKey) {
@@ -167,8 +167,8 @@ public class StorageUtils {
     }
 
     public static StorageObject getObject(String providerName, String bucketName, String objectKey) {
-        StorageModel storageModel = new StorageModel(bucketName, objectKey);
-        return getStorageProvider(providerName).getObject(storageModel);
+        ObjectModel objectModel = new ObjectModel(bucketName, objectKey);
+        return getStorageProvider(providerName).getObject(objectModel);
     }
 
     public static ListObjectsResult listObjects(String bucketName, String prefix) {

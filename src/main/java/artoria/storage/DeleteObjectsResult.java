@@ -2,7 +2,7 @@ package artoria.storage;
 
 import java.util.List;
 
-public class DeleteObjectsResult extends StorageResult {
+public class DeleteObjectsResult extends ObjectResult {
     /**
      * Successfully deleted objects.
      */

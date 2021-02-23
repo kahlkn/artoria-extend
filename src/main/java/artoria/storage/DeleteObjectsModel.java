@@ -2,7 +2,7 @@ package artoria.storage;
 
 import java.util.List;
 
-public class DeleteObjectsModel extends StorageModel {
+public class DeleteObjectsModel extends ObjectModel {
     /**
      * List of keys to delete.
      */

@@ -17,10 +17,48 @@ import static artoria.common.Constants.*;
 
 public class LocalFileStorageProvider implements StorageProvider {
     private static final String METADATA_SUFFIX = ".metadata";
+    private static final String COMMENTS = "The provider is \"" + LocalFileStorageProvider.class.getName() + "\". ";
     private static Logger log = LoggerFactory.getLogger(LocalFileStorageProvider.class);
 
+    private Properties getMetadataProperties(String bucketName, String objectKey) {
+        String metadataPath = objectKey + METADATA_SUFFIX;
+        File metadataFile = new File(bucketName, metadataPath);
+        if (!metadataFile.exists() ||
+                metadataFile.isDirectory()) {
+            return null;
+        }
+        InputStream metadataInputStream = null;
+        try {
+            metadataInputStream = new FileInputStream(metadataFile);
+            Properties properties = new Properties();
+            properties.load(metadataInputStream);
+            return properties;
+        }
+        catch (Exception e) {
+            throw ExceptionUtils.wrap(e);
+        }
+        finally {
+            CloseUtils.closeQuietly(metadataInputStream);
+        }
+    }
+
+    private Properties initMetadataProperties(Properties properties) {
+        boolean isNew = properties == null;
+        if (isNew) { properties = new Properties(); }
+        String timestamp = String.valueOf(DateUtils.getTimestamp());
+        // Creation time.
+        String key = "creation-time";
+        if (!properties.containsKey(key)) {
+            properties.setProperty(key, isNew ? timestamp : ZERO_STR);
+        }
+        // Last modified time.
+        key = "last-modified-time";
+        properties.setProperty(key, timestamp);
+        return properties;
+    }
+
     @Override
-    public StorageResult putObject(StorageObject storageObject) {
+    public ObjectResult putObject(StorageObject storageObject) {
         Assert.notNull(storageObject, "Parameter \"storageObject\" must not null. ");
         InputStream objectContent = storageObject.getObjectContent();
         Map<String, Object> metadata = storageObject.getMetadata();
@@ -32,33 +70,27 @@ public class LocalFileStorageProvider implements StorageProvider {
         FileOutputStream outputStream = null;
         try {
             //
-            String metadataPath = objectKey + METADATA_SUFFIX;
             File file = new File(bucketName, objectKey);
             FileUtils.write(objectContent, file);
-            Properties properties = new Properties();
+
+            Properties properties = getMetadataProperties(bucketName, objectKey);
+            properties = initMetadataProperties(properties);
+
             if (MapUtils.isNotEmpty(metadata)) {
                 properties.putAll(metadata);
             }
-            //
-            String timestamp = String.valueOf(DateUtils.getTimestamp());
-            // creationTime
-            if (!properties.containsKey("creation-time")) {
-                properties.setProperty("creation-time", timestamp);
-            }
-            // lastModifiedTime
-            if (!properties.containsKey("last-modified-time")) {
-                properties.setProperty("last-modified-time", timestamp);
-            }
-            Long lastModifiedTime = Long.valueOf(properties.getProperty("last-modified-time"));
-            boolean b = file.setLastModified(lastModifiedTime);
 
+//            Long lastModifiedTime = Long.valueOf(properties.getProperty("last-modified-time"));
+//            boolean b = file.setLastModified(lastModifiedTime);
+
+            String metadataPath = objectKey + METADATA_SUFFIX;
             outputStream = new FileOutputStream(new File(bucketName, metadataPath));
-            properties.store(outputStream, EMPTY_STRING);
+            properties.store(outputStream, COMMENTS);
 
-            StorageResult storageResult = new StorageResult();
-            storageResult.setBucketName(bucketName);
-            storageResult.setObjectKey(objectKey);
-            return storageResult;
+            ObjectResult objectResult = new ObjectResult();
+            objectResult.setBucketName(bucketName);
+            objectResult.setObjectKey(objectKey);
+            return objectResult;
         }
         catch (Exception e) {
             throw ExceptionUtils.wrap(e);
@@ -70,10 +102,10 @@ public class LocalFileStorageProvider implements StorageProvider {
     }
 
     @Override
-    public void deleteObject(StorageModel storageModel) {
-        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
-        String bucketName = storageModel.getBucketName();
-        String objectKey = storageModel.getObjectKey();
+    public void deleteObject(ObjectModel objectModel) {
+        Assert.notNull(objectModel, "Parameter \"objectModel\" must not null. ");
+        String bucketName = objectModel.getBucketName();
+        String objectKey = objectModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
         Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         File file = new File(bucketName, objectKey);
@@ -104,73 +136,57 @@ public class LocalFileStorageProvider implements StorageProvider {
     }
 
     @Override
-    public boolean doesObjectExist(StorageModel storageModel) {
-        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
-        String bucketName = storageModel.getBucketName();
-        String objectKey = storageModel.getObjectKey();
+    public boolean doesObjectExist(ObjectModel objectModel) {
+        Assert.notNull(objectModel, "Parameter \"objectModel\" must not null. ");
+        String bucketName = objectModel.getBucketName();
+        String objectKey = objectModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
         Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
         return new File(bucketName, objectKey).exists();
     }
 
     @Override
-    public Map<String, Object> getMetadata(StorageModel storageModel) {
-        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
-        String bucketName = storageModel.getBucketName();
-        String objectKey = storageModel.getObjectKey();
+    public Map<String, Object> getMetadata(ObjectModel objectModel) {
+        Assert.notNull(objectModel, "Parameter \"objectModel\" must not null. ");
+        String bucketName = objectModel.getBucketName();
+        String objectKey = objectModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
         Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
-        InputStream metadataInputStream = null;
-        try {
-            String metadataPath = objectKey + METADATA_SUFFIX;
-
-            metadataInputStream = new FileInputStream(new File(bucketName, metadataPath));
-            Map<String, Object> metadata = new LinkedHashMap<String, Object>();
-            Properties properties = new Properties();
-            properties.load(metadataInputStream);
-            Enumeration<?> enumeration = properties.propertyNames();
-            while (enumeration.hasMoreElements()) {
-                Object nextElement = enumeration.nextElement();
-                if (nextElement == null) { continue; }
-                String key = String.valueOf(nextElement);
-                String val = properties.getProperty(key);
-                metadata.put(key, val);
-            }
-
-            return metadata;
+        Properties properties = getMetadataProperties(bucketName, objectKey);
+        Map<String, Object> metadata = new LinkedHashMap<String, Object>();
+        if (properties == null || properties.isEmpty()) { return metadata; }
+        Enumeration<?> enumeration = properties.propertyNames();
+        while (enumeration.hasMoreElements()) {
+            Object nextElement = enumeration.nextElement();
+            if (nextElement == null) { continue; }
+            String key = String.valueOf(nextElement);
+            String val = properties.getProperty(key);
+            metadata.put(key, val);
         }
-        catch (Exception e) {
-            throw ExceptionUtils.wrap(e);
-        }
-        finally {
-            CloseUtils.closeQuietly(metadataInputStream);
-        }
+        return metadata;
     }
 
     @Override
-    public StorageObject getObject(StorageModel storageModel) {
-        Assert.notNull(storageModel, "Parameter \"storageModel\" must not null. ");
-        String bucketName = storageModel.getBucketName();
-        String objectKey = storageModel.getObjectKey();
+    public StorageObject getObject(ObjectModel objectModel) {
+        Assert.notNull(objectModel, "Parameter \"objectModel\" must not null. ");
+        String bucketName = objectModel.getBucketName();
+        String objectKey = objectModel.getObjectKey();
         Assert.notBlank(bucketName, "Parameter \"bucketName\" must not blank. ");
         Assert.notBlank(objectKey, "Parameter \"objectKey\" must not blank. ");
-        InputStream metadataInputStream = null;
         try {
-            String metadataPath = objectKey + ".metadata";
-
             InputStream inputStream = new FileInputStream(new File(bucketName, objectKey));
 
-            metadataInputStream = new FileInputStream(new File(bucketName, metadataPath));
+            Properties properties = getMetadataProperties(bucketName, objectKey);
             Map<String, Object> metadata = new LinkedHashMap<String, Object>();
-            Properties properties = new Properties();
-            properties.load(metadataInputStream);
-            Enumeration<?> enumeration = properties.propertyNames();
-            while (enumeration.hasMoreElements()) {
-                Object nextElement = enumeration.nextElement();
-                if (nextElement == null) { continue; }
-                String key = String.valueOf(nextElement);
-                String val = properties.getProperty(key);
-                metadata.put(key, val);
+            if (properties != null && !properties.isEmpty()) {
+                Enumeration<?> enumeration = properties.propertyNames();
+                while (enumeration.hasMoreElements()) {
+                    Object nextElement = enumeration.nextElement();
+                    if (nextElement == null) { continue; }
+                    String key = String.valueOf(nextElement);
+                    String val = properties.getProperty(key);
+                    metadata.put(key, val);
+                }
             }
 
             StorageObject storageObject = new StorageObject();
@@ -182,9 +198,6 @@ public class LocalFileStorageProvider implements StorageProvider {
         }
         catch (Exception e) {
             throw ExceptionUtils.wrap(e);
-        }
-        finally {
-            CloseUtils.closeQuietly(metadataInputStream);
         }
     }
 

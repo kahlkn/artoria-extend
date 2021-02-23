@@ -7,7 +7,7 @@ import java.util.Map;
  * Object in the object storage.
  * @author Kahle
  */
-public class StorageObject extends StorageModel {
+public class StorageObject extends ObjectModel {
     /**
      * Object's metadata.
      */
