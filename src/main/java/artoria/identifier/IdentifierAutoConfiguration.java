@@ -7,18 +7,16 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static artoria.common.Constants.MINUS;
-
 @Configuration
 public class IdentifierAutoConfiguration implements InitializingBean, DisposableBean {
     private static Logger log = LoggerFactory.getLogger(IdentifierAutoConfiguration.class);
-    private static StringIdentifierGenerator uuidRawGenerator = new SimpleIdGenerator(MINUS);
+    private static StringIdentifierGenerator uuidRawGenerator = new SimpleIdGenerator(false);
     private static StringIdentifierGenerator uuidGenerator = new SimpleIdGenerator();
     private static LongIdentifierGenerator snowFlakeIdGenerator = new SnowFlakeIdGenerator();
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        IdentifierUtils.setStringIdentifierGenerator(uuidGenerator);
+        IdentifierUtils.setStringIdGenerator(uuidGenerator);
         log.info("The identifier tools was initialized success. ");
     }
 

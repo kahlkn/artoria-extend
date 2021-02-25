@@ -11,17 +11,39 @@ import static artoria.common.Constants.ZERO;
 import static artoria.time.DateUtils.create;
 
 /**
- * Redis increment identifier generator.
+ * Redis string identifier generator.
  * @see <a href="https://redis.io/commands/incrby">INCRBY key increment</a>
  * @author Kahle
  */
-public class RedisIncrIdGenerator extends AbstractIncrIdGenerator {
+public class RedisStringIdGenerator extends AbstractStringIdGenerator {
     private final long timeOffset = create(2020, ONE, ONE, ZERO, ZERO, ZERO, ZERO).getTimeInMillis();
     private final StringRedisTemplate stringRedisTemplate;
+    private TimeUnit expireTimeUnit = TimeUnit.MILLISECONDS;
+    private long expireTime = -1;
 
-    public RedisIncrIdGenerator(StringRedisTemplate stringRedisTemplate) {
+    public RedisStringIdGenerator(StringRedisTemplate stringRedisTemplate) {
         Assert.notNull(stringRedisTemplate, "Parameter \"stringRedisTemplate\" must not null. ");
         this.stringRedisTemplate = stringRedisTemplate;
+    }
+
+    public TimeUnit getExpireTimeUnit() {
+
+        return expireTimeUnit;
+    }
+
+    public void setExpireTimeUnit(TimeUnit expireTimeUnit) {
+
+        this.expireTimeUnit = expireTimeUnit;
+    }
+
+    public long getExpireTime() {
+
+        return expireTime;
+    }
+
+    public void setExpireTime(long expireTime) {
+
+        this.expireTime = expireTime;
     }
 
     @Override

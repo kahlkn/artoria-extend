@@ -10,15 +10,15 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static artoria.common.Constants.*;
+import static artoria.common.Constants.ONE;
+import static artoria.common.Constants.ZERO;
 
 /**
- * Jdbc increment identifier generator.
+ * Jdbc string identifier generator.
  * @author Kahle
  */
-public class JdbcIncrIdGenerator extends AbstractIncrIdGenerator {
+public class JdbcStringIdGenerator extends AbstractStringIdGenerator {
     private static final String SQL_QUERY_TEMPLATE = "SELECT `%s` FROM `%s` WHERE `%s` = ? FOR UPDATE;";
     private static final String SQL_INSERT_TEMPLATE = "INSERT INTO `%s` (`%s`, `%s`) VALUES (?, ?);";
     private static final String SQL_UPDATE_TEMPLATE = "UPDATE `%s` SET `%s` = ? WHERE `%s` = ?;";
@@ -28,7 +28,7 @@ public class JdbcIncrIdGenerator extends AbstractIncrIdGenerator {
     private String nameColumn;
     private String tableName;
 
-    public JdbcIncrIdGenerator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate) {
+    public JdbcStringIdGenerator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate) {
         Assert.notNull(transactionTemplate, "Parameter \"transactionTemplate\" must not null. ");
         Assert.notNull(jdbcTemplate, "Parameter \"jdbcTemplate\" must not null. ");
         this.transactionTemplate = transactionTemplate;
@@ -104,30 +104,6 @@ public class JdbcIncrIdGenerator extends AbstractIncrIdGenerator {
             insert(name, result);
         }
         return result;
-    }
-
-    @Override
-    public TimeUnit getExpireTimeUnit() {
-
-        return null;
-    }
-
-    @Override
-    public void setExpireTimeUnit(TimeUnit expireTimeUnit) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getExpireTime() {
-
-        return MINUS_ONE;
-    }
-
-    @Override
-    public void setExpireTime(long expireTime) {
-
-        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -4,54 +4,20 @@ import artoria.time.DateUtils;
 import artoria.util.Assert;
 import artoria.util.StringUtils;
 
-import java.util.concurrent.TimeUnit;
-
 import static artoria.common.Constants.ZERO;
 import static artoria.common.Constants.ZERO_STR;
 
 /**
- * Abstract increment identifier generator.
+ * Abstract string identifier generator.
  * @author Kahle
  */
-public abstract class AbstractIncrIdGenerator implements StringIdentifierGenerator {
-    private TimeUnit expireTimeUnit = TimeUnit.MILLISECONDS;
-    private long expireTime = -1;
-    private long offset = 0L;
-    private int numberLength = 6;
+public abstract class AbstractStringIdGenerator implements StringIdentifierGenerator {
+    private int numberLength = 8;
     private int stepLength = 1;
+    private long offset = 0L;
     private String datePattern;
     private String prefix;
     private String name;
-
-    public TimeUnit getExpireTimeUnit() {
-
-        return expireTimeUnit;
-    }
-
-    public void setExpireTimeUnit(TimeUnit expireTimeUnit) {
-
-        this.expireTimeUnit = expireTimeUnit;
-    }
-
-    public long getExpireTime() {
-
-        return expireTime;
-    }
-
-    public void setExpireTime(long expireTime) {
-
-        this.expireTime = expireTime;
-    }
-
-    public long getOffset() {
-
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-
-        this.offset = offset;
-    }
 
     public int getNumberLength() {
 
@@ -71,6 +37,16 @@ public abstract class AbstractIncrIdGenerator implements StringIdentifierGenerat
     public void setStepLength(int stepLength) {
 
         this.stepLength = stepLength;
+    }
+
+    public long getOffset() {
+
+        return offset;
+    }
+
+    public void setOffset(long offset) {
+
+        this.offset = offset;
     }
 
     public String getDatePattern() {
