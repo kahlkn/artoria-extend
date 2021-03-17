@@ -56,7 +56,7 @@ public class JavaFakerFaker extends AbstractFaker {
         fakerName = fakerName.toLowerCase();
         try {
             // Find field by faker name.
-            Field field = ReflectUtils.findField(Faker.class, fieldName);
+            Field field = ReflectUtils.getField(Faker.class, fieldName);
             if (field != null) {
                 ReflectUtils.makeAccessible(field);
                 this.target = field.get(javaFaker);
@@ -65,7 +65,7 @@ public class JavaFakerFaker extends AbstractFaker {
                 throw new IllegalArgumentException("The faker name is not mapped. ");
             }
             // Find all the corresponding methods.
-            Method[] methods = ReflectUtils.findMethods(target.getClass());
+            Method[] methods = ReflectUtils.getMethods(target.getClass());
             Map<String, Method> map = new HashMap<String, Method>();
             for (Method method : methods) {
                 // Loop and filter.

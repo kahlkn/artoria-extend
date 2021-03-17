@@ -40,6 +40,9 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
             String method = request.getMethod();
             if (OPTIONS_METHOD.equals(method)) { return true; }
             String tokenId = request.getHeader(tokenHeaderName);
+            if (StringUtils.isBlank(tokenId)) {
+                tokenId = request.getParameter(tokenHeaderName);
+            }
             UserUtils.setTokenId(tokenId);
 
             String requestURI = request.getRequestURI();
