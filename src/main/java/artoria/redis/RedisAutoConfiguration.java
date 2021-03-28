@@ -57,7 +57,7 @@ public class RedisAutoConfiguration implements InitializingBean, DisposableBean 
     @ConditionalOnMissingBean(name = "strObjRedisTemplate")
     public RedisTemplate<String, Object> strObjRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         JdkSerializationRedisSerializer jdkSerializer = new JdkSerializationRedisSerializer();
-        RedisSerializer<String> strSerializer = new org.springframework.data.redis.serializer.StringRedisSerializer ();
+        RedisSerializer<String> strSerializer = new org.springframework.data.redis.serializer.StringRedisSerializer();
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setDefaultSerializer(jdkSerializer);

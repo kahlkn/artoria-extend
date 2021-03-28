@@ -512,6 +512,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.jsonzou</groupId>
+            <artifactId>jmockdata</artifactId>
+            <version>4.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <repositories>

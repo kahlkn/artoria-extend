@@ -11,6 +11,7 @@ artoria.crypto.CryptoAutoConfiguration,\
 artoria.exception.ExceptionAutoConfiguration,\
 artoria.message.RedisMessageAutoConfiguration,\
 artoria.message.SimpleMessageAutoConfiguration,\
+artoria.mock.JMockDataAutoConfiguration,\
 artoria.identifier.IdentifierAutoConfiguration,\
 artoria.lock.LockAutoConfiguration,\
 artoria.exchange.JsonAutoConfiguration,\
