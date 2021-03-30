@@ -3,6 +3,8 @@ package artoria.mock;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.test.bean.Book;
+import artoria.test.bean.Menu;
+import artoria.test.bean.NestedBean;
 import artoria.util.TypeUtils;
 import com.alibaba.fastjson.JSON;
 import org.junit.Test;
@@ -27,6 +29,12 @@ public class MockUtilsTest {
     public void testMock2() {
         List<Book> bookList = MockUtils.mock(TypeUtils.parameterizedOf(List.class, Book.class));
         log.info(JSON.toJSONString(bookList, Boolean.TRUE));
+    }
+
+    @Test
+    public void testMock3() {
+        Menu menu = MockUtils.mock(Menu.class);
+        System.out.println(JSON.toJSONString(menu));
     }
 
 }
