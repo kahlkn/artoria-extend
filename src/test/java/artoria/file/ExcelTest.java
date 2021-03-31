@@ -2,7 +2,7 @@ package artoria.file;
 
 import artoria.beans.BeanUtils;
 import artoria.entity.Student;
-import artoria.fake.FakeUtils;
+import artoria.mock.MockUtils;
 import com.alibaba.fastjson.JSON;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class ExcelTest {
         titleStuMap.put("Student Id", "studentId");
         titleStuMap.put("School Name", "schoolName");
         for (int i = 0; i < 5; i++) {
-            students.add(FakeUtils.fake(Student.class));
+            students.add(MockUtils.mock(Student.class));
         }
         studentsMap.addAll(BeanUtils.beanToMapInList(students));
     }

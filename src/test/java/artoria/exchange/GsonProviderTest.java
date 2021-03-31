@@ -1,7 +1,7 @@
 package artoria.exchange;
 
 import artoria.entity.Student;
-import artoria.fake.FakeUtils;
+import artoria.mock.MockUtils;
 import artoria.util.TypeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +20,9 @@ public class GsonProviderTest {
     @Before
     public void init() {
         JsonUtils.setJsonProvider(new GsonProvider());
-        data = FakeUtils.fake(Student.class);
+        data = MockUtils.mock(Student.class);
         for (int i = 0; i < 5; i++) {
-            data1.add(FakeUtils.fake(Student.class));
+            data1.add(MockUtils.mock(Student.class));
         }
         jsonString = JsonUtils.toJsonString(data, PRETTY_FORMAT);
         jsonString1 = JsonUtils.toJsonString(data1, PRETTY_FORMAT);

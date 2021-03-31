@@ -2,9 +2,9 @@ package artoria.beans;
 
 import artoria.convert.type.TypeConvertUtils;
 import artoria.convert.type.TypeConverter;
-import artoria.fake.FakeUtils;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
+import artoria.mock.MockUtils;
 import artoria.test.dto.OrdinaryPersonDTO;
 import artoria.test.dto.SimplePersonDTO;
 import artoria.test.dto.SkillDTO;
@@ -26,7 +26,7 @@ abstract class AbstractBeanCopierTest {
     private static final TypeConverter CONVERTER_AGENT = new TypeConverterAgent();
 
     void doCopyMapToObject(BeanCopier beanCopier) {
-        Dog newDog = FakeUtils.fake(Dog.class);
+        Dog newDog = MockUtils.mock(Dog.class);
         Map<String, Object> fromMap = BeanUtils.beanToMap(newDog);
         Dog toDog = new Dog();
         log.info("From object: {}", JSON.toJSONString(fromMap));
@@ -37,7 +37,7 @@ abstract class AbstractBeanCopierTest {
     }
 
     void doCopyObjectToMap(BeanCopier beanCopier) {
-        Dog fromDog = FakeUtils.fake(Dog.class);
+        Dog fromDog = MockUtils.mock(Dog.class);
         Map<String, Object> toMap = new HashMap<String, Object>();
         log.info("From object: {}", JSON.toJSONString(fromDog));
         log.info("To object: {}", JSON.toJSONString(toMap));
@@ -47,7 +47,7 @@ abstract class AbstractBeanCopierTest {
     }
 
     void doCopyNullToValue(BeanCopier beanCopier) {
-        Dog fromDog = FakeUtils.fake(Dog.class);
+        Dog fromDog = MockUtils.mock(Dog.class);
         Dog toDog = new Dog();
         fromDog.setName(null);
         toDog.setName("ToDog's name");
@@ -60,7 +60,7 @@ abstract class AbstractBeanCopierTest {
     }
 
     void doCopyObjToObjToTestTypeConvert(BeanCopier beanCopier) {
-        SimplePersonDTO fromPerson = FakeUtils.fake(SimplePersonDTO.class);
+        SimplePersonDTO fromPerson = MockUtils.mock(SimplePersonDTO.class);
         fromPerson.setGender("1");
         OrdinaryPersonDTO toPerson = new OrdinaryPersonDTO();
         log.info("From object: {}", JSON.toJSONString(fromPerson));
@@ -76,10 +76,10 @@ abstract class AbstractBeanCopierTest {
     }
 
     void doCopyObjToOtherObjToTestPropertyList(BeanCopier beanCopier) {
-        OrdinaryPerson fromPerson = FakeUtils.fake(OrdinaryPerson.class);
+        OrdinaryPerson fromPerson = MockUtils.mock(OrdinaryPerson.class);
         List<Skill> skillList = new ArrayList<Skill>();
         for (int i = ZERO; i < ONE; i++) {
-            skillList.add(FakeUtils.fake(Skill.class));
+            skillList.add(MockUtils.mock(Skill.class));
         }
         fromPerson.setSkillList(skillList);
         OrdinaryPersonDTO toPerson = new OrdinaryPersonDTO();
