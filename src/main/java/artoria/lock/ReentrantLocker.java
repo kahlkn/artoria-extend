@@ -1,6 +1,7 @@
 package artoria.lock;
 
 import artoria.collection.ReferenceMap;
+import artoria.lang.ReferenceType;
 import artoria.util.Assert;
 
 import java.util.Map;
@@ -20,9 +21,9 @@ public class ReentrantLocker implements Locker {
     private Map<String, Lock> storage;
 
     public ReentrantLocker() {
-        ReferenceMap.Type type = ReferenceMap.Type.SOFT;
-        this.storage = new ReferenceMap<String, Lock>(
-                new ConcurrentHashMap<String, ReferenceMap.ValueCell<String, Lock>>(), type
+        ReferenceType type = ReferenceType.SOFT;
+        this.storage = new ReferenceMap<String, Lock>(type,
+                new ConcurrentHashMap<String, ReferenceMap.ValueCell<String, Lock>>()
         );
     }
 

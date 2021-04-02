@@ -1,7 +1,7 @@
 package artoria.option;
 
 import artoria.cache.CacheUtils;
-import artoria.cache.SimpleCache;
+import artoria.cache.SpringSimpleCache;
 import artoria.util.Assert;
 import artoria.util.StringUtils;
 import org.slf4j.Logger;
@@ -14,7 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.concurrent.TimeUnit;
 
-import static artoria.collection.ReferenceMap.Type.SOFT;
+import static artoria.common.Constants.ZERO;
+import static artoria.lang.ReferenceType.SOFT;
 
 /**
  * Option auto configuration.
@@ -68,7 +69,8 @@ public class OptionAutoConfiguration {
             timeToLive = 3L;
             timeUnit = TimeUnit.MINUTES;
         }
-        CacheUtils.register(new SimpleCache(cacheName, SOFT));
+        long toMillis = timeUnit.toMillis(timeToLive);
+        CacheUtils.register(new SpringSimpleCache(cacheName, ZERO, toMillis, ZERO, SOFT));
         optionProvider = new CacheOptionProvider(optionProvider, cacheName, timeToLive, timeUnit);
         return optionProvider;
     }

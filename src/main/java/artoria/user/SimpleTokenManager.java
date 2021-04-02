@@ -2,8 +2,8 @@ package artoria.user;
 
 import artoria.cache.Cache;
 import artoria.cache.SimpleCache;
-import artoria.collection.ReferenceMap;
 import artoria.identifier.IdentifierUtils;
+import artoria.lang.ReferenceType;
 import artoria.util.Assert;
 import artoria.util.StringUtils;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class SimpleTokenManager implements TokenManager {
         if (tokenExpirationTime < ZERO) { tokenExpirationTime = 0L; }
         this.tokenExpirationTime = tokenExpirationTime;
         this.cache = new SimpleCache(
-                getClass().getName(), ReferenceMap.Type.SOFT
+                getClass().getName(), ReferenceType.SOFT
         );
     }
 

@@ -2,7 +2,7 @@ package artoria.user;
 
 import artoria.cache.Cache;
 import artoria.cache.SimpleCache;
-import artoria.collection.ReferenceMap;
+import artoria.lang.ReferenceType;
 import artoria.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class SimpleUserManager implements UserManager {
         this.userExpirationTime = userExpirationTime;
         this.userLoader = userLoader;
         this.cache = new SimpleCache(
-                getClass().getName(), ReferenceMap.Type.SOFT
+                getClass().getName(), ReferenceType.SOFT
         );
     }
 
