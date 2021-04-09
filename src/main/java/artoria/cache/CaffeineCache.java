@@ -1,54 +1,107 @@
 package artoria.cache;
 
+import artoria.util.Assert;
+import artoria.util.MapUtils;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+
+import static artoria.common.Constants.FIFTY;
+import static artoria.common.Constants.ZERO;
+import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class CaffeineCache extends AbstractCache {
+    private Cache<Object, ValueWrapper> storage;
 
-    public CaffeineCache(String name) {
+    public CaffeineCache(String name, long capacity, long timeToLive, long timeToIdle) {
         super(name);
-        Cache<Object, Object> cache = Caffeine.newBuilder().build();;
+        boolean flag = capacity <= ZERO && timeToLive <= ZERO && timeToIdle <= ZERO;
+        Assert.isFalse(flag,
+        "A parameter must have a value in \"capacity\", \"timeToLive\", \"timeToIdle\". "
+        );
+        Caffeine<Object, Object> builder = Caffeine.newBuilder();
+        if (timeToIdle > ZERO) { builder.expireAfterAccess(timeToIdle, MILLISECONDS); }
+        if (timeToLive > ZERO) { builder.expireAfterWrite(timeToLive, MILLISECONDS); }
+        if (capacity > ZERO) { builder.maximumSize(capacity); }
+        builder.initialCapacity(FIFTY);
+        this.storage = builder.build();
+    }
+
+    public CaffeineCache(String name, Caffeine<Object, Object> caffeineBuilder) {
+        super(name);
+        Assert.notNull(caffeineBuilder, "Parameter \"caffeineBuilder\" must not null. ");
+        this.storage = caffeineBuilder.build();
     }
 
     @Override
     protected ValueWrapper getValueWrapper(Object key) {
-        return null;
+
+        return storage.getIfPresent(key);
     }
 
     @Override
     protected ValueWrapper putValueWrapper(Object key, ValueWrapper valueWrapper) {
+        storage.put(key, valueWrapper);
         return null;
     }
 
     @Override
     protected ValueWrapper removeValueWrapper(Object key) {
+        storage.invalidate(key);
         return null;
     }
 
     @Override
     public Object getNativeCache() {
-        return null;
+
+        return storage;
     }
 
     @Override
-    public int size() {
-        return 0;
+    public long size() {
+
+        return storage.estimatedSize();
     }
 
     @Override
     public void clear() {
 
+        storage.invalidateAll();
     }
 
     @Override
-    public int prune() {
-        return 0;
+    public long prune() {
+        long count = ZERO;
+        ConcurrentMap<Object, ValueWrapper> asMap = storage.asMap();
+        for (Map.Entry<Object, ValueWrapper> entry : asMap.entrySet()) {
+            ValueWrapper valueWrapper = entry.getValue();
+            Object key = entry.getKey();
+            if (valueWrapper.isExpired()) {
+                storage.invalidate(key);
+                count++;
+            }
+        }
+        storage.cleanUp();
+        return count;
     }
 
     @Override
     public Map<Object, Object> entries() {
-        return null;
+        ConcurrentMap<Object, ValueWrapper> asMap = storage.asMap();
+        if (MapUtils.isEmpty(asMap)) { return emptyMap(); }
+        Map<Object, Object> result = new HashMap<Object, Object>(asMap.size());
+        for (Map.Entry<Object, ValueWrapper> entry : asMap.entrySet()) {
+            ValueWrapper val = entry.getValue();
+            Object key = entry.getKey();
+            if (key == null || val == null) { continue; }
+            result.put(key, val.getValue());
+        }
+        return Collections.unmodifiableMap(result);
     }
+
 }
