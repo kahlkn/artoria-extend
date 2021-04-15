@@ -19,6 +19,7 @@ artoria.exchange.XmlAutoConfiguration,\
 artoria.feign.FeignSupportAutoConfiguration,\
 artoria.redis.RedisAutoConfiguration,\
 artoria.cache.CacheAutoConfiguration,\
+artoria.cache.SpringCacheAdapterAutoConfiguration,\
 artoria.event.EventAutoConfiguration,\
 artoria.reflect.ReflectAutoConfiguration,\
 artoria.cors.CorsFilterAutoConfiguration,\

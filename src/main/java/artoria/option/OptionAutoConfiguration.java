@@ -1,7 +1,9 @@
 package artoria.option;
 
+import artoria.cache.Cache;
 import artoria.cache.CacheUtils;
 import artoria.cache.SpringSimpleCache;
+import artoria.cache.UndefinedCache;
 import artoria.util.Assert;
 import artoria.util.StringUtils;
 import org.slf4j.Logger;
@@ -70,7 +72,10 @@ public class OptionAutoConfiguration {
             timeUnit = TimeUnit.MINUTES;
         }
         long toMillis = timeUnit.toMillis(timeToLive);
-        CacheUtils.register(new SpringSimpleCache(cacheName, ZERO, toMillis, ZERO, SOFT));
+        Cache cache = CacheUtils.getCache(cacheName);
+        if (cache == null || cache instanceof UndefinedCache) {
+            CacheUtils.register(new SpringSimpleCache(cacheName, ZERO, toMillis, ZERO, SOFT));
+        }
         optionProvider = new CacheOptionProvider(optionProvider, cacheName, timeToLive, timeUnit);
         return optionProvider;
     }

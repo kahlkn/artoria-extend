@@ -46,8 +46,7 @@ public class CacheOptionProvider extends AbstractOptionProvider {
         if (val == null) {
             val = optionProvider.getOptions(owner);
             if (val == null) { return null; }
-            CacheUtils.put(cacheName, key, val);
-            CacheUtils.expire(cacheName, key, timeToLive, timeUnit);
+            CacheUtils.put(cacheName, key, val, timeToLive, timeUnit);
         }
         return ObjectUtils.cast(val);
     }
@@ -61,8 +60,7 @@ public class CacheOptionProvider extends AbstractOptionProvider {
         if (val == null) {
             val = optionProvider.getOption(owner, name, NULL_OBJ);
             if (val == null) { return defaultValue; }
-            CacheUtils.put(cacheName, key, val);
-            CacheUtils.expire(cacheName, key, timeToLive, timeUnit);
+            CacheUtils.put(cacheName, key, val, timeToLive, timeUnit);
         }
         return val;
     }

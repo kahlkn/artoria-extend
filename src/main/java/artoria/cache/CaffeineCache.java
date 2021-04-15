@@ -4,22 +4,25 @@ import artoria.util.Assert;
 import artoria.util.MapUtils;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import static artoria.common.Constants.FIFTY;
-import static artoria.common.Constants.ZERO;
+import static artoria.common.Constants.*;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class CaffeineCache extends AbstractCache {
+    private static Logger log = LoggerFactory.getLogger(CaffeineCache.class);
     private Cache<Object, ValueWrapper> storage;
 
     public CaffeineCache(String name, long capacity, long timeToLive, long timeToIdle) {
-        super(name);
+        super(name, false);
         boolean flag = capacity <= ZERO && timeToLive <= ZERO && timeToIdle <= ZERO;
         Assert.isFalse(flag,
         "A parameter must have a value in \"capacity\", \"timeToLive\", \"timeToIdle\". "
@@ -33,14 +36,16 @@ public class CaffeineCache extends AbstractCache {
     }
 
     public CaffeineCache(String name, Caffeine<Object, Object> caffeineBuilder) {
-        super(name);
+        super(name, false);
         Assert.notNull(caffeineBuilder, "Parameter \"caffeineBuilder\" must not null. ");
         this.storage = caffeineBuilder.build();
     }
 
     @Override
     protected ValueWrapper getValueWrapper(Object key) {
-
+        if (storage instanceof LoadingCache) {
+            return ((LoadingCache<Object, ValueWrapper>) storage).get(key);
+        }
         return storage.getIfPresent(key);
     }
 
@@ -83,6 +88,7 @@ public class CaffeineCache extends AbstractCache {
             Object key = entry.getKey();
             if (valueWrapper.isExpired()) {
                 storage.invalidate(key);
+                recordEviction(key, TWO);
                 count++;
             }
         }
@@ -99,6 +105,11 @@ public class CaffeineCache extends AbstractCache {
             ValueWrapper val = entry.getValue();
             Object key = entry.getKey();
             if (key == null || val == null) { continue; }
+            if (val.isExpired()) {
+                removeValueWrapper(key);
+                recordEviction(key, TWO);
+                continue;
+            }
             result.put(key, val.getValue());
         }
         return Collections.unmodifiableMap(result);
