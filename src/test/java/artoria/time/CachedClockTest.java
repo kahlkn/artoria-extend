@@ -10,11 +10,11 @@ public class CachedClockTest {
     @Test
     public void test1() {
         Clock clock = CachedClock.getInstance();
-        log.info("{}", DateUtils.format(clock.getTime()));
-        log.info("{}", DateUtils.format(clock.getTime()));
-        log.info("{}", DateUtils.format(clock.getTime()));
-        log.info("{}", DateUtils.format(clock.getTime()));
-        log.info("{}", DateUtils.format(clock.getTime()));
+        log.info("{}", DateUtils.format(clock.getTimeInMillis()));
+        log.info("{}", DateUtils.format(clock.getTimeInMillis()));
+        log.info("{}", DateUtils.format(clock.getTimeInMillis()));
+        log.info("{}", DateUtils.format(clock.getTimeInMillis()));
+        log.info("{}", DateUtils.format(clock.getTimeInMillis()));
     }
 
 }

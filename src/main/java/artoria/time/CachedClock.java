@@ -8,6 +8,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import static artoria.common.Constants.ONE;
+import static artoria.common.Constants.ONE_THOUSAND;
 import static artoria.common.Constants.ZERO;
 import static java.lang.Boolean.TRUE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -22,7 +23,7 @@ public class CachedClock implements Clock {
 
     public static long currentTimeMillis() {
 
-        return Holder.INSTANCE.getTime();
+        return Holder.INSTANCE.getTimeInMillis();
     }
 
     public static Clock getInstance() {
@@ -47,9 +48,15 @@ public class CachedClock implements Clock {
     }
 
     @Override
-    public long getTime() {
+    public long getTimeInMillis() {
 
         return nowTime;
+    }
+
+    @Override
+    public long getTimeInSeconds() {
+
+        return getTimeInMillis() / ONE_THOUSAND;
     }
 
     private class TimeUpdater implements Runnable {
