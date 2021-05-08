@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import static artoria.common.Constants.MINUS_ONE;
 import static artoria.common.Constants.ZERO;
+import static java.lang.Boolean.TRUE;
 
 /**
  * Base64 auto configuration.
@@ -27,18 +28,24 @@ public class Base64AutoConfiguration implements InitializingBean, DisposableBean
         // If have Apache Commons Codec, to use it.
         boolean haveApache = ClassUtils.isPresent(APACHE_BASE64, classLoader);
         if (haveApache) {
-            Base64Utils.setFactory(new Base64Utils.Base64Factory() {
+            Base64Utils.setBase64Factory(new Base64Factory() {
+                private final Base64 mimeBase64 = new ApacheBase64(TRUE, MINUS_ONE, null);
+                private final Base64 urlBase64 = new ApacheBase64(TRUE);
+                private final Base64 base64 = new ApacheBase64();
                 @Override
                 public Base64 getInstance() {
-                    return new ApacheBase64();
+                    return base64;
                 }
                 @Override
                 public Base64 getInstance(boolean urlSafe) {
-                    return new ApacheBase64(urlSafe);
+                    // Nothing.
+                    return urlSafe ? urlBase64 : base64;
                 }
                 @Override
                 public Base64 getInstance(boolean mime, int lineLength, byte[] lineSeparator) {
-                    return new ApacheBase64(mime, lineLength, lineSeparator);
+                    if (!mime) { return base64; }
+                    if (lineLength == MINUS_ONE && lineSeparator == null) { return mimeBase64; }
+                    return new ApacheBase64(TRUE, lineLength, lineSeparator);
                 }
             });
             log.info("The base64 tools was initialized success. ");
@@ -67,10 +74,10 @@ public class Base64AutoConfiguration implements InitializingBean, DisposableBean
             this(false, mime, lineLength, lineSeparator);
         }
 
-        public ApacheBase64(boolean urlSafe, boolean mime, int lineLength, byte[] lineSeparator) {
+        protected ApacheBase64(boolean urlSafe, boolean mime, int lineLength, byte[] lineSeparator) {
             super(urlSafe, mime, lineLength, lineSeparator);
             if (mime) {
-                lineLength = lineLength > ZERO ? lineLength : MIME_LINE_LENGTH;
+                lineLength = lineLength > ZERO ? lineLength : DEFAULT_MIME_LINE_LENGTH;
             }
             else { lineLength = MINUS_ONE; }
             apacheBase64 = new org.apache.commons.codec.binary.Base64(

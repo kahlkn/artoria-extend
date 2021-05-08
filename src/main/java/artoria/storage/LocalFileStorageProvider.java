@@ -2,6 +2,7 @@ package artoria.storage;
 
 import artoria.exception.ExceptionUtils;
 import artoria.file.FileUtils;
+import artoria.file.FilenameUtils;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.time.DateUtils;
@@ -21,7 +22,10 @@ public class LocalFileStorageProvider implements StorageProvider {
     private static Logger log = LoggerFactory.getLogger(LocalFileStorageProvider.class);
 
     private Properties getMetadataProperties(String bucketName, String objectKey) {
-        String metadataPath = objectKey + METADATA_SUFFIX;
+        int lastSeparator = FilenameUtils.indexOfLastSeparator(objectKey);
+        int length = objectKey.length();
+        String metadataPath = objectKey.substring(0, lastSeparator) + "/" + ".metadata" + objectKey.substring(lastSeparator, length) + METADATA_SUFFIX;
+//        String metadataPath = objectKey + METADATA_SUFFIX;
         File metadataFile = new File(bucketName, metadataPath);
         if (!metadataFile.exists() ||
                 metadataFile.isDirectory()) {
@@ -45,7 +49,7 @@ public class LocalFileStorageProvider implements StorageProvider {
     private Properties initMetadataProperties(Properties properties) {
         boolean isNew = properties == null;
         if (isNew) { properties = new Properties(); }
-        String timestamp = String.valueOf(DateUtils.getTimestamp());
+        String timestamp = String.valueOf(DateUtils.getTimeInMillis());
         // Creation time.
         String key = "Creation-Time";
         if (!properties.containsKey(key)) {
@@ -83,8 +87,18 @@ public class LocalFileStorageProvider implements StorageProvider {
 //            Long lastModifiedTime = Long.valueOf(properties.getProperty("last-modified-time"));
 //            boolean b = file.setLastModified(lastModifiedTime);
 
-            String metadataPath = objectKey + METADATA_SUFFIX;
-            outputStream = new FileOutputStream(new File(bucketName, metadataPath));
+//            String metadataPath = objectKey + METADATA_SUFFIX;
+            int lastSeparator = FilenameUtils.indexOfLastSeparator(objectKey);
+            int length = objectKey.length();
+            String metadataPath = objectKey.substring(0, lastSeparator) + "/" + ".metadata" + objectKey.substring(lastSeparator, length) + METADATA_SUFFIX;
+
+            File metadataFile = new File(bucketName, metadataPath);
+            log.info(">> {}", metadataFile);
+            File parentFile = metadataFile.getParentFile();
+            if (!parentFile.exists()) {
+                boolean mkdirs = parentFile.mkdirs();
+            }
+            outputStream = new FileOutputStream(metadataFile);
             properties.store(outputStream, COMMENTS);
 
             ObjectResult objectResult = new ObjectResult();

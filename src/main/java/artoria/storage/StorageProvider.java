@@ -20,4 +20,27 @@ public interface StorageProvider {
 
     // CopyObjectResult copyObject(CopyObjectModel copyObjectModel);
 
+    /*
+
+    limit
+
+    ----
+    PutObject
+    DeleteObject
+    DeleteMultipleObjects
+    doesObjectExist
+    GetObject
+    listObjects
+
+    AppendObject
+    CopyObject
+    moveObject
+
+    HeadObject   全部元信息 大概率是全部元信息（自己发挥咯）
+    GetObjectMeta   基本元信息 大概率是全部元信息（自己发挥咯）
+    PutObjectMeta
+
+    * */
+
+
 }

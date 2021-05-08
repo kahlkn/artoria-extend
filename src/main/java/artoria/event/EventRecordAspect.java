@@ -113,7 +113,7 @@ public class EventRecordAspect {
 
         UserInfo userInfo = UserUtils.getUserInfo();
         String userId = userInfo != null ? userInfo.getId() : null;
-        EventUtils.addEvent(eventName, eventType, userId, null, properties);
+        EventUtils.submit(eventName, eventType, userId, null, properties);
     }
 
     @Pointcut("@annotation(artoria.event.EventRecord)")

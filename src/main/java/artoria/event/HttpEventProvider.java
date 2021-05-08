@@ -9,13 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static artoria.common.Constants.COMPUTER_NAME;
 import static artoria.common.Constants.HOST_NAME;
 
-public class HttpEventProvider implements EventProvider {
+public class HttpEventProvider extends AbstractEventProvider {
     private static Logger log = LoggerFactory.getLogger(HttpEventProvider.class);
     private String serverAppId;
     private String destination;
@@ -33,13 +32,15 @@ public class HttpEventProvider implements EventProvider {
         this.clientAppIdName = clientAppIdName;
     }
 
-    protected Map<String, Object> handleProperties(HttpServletRequest request, Map<String, Object> properties) {
-        if (properties == null) { properties = new LinkedHashMap<String, Object>(); }
+    @Override
+    protected void op(Map<String, Object> properties) {
+        if (properties == null) { return; }
+        HttpServletRequest request = RequestContextUtils.getRequest();
         properties.put("serverId", StringUtils.isNotBlank(HOST_NAME) ? HOST_NAME : COMPUTER_NAME);
         if (StringUtils.isNotBlank(serverAppId)) {
             properties.put("serverAppId", serverAppId);
         }
-        if (request == null) { return properties; }
+        if (request == null) { return; }
         if (StringUtils.isNotBlank(tokenIdName)) {
             properties.put("tokenId", request.getHeader(tokenIdName));
         }
@@ -57,44 +58,20 @@ public class HttpEventProvider implements EventProvider {
         // responseOutput
         // errorMessage
         // processTime
-        return properties;
     }
 
     @Override
-    public void addEvent(String eventName, String eventType, String distinctId, String anonymousId, Map<String, Object> properties) {
-        try {
-            Assert.notBlank(eventName, "Parameter \"eventName\" must not blank. ");
-            Long eventTime = (Long) properties.get("eventTime");
-            if (eventTime == null) { eventTime = System.currentTimeMillis(); }
-
-            HttpServletRequest request = RequestContextUtils.getRequest();
-            if (request != null) {
-                if (StringUtils.isBlank(anonymousId)
-                        && StringUtils.isNotBlank(anonymousIdName)) {
-                    anonymousId = request.getHeader(anonymousIdName);
-                }
-                properties = handleProperties(request, properties);
+    protected void push(Map<String, Object> eventRecord) {
+        String anonymousId = (String) eventRecord.get("anonymousId");
+        HttpServletRequest request = RequestContextUtils.getRequest();
+        if (request != null) {
+            if (StringUtils.isBlank(anonymousId)
+                    && StringUtils.isNotBlank(anonymousIdName)) {
+                anonymousId = request.getHeader(anonymousIdName);
+                eventRecord.put("anonymousId", anonymousId);
             }
-
-            if (StringUtils.isBlank(distinctId) && StringUtils.isBlank(anonymousId)) {
-                throw new IllegalArgumentException(
-                        "Parameter \"distinctId\" and parameter \"anonymousId\" cannot both be blank. "
-                );
-            }
-
-            Map<String, Object> eventRecord = new LinkedHashMap<String, Object>();
-            eventRecord.put("eventName",   eventName);
-            eventRecord.put("eventType",   eventType);
-            eventRecord.put("eventTime",   eventTime);
-            eventRecord.put("distinctId",  distinctId);
-            eventRecord.put("anonymousId", anonymousId);
-            eventRecord.put("properties",  properties);
-
-            MessageUtils.send(destination, eventRecord);
         }
-        catch (Exception e) {
-            log.error(getClass().getSimpleName() + ": An error has occurred. ", e);
-        }
+        MessageUtils.send(destination, eventRecord);
     }
 
 }

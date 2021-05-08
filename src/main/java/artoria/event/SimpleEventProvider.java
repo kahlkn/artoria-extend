@@ -3,32 +3,22 @@ package artoria.event;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.time.DateUtils;
-import artoria.util.Assert;
 import artoria.util.StringUtils;
 
 import java.util.Map;
 
-public class SimpleEventProvider implements EventProvider {
+public class SimpleEventProvider extends AbstractEventProvider {
     private static Logger log = LoggerFactory.getLogger(SimpleEventProvider.class);
 
     @Override
-    public void addEvent(String eventName, String eventType, String distinctId, String anonymousId, Map<String, Object> properties) {
-        try {
-            Assert.notBlank(eventName, "Parameter \"eventName\" must not blank. ");
-            if (StringUtils.isBlank(distinctId) && StringUtils.isBlank(anonymousId)) {
-                throw new IllegalArgumentException(
-                        "Parameter \"distinctId\" and parameter \"anonymousId\" cannot both be blank. "
-                );
-            }
-            Long eventTime = (Long) properties.get("eventTime");
-            if (eventTime == null) { eventTime = System.currentTimeMillis(); }
-            String format = "User \"%s\" performed \"%s\" operation in \"%s\". ";
-            String user = StringUtils.isNotBlank(distinctId) ? distinctId : anonymousId;
-            log.info(String.format(format, user, eventName, DateUtils.format(eventTime)));
-        }
-        catch (Exception e) {
-            log.error(getClass().getSimpleName() + ": An error has occurred. ", e);
-        }
+    protected void push(Map<String, Object> eventRecord) {
+        String anonymousId = (String) eventRecord.get("anonymousId");
+        String distinctId = (String) eventRecord.get("distinctId");
+        String name = (String) eventRecord.get("name");
+        Long time = (Long) eventRecord.get("time");
+        String format = "User \"%s\" performed \"%s\" operation in \"%s\". ";
+        String user = StringUtils.isNotBlank(distinctId) ? distinctId : anonymousId;
+        log.info(String.format(format, user, name, DateUtils.format(time)));
     }
 
 }
