@@ -4,6 +4,7 @@ import artoria.message.MessageUtils;
 import artoria.servlet.RequestUtils;
 import artoria.spring.RequestContextUtils;
 import artoria.util.Assert;
+import artoria.util.ObjectUtils;
 import artoria.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.util.Map;
 import static artoria.common.Constants.COMPUTER_NAME;
 import static artoria.common.Constants.HOST_NAME;
 
-public class HttpEventProvider extends AbstractEventProvider {
+public class HttpEventProvider extends SimpleEventProvider {
     private static Logger log = LoggerFactory.getLogger(HttpEventProvider.class);
     private String serverAppId;
     private String destination;
@@ -33,13 +34,15 @@ public class HttpEventProvider extends AbstractEventProvider {
     }
 
     @Override
-    protected void op(Map<String, Object> properties) {
-        if (properties == null) { return; }
-        HttpServletRequest request = RequestContextUtils.getRequest();
+    protected void edit(Map<String, Object> eventRecord) {
+        if (eventRecord == null) { return; }
+        Map<String, Object> properties = ObjectUtils.cast(eventRecord.get("properties"));
+        String anonymousId = (String) eventRecord.get("anonymousId");
         properties.put("serverId", StringUtils.isNotBlank(HOST_NAME) ? HOST_NAME : COMPUTER_NAME);
         if (StringUtils.isNotBlank(serverAppId)) {
             properties.put("serverAppId", serverAppId);
         }
+        HttpServletRequest request = RequestContextUtils.getRequest();
         if (request == null) { return; }
         if (StringUtils.isNotBlank(tokenIdName)) {
             properties.put("tokenId", request.getHeader(tokenIdName));
@@ -58,19 +61,15 @@ public class HttpEventProvider extends AbstractEventProvider {
         // responseOutput
         // errorMessage
         // processTime
+        if (StringUtils.isBlank(anonymousId) && StringUtils.isNotBlank(anonymousIdName)) {
+            anonymousId = request.getHeader(anonymousIdName);
+            eventRecord.put("anonymousId", anonymousId);
+        }
     }
 
     @Override
     protected void push(Map<String, Object> eventRecord) {
-        String anonymousId = (String) eventRecord.get("anonymousId");
-        HttpServletRequest request = RequestContextUtils.getRequest();
-        if (request != null) {
-            if (StringUtils.isBlank(anonymousId)
-                    && StringUtils.isNotBlank(anonymousIdName)) {
-                anonymousId = request.getHeader(anonymousIdName);
-                eventRecord.put("anonymousId", anonymousId);
-            }
-        }
+        show(eventRecord);
         MessageUtils.send(destination, eventRecord);
     }
 

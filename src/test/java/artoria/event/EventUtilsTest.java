@@ -8,7 +8,7 @@ public class EventUtilsTest {
     @Test
     public void test1() {
         EventUtils.record()
-                .setName("A_TEST_EVENT")
+                .setName("TEST_EVENT_1")
                 .setType("system")
                 .setTime(System.currentTimeMillis())
                 .setDistinctId("u10000001")
@@ -21,14 +21,18 @@ public class EventUtilsTest {
     @Test
     public void test2() {
         EventUtils.record()
-                .setName("A_TEST_EVENT")
+                .setName("TEST_EVENT_2")
                 .setDistinctId("u10000001")
                 .setProperty("serverId", "SER1009")
                 .setProperty("appId", "APP101812");
+        // Other code.
+        // Other code.
         EventUtils.record()
                 .setProperty("ip", "192.168.1.1")
                 .setProperty("geo", "121.59")
                 .removeProperty("appId");
+        // Other code.
+        // Other code.
         System.out.println(EventUtils.record().getProperty("ip"));
         EventUtils.submit();
         EventUtils.clear();
@@ -36,10 +40,13 @@ public class EventUtilsTest {
 
     @Test
     public void test3() {
-        EventUtils.submit("A_TEST_EVENT", null, "u10000001", null, null);
-        EventUtils.record("1").setEventName("A_TEST_EVENT").setDistinctId("u10000001");
-        EventUtils.record().setName("A_TEST_EVENT1").setDistinctId("u10000002").submit();
-        EventUtils.record("1").submit();
+        EventUtils.record("record1").setName("TEST_EVENT_3").setDistinctId("u10000001");
+        // Other code.
+        // Other code.
+        EventUtils.record().setName("TEST_EVENT_3").setDistinctId("u10000002").submit();
+        // Other code.
+        // Other code.
+        EventUtils.record("record1").setProperty("ip", "192.168.1.1").submit();
     }
 
 }

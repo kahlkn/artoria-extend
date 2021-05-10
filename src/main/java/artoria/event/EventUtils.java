@@ -4,6 +4,7 @@ import artoria.collection.ReferenceMap;
 import artoria.common.Constants;
 import artoria.lang.ReferenceType;
 import artoria.util.Assert;
+import artoria.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,42 +31,26 @@ public class EventUtils {
         EventUtils.eventProvider = eventProvider;
     }
 
-    public static void submit(String name, String type, String distinctId, Map<String, Object> properties) {
-
-        getEventProvider().submit(name, type, distinctId, properties);
-    }
-
-    public static void submit(String name, String type, String distinctId, String anonymousId, Map<String, Object> properties) {
-
-        getEventProvider().submit(name, type, distinctId, anonymousId, properties);
-    }
-
-    public static void submit(String name, String type, Long time, String distinctId, String anonymousId, Map<String, Object> properties) {
-
-        getEventProvider().submit(name, type, distinctId, anonymousId, properties);
-    }
-
-
     public static Event record() {
 
         return record(Constants.DEFAULT);
     }
 
-    public static Event record(String recordName) {
+    public static Event record(String record) {
 
-        Map<String, Event> recordMap = threadLocal.get();
-        if (recordMap == null) {
-            recordMap = new ReferenceMap<String, Event>(ReferenceType.SOFT);
-            threadLocal.set(recordMap);
+        Map<String, Event> eventMap = threadLocal.get();
+        if (eventMap == null) {
+            eventMap = new ReferenceMap<String, Event>(ReferenceType.SOFT);
+            threadLocal.set(eventMap);
         }
 
-        Event eventRecord = recordMap.get(recordName);
-        if (eventRecord == null) {
-            eventRecord = new Event(recordName);
-            recordMap.put(recordName, eventRecord);
+        Event event = eventMap.get(record);
+        if (event == null) {
+            event = new Event(record);
+            eventMap.put(record, event);
         }
 
-        return eventRecord;
+        return event;
     }
 
     public static void submit() {
@@ -73,24 +58,29 @@ public class EventUtils {
         submit(Constants.DEFAULT);
     }
 
-    public static void submit(String recordName) {
+    public static void submit(String record) {
 
-        Map<String, Event> recordMap = threadLocal.get();
+        Map<String, Event> eventMap = threadLocal.get();
+        Assert.notNull(eventMap, "The thread local container is not ready. ");
 
-        if (recordMap == null) { return; }
+        Event event = eventMap.get(record);
+        Assert.notNull(event, "The record for parameter \"record\" does not exist. ");
 
-        Event eventRecord = recordMap.get(recordName);
+        Assert.notBlank(event.getName(), "Parameter \"name\" must not blank. ");
+        if (StringUtils.isBlank(event.getDistinctId()) && StringUtils.isBlank(event.getAnonymousId())) {
+            throw new IllegalArgumentException(
+                    "Parameter \"distinctId\" and parameter \"anonymousId\" cannot both be blank. "
+            );
+        }
 
-        if (eventRecord == null) { return; }
+        getEventProvider().submit(event.getName(),
+                event.getType(),
+                event.getTime(),
+                event.getDistinctId(),
+                event.getAnonymousId(),
+                event.getProperties());
 
-        submit(eventRecord.getName(),
-                eventRecord.getType(),
-                eventRecord.getTime(),
-                eventRecord.getDistinctId(),
-                eventRecord.getAnonymousId(),
-                eventRecord.getProperties());
-
-        recordMap.remove(recordName);
+        eventMap.remove(record);
     }
 
     public static void cancel() {
@@ -98,16 +88,16 @@ public class EventUtils {
         cancel(Constants.DEFAULT);
     }
 
-    public static void cancel(String recordName) {
-        Map<String, Event> recordMap = threadLocal.get();
-        if (recordMap == null) { return; }
-        recordMap.remove(recordName);
+    public static void cancel(String record) {
+        Map<String, Event> eventMap = threadLocal.get();
+        Assert.notNull(eventMap, "The thread local container is not ready. ");
+        eventMap.remove(record);
     }
 
     public static void clear() {
 
-        Map<String, Event> recordMap = threadLocal.get();
-        if (recordMap != null) { recordMap.clear(); }
+        Map<String, Event> eventMap = threadLocal.get();
+        if (eventMap != null) { eventMap.clear(); }
 
         threadLocal.remove();
     }
@@ -119,15 +109,15 @@ public class EventUtils {
         private Long   time;
         private String type;
         private String name;
-        private String recordName;
+        private String record;
 
-        public Event(String recordName) {
-            this.recordName = recordName;
+        Event(String record) {
+            this.record = record;
         }
 
-        public String getRecordName() {
+        String getRecord() {
 
-            return recordName;
+            return record;
         }
 
         public String getName() {
@@ -207,12 +197,12 @@ public class EventUtils {
 
         public void submit() {
 
-            EventUtils.submit(getRecordName());
+            EventUtils.submit(getRecord());
         }
 
         public void cancel() {
 
-            EventUtils.cancel(getRecordName());
+            EventUtils.cancel(getRecord());
         }
 
     }

@@ -87,7 +87,7 @@ public class EventRecordAspect {
         return (System.nanoTime() - accessTime) / 1000000;
     }
 
-    private void addEvent(JoinPoint joinPoint, Map<String, Object> properties, Object result) {
+    private void addEvent(JoinPoint joinPoint, Object result) {
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSign = (MethodSignature) signature;
         Method method = methodSign.getMethod();
@@ -100,20 +100,24 @@ public class EventRecordAspect {
 
         List<Object> args = getArguments(joinPoint);
         if (output) {
-            properties.put("output", result);
+            EventUtils.record().setProperty("output", result);
         }
         if (input) {
-            properties.put("input", args);
+            EventUtils.record().setProperty("input", args);
         }
 
         Object target = joinPoint.getTarget();
         String signName = signature.getName();
         String methodName = target.getClass().getName() + "." + signName + "()";
-        properties.put("methodName", methodName);
+        EventUtils.record().setProperty("methodName", methodName);
 
         UserInfo userInfo = UserUtils.getUserInfo();
         String userId = userInfo != null ? userInfo.getId() : null;
-        EventUtils.submit(eventName, eventType, userId, null, properties);
+        EventUtils.record()
+                .setName(eventName)
+                .setType(eventType)
+                .setDistinctId(userId)
+                .submit();
     }
 
     @Pointcut("@annotation(artoria.event.EventRecord)")
@@ -137,9 +141,9 @@ public class EventRecordAspect {
         try {
             Long processTime = calcProcessTime(method);
             clearAccessTime(method);
-            Map<String, Object> properties = new LinkedHashMap<String, Object>();
-            properties.put("processTime", processTime);
-            addEvent(joinPoint, properties, result);
+            EventUtils.record()
+                    .setProperty("processTime", processTime);
+            addEvent(joinPoint, result);
         }
         catch (Exception e) {
             log.error(getClass().getSimpleName() + ": An error has occurred. ", e);
@@ -154,10 +158,10 @@ public class EventRecordAspect {
             Method method = getMethod(joinPoint);
             Long processTime = calcProcessTime(method);
             clearAccessTime(method);
-            Map<String, Object> properties = new LinkedHashMap<String, Object>();
-            properties.put("processTime", processTime);
-            properties.put("errorMessage", ExceptionUtils.toString(th));
-            addEvent(joinPoint, properties, null);
+            EventUtils.record()
+                    .setProperty("processTime", processTime)
+                    .setProperty("errorMessage", ExceptionUtils.toString(th));
+            addEvent(joinPoint, null);
         }
         catch (Exception e) {
             log.error(getClass().getSimpleName() + ": An error has occurred. ", e);
