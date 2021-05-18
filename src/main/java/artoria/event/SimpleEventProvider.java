@@ -4,16 +4,41 @@ import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.time.DateUtils;
 import artoria.util.Assert;
+import artoria.util.CollectionUtils;
 import artoria.util.StringUtils;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import static artoria.common.Constants.NEWLINE;
+import static artoria.common.Constants.*;
 import static artoria.util.ObjectUtils.cast;
+import static java.util.Collections.emptyList;
 
 public class SimpleEventProvider implements EventProvider {
     private static Logger log = LoggerFactory.getLogger(SimpleEventProvider.class);
+    private List<String> showPropertyNames;
+
+    public SimpleEventProvider() {
+
+        this(Collections.<String>emptyList());
+    }
+
+    public SimpleEventProvider(List<String> showKeys) {
+
+        setShowPropertyNames(showKeys);
+    }
+
+    public List<String> getShowPropertyNames() {
+
+        return showPropertyNames;
+    }
+
+    public void setShowPropertyNames(List<String> showPropertyNames) {
+        if (showPropertyNames == null) { showPropertyNames = emptyList(); }
+        this.showPropertyNames = showPropertyNames;
+    }
 
     protected void show(Map<String, Object> eventRecord) {
         Map<String, Object> properties = cast(eventRecord.get("properties"));
@@ -22,15 +47,33 @@ public class SimpleEventProvider implements EventProvider {
         Long   time =        (Long) eventRecord.get("time");
         String type =        (String) eventRecord.get("type");
         String name =        (String) eventRecord.get("name");
+        //
+        StringBuilder builder = new StringBuilder();
+        if (CollectionUtils.isNotEmpty(showPropertyNames)) {
+            for (String propertyName : showPropertyNames) {
+            if (StringUtils.isBlank(propertyName)) { continue; }
+            Object value = properties.get(propertyName);
+            if (value == null) { continue; }
+            propertyName = StringUtils.capitalize(propertyName);
+            builder.append(propertyName).append(COLON);
+            int length = SIXTEEN - propertyName.length() - ONE;
+            if (length <= ZERO) { length = ONE; }
+                for (int i = ZERO; i < length; i++) {
+                    builder.append(BLANK_SPACE);
+                }
+                builder.append(value).append(NEWLINE);
+            }
+        }
+        //
         String content = NEWLINE +
                 "---- Begin Event ----" + NEWLINE +
                 "Name:           " + name + NEWLINE +
                 "Type:           " + type + NEWLINE +
                 "Time:           " + DateUtils.format(time) + NEWLINE +
-                "Distinct Id:    " + distinctId + NEWLINE +
-                "Anonymous Id:   " + anonymousId + NEWLINE +
-                "Properties:     " + properties + NEWLINE +
-                "Provider:       " + getClass().getSimpleName() + NEWLINE +
+                "DistinctId:     " + distinctId + NEWLINE +
+                "AnonymousId:    " + anonymousId + NEWLINE +
+                "Provider:       " + getClass().getName() + NEWLINE +
+                builder +
                 "---- End Event ----" + NEWLINE;
         log.info(content);
     }

@@ -1,4 +1,4 @@
-package artoria.template;
+package artoria.engine.template;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static artoria.common.Constants.UTF_8;
 
-public class VelocityTemplateEngineTest {
+public class FreemarkerTemplateEngineTest {
     private String source = "This is test string \"${testStr}\", \nTest string is \"${testStr}\". ";
     private String source1 = "You name is \"${data.name}\", \nAnd you age is \"${data.age}\". ";
     private Map<String, Object> input = new HashMap<String, Object>();
@@ -21,7 +21,7 @@ public class VelocityTemplateEngineTest {
         data.put("name", "zhangsan");
         data.put("age", "19");
         input.put("data", data);
-        TemplateUtils.setTemplateEngine(new VelocityTemplateEngine());
+        TemplateUtils.setTemplateEngine(new FreemarkerTemplateEngine());
     }
 
     @Test
@@ -29,7 +29,7 @@ public class VelocityTemplateEngineTest {
         System.out.println(TemplateUtils.renderToString(input, "source", source));
         System.out.println(TemplateUtils.renderToString(input, "source1", source1));
         System.out.println();
-        System.out.println(TemplateUtils.renderToString("testVelocity.vm", UTF_8, input));
+        System.out.println(TemplateUtils.renderToString("testFreemarker.ftl", UTF_8, input));
     }
 
 }

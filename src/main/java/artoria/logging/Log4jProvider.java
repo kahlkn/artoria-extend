@@ -1,7 +1,7 @@
 package artoria.logging;
 
-import artoria.template.LoggerTemplateEngine;
-import artoria.template.TemplateEngine;
+import artoria.engine.template.LoggerTemplateEngine;
+import artoria.engine.template.TemplateEngine;
 import artoria.util.Assert;
 
 import static artoria.common.Constants.EMPTY_STRING;

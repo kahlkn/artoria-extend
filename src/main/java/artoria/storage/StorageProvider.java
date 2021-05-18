@@ -18,27 +18,32 @@ public interface StorageProvider {
 
     ListObjectsResult listObjects(ListObjectsModel listObjectsModel);
 
-    // CopyObjectResult copyObject(CopyObjectModel copyObjectModel);
-
     /*
-
-    limit
-
-    ----
-    PutObject
-    DeleteObject
-    DeleteMultipleObjects
-    doesObjectExist
-    GetObject
-    listObjects
-
     AppendObject
     CopyObject
     moveObject
 
-    HeadObject   全部元信息 大概率是全部元信息（自己发挥咯）
-    GetObjectMeta   基本元信息 大概率是全部元信息（自己发挥咯）
+    GetObjectMeta
     PutObjectMeta
+
+    ----
+    PutObjectResult putObject(PutObjectRequest putObjectRequest)
+
+    void deleteObject(GenericRequest genericRequest)
+
+    DeleteObjectsResult deleteObjects(DeleteObjectsRequest deleteObjectsRequest)
+
+    boolean doesObjectExist(GenericRequest genericRequest)
+
+    ObjectMetadata getObjectMetadata(GenericRequest genericRequest)
+
+    SimplifiedObjectMeta getSimplifiedObjectMeta(GenericRequest genericRequest)
+
+    OSSObject getObject(GetObjectRequest getObjectRequest)
+
+    ObjectListing listObjects(ListObjectsRequest listObjectsRequest);
+
+    CopyObjectResult copyObject(CopyObjectRequest copyObjectRequest)
 
     * */
 

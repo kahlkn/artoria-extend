@@ -1,12 +1,12 @@
 package artoria.generator;
 
+import artoria.engine.template.TemplateEngine;
 import artoria.exception.ExceptionUtils;
 import artoria.file.FileUtils;
 import artoria.io.IOUtils;
 import artoria.io.StringBuilderWriter;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
-import artoria.template.TemplateEngine;
 import artoria.time.DateUtils;
 import artoria.util.Assert;
 import artoria.util.ClassLoaderUtils;

@@ -3,10 +3,14 @@ package artoria.event;
 import artoria.identifier.IdentifierUtils;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class EventUtilsTest {
 
     @Test
     public void test1() {
+        ((SimpleEventProvider) EventUtils.getEventProvider())
+                .setShowPropertyNames(Arrays.asList("appId", "serverId"));
         EventUtils.record()
                 .setName("TEST_EVENT_1")
                 .setType("system")

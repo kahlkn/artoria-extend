@@ -1,4 +1,4 @@
-package artoria.template;
+package artoria.engine.template;
 
 import artoria.exception.ExceptionUtils;
 import artoria.util.Assert;
@@ -43,9 +43,21 @@ public class FreemarkerTemplateEngine extends AbstractTemplateEngine {
     }
 
     @Override
-    public void render(Object data, Writer output, String logTag, String template) {
-        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
-        render(data, output, logTag, new StringReader(template));
+    public void render(String name, String encoding, Object data, Writer output) {
+        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
+        Assert.notNull(output, "Parameter \"output\" must not null. ");
+        Assert.notNull(data, "Parameter \"data\" must not null. ");
+        if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
+        try {
+            Template template = configuration.getTemplate(name, encoding);
+            template.process(data, output);
+        }
+        catch (TemplateException e) {
+            throw new RenderException(e);
+        }
+        catch (IOException e) {
+            throw new RenderException(e);
+        }
     }
 
     @Override
@@ -67,21 +79,9 @@ public class FreemarkerTemplateEngine extends AbstractTemplateEngine {
     }
 
     @Override
-    public void render(String name, String encoding, Object data, Writer output) {
-        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        Assert.notNull(output, "Parameter \"output\" must not null. ");
-        Assert.notNull(data, "Parameter \"data\" must not null. ");
-        if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
-        try {
-            Template template = configuration.getTemplate(name, encoding);
-            template.process(data, output);
-        }
-        catch (TemplateException e) {
-            throw new RenderException(e);
-        }
-        catch (IOException e) {
-            throw new RenderException(e);
-        }
+    public void render(Object data, Writer output, String logTag, String template) {
+        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
+        render(data, output, logTag, new StringReader(template));
     }
 
 }

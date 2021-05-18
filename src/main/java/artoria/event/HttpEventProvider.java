@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Map;
 
 import static artoria.common.Constants.COMPUTER_NAME;
@@ -25,6 +26,11 @@ public class HttpEventProvider extends SimpleEventProvider {
 
     public HttpEventProvider(String serverAppId, String destination,
                              String anonymousIdName, String tokenIdName, String clientAppIdName) {
+        super(Arrays.asList(
+                "serverId", "serverAppId", "methodName", "interfaceId", "requestMethod",
+                "requestAddress", "requestReferer", "clientUserAgent", "clientNetAddress",
+                "errorMessage", "processTime"
+        ));
         Assert.notBlank(destination, "Parameter \"destination\" must not blank. ");
         this.serverAppId = serverAppId;
         this.destination = destination;
@@ -61,6 +67,7 @@ public class HttpEventProvider extends SimpleEventProvider {
         // responseOutput
         // errorMessage
         // processTime
+        // EventData
         if (StringUtils.isBlank(anonymousId) && StringUtils.isNotBlank(anonymousIdName)) {
             anonymousId = request.getHeader(anonymousIdName);
             eventRecord.put("anonymousId", anonymousId);

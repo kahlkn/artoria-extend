@@ -1,7 +1,7 @@
 package artoria.logging;
 
+import artoria.engine.template.TemplateEngine;
 import artoria.io.StringBuilderWriter;
-import artoria.template.TemplateEngine;
 import org.apache.log4j.Logger;
 
 import static artoria.common.Constants.TWO;

@@ -1,4 +1,4 @@
-package artoria.template;
+package artoria.engine.template;
 
 import artoria.util.Assert;
 import artoria.util.StringUtils;
@@ -76,9 +76,21 @@ public class VelocityTemplateEngine extends AbstractTemplateEngine {
     }
 
     @Override
-    public void render(Object data, Writer output, String logTag, String template) {
-        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
-        render(data, output, logTag, new StringReader(template));
+    public void render(String name, String encoding, Object data, Writer output) {
+        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
+        Assert.notNull(output, "Parameter \"output\" must not null. ");
+        Assert.notNull(data, "Parameter \"data\" must not null. ");
+        if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
+        Context context = handle(data);
+        if (isInit) {
+            Velocity.mergeTemplate(name, encoding, context, output);
+        }
+        else if (engine != null) {
+            engine.mergeTemplate(name, encoding, context, output);
+        }
+        else {
+            defaultEngine.mergeTemplate(name, encoding, context, output);
+        }
     }
 
     @Override
@@ -100,21 +112,9 @@ public class VelocityTemplateEngine extends AbstractTemplateEngine {
     }
 
     @Override
-    public void render(String name, String encoding, Object data, Writer output) {
-        Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        Assert.notNull(output, "Parameter \"output\" must not null. ");
-        Assert.notNull(data, "Parameter \"data\" must not null. ");
-        if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
-        Context context = handle(data);
-        if (isInit) {
-            Velocity.mergeTemplate(name, encoding, context, output);
-        }
-        else if (engine != null) {
-            engine.mergeTemplate(name, encoding, context, output);
-        }
-        else {
-            defaultEngine.mergeTemplate(name, encoding, context, output);
-        }
+    public void render(Object data, Writer output, String logTag, String template) {
+        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
+        render(data, output, logTag, new StringReader(template));
     }
 
 }
