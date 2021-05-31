@@ -51,12 +51,12 @@ public class LocalFileStorageProvider implements StorageProvider {
         if (isNew) { properties = new Properties(); }
         String timestamp = String.valueOf(DateUtils.getTimeInMillis());
         // Creation time.
-        String key = "Creation-Time";
+        String key = "creation-time";
         if (!properties.containsKey(key)) {
             properties.setProperty(key, isNew ? timestamp : ZERO_STR);
         }
         // Last modified time.
-        key = "Last-Modified-Time";
+        key = "last-modified-time";
         properties.setProperty(key, timestamp);
         return properties;
     }
