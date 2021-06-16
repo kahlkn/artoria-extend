@@ -1,6 +1,6 @@
 package artoria.option;
 
-import artoria.convert.type.TypeConvertUtils;
+import artoria.convert.type1.ConversionUtils;
 import artoria.util.Assert;
 import artoria.util.ObjectUtils;
 
@@ -19,7 +19,7 @@ public abstract class AbstractOptionProvider implements OptionProvider {
         Assert.notNull(type, "Parameter \"type\" must not null. ");
         Object value = getOption(owner, name, defaultValue);
         if (value == null) { return defaultValue; }
-        value = TypeConvertUtils.convert(value, type);
+        value = ConversionUtils.convert(value, type);
         return ObjectUtils.cast(value, type);
     }
 

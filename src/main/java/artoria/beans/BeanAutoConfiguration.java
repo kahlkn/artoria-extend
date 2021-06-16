@@ -23,32 +23,32 @@ public class BeanAutoConfiguration implements InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
-        Class<? extends BeanMap> mapType = null;
+        BeanMapFactory beanMapFactory = null;
         BeanCopier beanCopier = null;
         if (ClassUtils.isPresent(SPRING_CGLIB_CLASS, classLoader)) {
+            beanMapFactory = new SpringCglibBeanMapFactory();
             beanCopier = new SpringCglibBeanCopier();
-            mapType = SpringCglibBeanMap.class;
             log.info("The spring cglib bean tools was initialized success. ");
         }
         else if (ClassUtils.isPresent(CGLIB_CLASS, classLoader)) {
+            beanMapFactory = new CglibBeanMapFactory();
             beanCopier = new CglibBeanCopier();
-            mapType = CglibBeanMap.class;
             log.info("The cglib bean tools was initialized success. ");
         }
         else if (ClassUtils.isPresent(SPRING_BEAN_TOOLS_CLASS, classLoader)) {
+            beanMapFactory = new SimpleBeanMapFactory();
             beanCopier = new SpringBeanCopier();
-            mapType = SimpleBeanMap.class;
             log.info("The spring bean tools was initialized success. ");
         }
         else if (ClassUtils.isPresent(APACHE_BEAN_TOOLS_CLASS, classLoader)) {
+            beanMapFactory = new SimpleBeanMapFactory();
             beanCopier = new ApacheBeanCopier();
-            mapType = SimpleBeanMap.class;
             log.info("The apache bean tools was initialized success. ");
         }
         else {
             // Do nothing.
         }
-        if (mapType != null) { BeanUtils.setMapType(mapType); }
+        if (beanMapFactory != null) { BeanUtils.setBeanMapFactory(beanMapFactory); }
         if (beanCopier != null) { BeanUtils.setBeanCopier(beanCopier); }
     }
 

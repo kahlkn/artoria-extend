@@ -1,6 +1,6 @@
 package artoria.property;
 
-import artoria.convert.type.TypeConvertUtils;
+import artoria.convert.type1.ConversionUtils;
 import artoria.util.Assert;
 import artoria.util.ObjectUtils;
 
@@ -22,7 +22,7 @@ public abstract class AbstractPropertyProvider implements PropertyProvider {
         Assert.notNull(targetType, "Parameter \"targetType\" must not null. ");
         Object value = getProperty(name, defaultValue);
         if (value == null) { return null; }
-        value = TypeConvertUtils.convert(value, targetType);
+        value = ConversionUtils.convert(value, targetType);
         return ObjectUtils.cast(value, targetType);
     }
 
