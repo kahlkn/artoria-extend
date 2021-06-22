@@ -1,6 +1,6 @@
 package artoria.option;
 
-import artoria.convert.type1.ConversionUtils;
+import artoria.convert.ConversionUtils;
 import artoria.util.Assert;
 import artoria.util.ObjectUtils;
 

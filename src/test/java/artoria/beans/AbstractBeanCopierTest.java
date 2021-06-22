@@ -1,7 +1,7 @@
 package artoria.beans;
 
-import artoria.convert.type1.ConversionProvider;
-import artoria.convert.type1.GenericConverter;
+import artoria.convert.ConversionProvider;
+import artoria.convert.GenericConverter;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import artoria.mock.MockUtils;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static artoria.common.Constants.ONE;
 import static artoria.common.Constants.ZERO;
-import static artoria.convert.type1.ConversionUtils.getConversionProvider;
+import static artoria.convert.ConversionUtils.getConversionProvider;
 
 abstract class AbstractBeanCopierTest {
     private static Logger log = LoggerFactory.getLogger(AbstractBeanCopierTest.class);
@@ -104,6 +104,8 @@ abstract class AbstractBeanCopierTest {
         public void addConverter(GenericConverter converter) {}
         @Override
         public void removeConverter(GenericConverter converter) {}
+        @Override
+        public GenericConverter getConverter(Type sourceType, Type targetType) { return null; }
         @Override
         public boolean canConvert(Type sourceType, Type targetType) { return true; }
         @Override

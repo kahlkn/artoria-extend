@@ -1,6 +1,6 @@
 package artoria.event;
 
-import artoria.collection.ReferenceMap;
+import artoria.collect.ReferenceMap;
 import artoria.common.Constants;
 import artoria.lang.ReferenceType;
 import artoria.util.Assert;

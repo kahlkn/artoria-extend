@@ -1,6 +1,6 @@
 package artoria.beans;
 
-import artoria.convert.type1.ConversionProvider;
+import artoria.convert.ConversionProvider;
 import artoria.util.Assert;
 
 /**

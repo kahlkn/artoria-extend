@@ -1,7 +1,7 @@
 package artoria.beans;
 
-import artoria.convert.type1.ConversionProvider;
-import artoria.convert.type1.ConversionUtils;
+import artoria.convert.ConversionProvider;
+import artoria.convert.ConversionUtils;
 import artoria.util.Assert;
 
 public class CglibBeanMapFactory implements BeanMapFactory {
