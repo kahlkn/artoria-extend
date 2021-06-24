@@ -11,17 +11,17 @@ import java.util.concurrent.TimeUnit;
 import static artoria.common.Constants.*;
 
 public class CacheOptionProvider extends AbstractOptionProvider {
-    private OptionProvider optionProvider;
-    private String   cacheName;
-    private Long     timeToLive;
-    private TimeUnit timeUnit;
+    private final OptionProvider optionProvider;
+    private final String   cacheName;
+    private final Long     timeToLive;
+    private final TimeUnit timeUnit;
 
     public CacheOptionProvider(OptionProvider optionProvider,
                                String cacheName,
                                Long timeToLive,
                                TimeUnit timeUnit) {
-        Assert.notBlank(cacheName, "Parameter \"cacheName\" must not blank. ");
         Assert.notNull(optionProvider, "Parameter \"optionProvider\" must not null. ");
+        Assert.notBlank(cacheName, "Parameter \"cacheName\" must not blank. ");
         Assert.notNull(timeToLive, "Parameter \"timeToLive\" must not null. ");
         Assert.notNull(timeUnit, "Parameter \"timeUnit\" must not null. ");
         Assert.isTrue(timeToLive >= ZERO, "Parameter \"timeToLive\" must >= 0. ");
