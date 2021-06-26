@@ -198,18 +198,26 @@ public class JdbcTimeBasedIdGenerator implements LongIdentifierGenerator {
         *          86399
         * 7 + 6
         * 2021365058344
+        * 2021 - 2020 = 1
+        * 101 365 9999999
+        *           86399
+        *          172798
+        * one second = 2
         * */
         DateTime dateTime = DateUtils.create();
-        int year = dateTime.getYear();
+        int year = (dateTime.getYear()-2000) + 100;
         int dayOfYear = dateTime.getDayOfYear();
 
         int hour = dateTime.getHour();
         int minute = dateTime.getMinute();
         int second = dateTime.getSecond();
+        int millisecond = dateTime.getMillisecond();
 
         long tmpInt = (hour * 60 + minute) * 60 + second;
 
-        return year * 1000000000L + dayOfYear * 1000000L + tmpInt + increment;
+        tmpInt = tmpInt * 2 + (millisecond / 500);
+
+        return year * 10000000000L + dayOfYear * 10000000L + tmpInt + increment;
     }
 
 }
