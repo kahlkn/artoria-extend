@@ -2,8 +2,6 @@ package artoria.exception;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.List;
-
 /**
  * Exception properties.
  * @author Kahle
@@ -22,14 +20,10 @@ public class ExceptionProperties {
      * Error display page base template path.
      */
     private String baseTemplatePath = "/error";
-    /**
-     * Default error message.
-     */
-    private String defaultErrorMessage = "Internal server error. ";
-    /**
-     * Exception message configuration.
-     */
-    private List<ExceptionMessage> messages;
+
+    private ProviderType providerType = ProviderType.SIMPLE;
+
+    private JdbcConfig jdbcConfig;
 
     public Boolean getEnabled() {
 
@@ -61,61 +55,71 @@ public class ExceptionProperties {
         this.baseTemplatePath = baseTemplatePath;
     }
 
-    public String getDefaultErrorMessage() {
-
-        return defaultErrorMessage;
+    public ProviderType getProviderType() {
+        return providerType;
     }
 
-    public void setDefaultErrorMessage(String defaultErrorMessage) {
-
-        this.defaultErrorMessage = defaultErrorMessage;
+    public void setProviderType(ProviderType providerType) {
+        this.providerType = providerType;
     }
 
-    public List<ExceptionMessage> getMessages() {
-
-        return messages;
+    public JdbcConfig getJdbcConfig() {
+        return jdbcConfig;
     }
 
-    public void setMessages(List<ExceptionMessage> messages) {
-
-        this.messages = messages;
+    public void setJdbcConfig(JdbcConfig jdbcConfig) {
+        this.jdbcConfig = jdbcConfig;
     }
 
-    public static class ExceptionMessage {
-        private Class<Exception>[] classes;
-        private String errorMessage;
-        private String errorCode;
+    public enum ProviderType {
+        /**
+         * Simple.
+         */
+        SIMPLE,
+        /**
+         * Jdbc.
+         */
+        JDBC,
+        ;
+    }
 
-        public Class<Exception>[] getClasses() {
+    public static class JdbcConfig {
+        private String codeColumnName;
+        private String descriptionColumnName;
+        private String tableName;
+        private String whereContent;
 
-            return classes;
+        public String getCodeColumnName() {
+            return codeColumnName;
         }
 
-        public void setClasses(Class<Exception>[] classes) {
-
-            this.classes = classes;
+        public void setCodeColumnName(String codeColumnName) {
+            this.codeColumnName = codeColumnName;
         }
 
-        public String getErrorMessage() {
-
-            return errorMessage;
+        public String getDescriptionColumnName() {
+            return descriptionColumnName;
         }
 
-        public void setErrorMessage(String errorMessage) {
-
-            this.errorMessage = errorMessage;
+        public void setDescriptionColumnName(String descriptionColumnName) {
+            this.descriptionColumnName = descriptionColumnName;
         }
 
-        public String getErrorCode() {
-
-            return errorCode;
+        public String getTableName() {
+            return tableName;
         }
 
-        public void setErrorCode(String errorCode) {
-
-            this.errorCode = errorCode;
+        public void setTableName(String tableName) {
+            this.tableName = tableName;
         }
 
+        public String getWhereContent() {
+            return whereContent;
+        }
+
+        public void setWhereContent(String whereContent) {
+            this.whereContent = whereContent;
+        }
     }
 
 }

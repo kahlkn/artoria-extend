@@ -21,14 +21,14 @@ import javax.servlet.http.HttpServletResponse;
  * @author Kahle
  */
 @Controller
-public class SimpleErrorController implements ErrorController {
-    private static Logger log = LoggerFactory.getLogger(SimpleErrorController.class);
+public class DefaultErrorController implements ErrorController {
+    private static Logger log = LoggerFactory.getLogger(DefaultErrorController.class);
     private static final String ERROR_PATH = "/error";
     private ErrorAttributes errorAttributes;
     private ErrorHandler errorHandler;
 
     @Autowired
-    public SimpleErrorController(ErrorAttributes errorAttributes, ErrorHandler errorHandler) {
+    public DefaultErrorController(ErrorAttributes errorAttributes, ErrorHandler errorHandler) {
         this.errorAttributes = errorAttributes;
         this.errorHandler = errorHandler;
         log.info("The default error controller was initialized success. ");

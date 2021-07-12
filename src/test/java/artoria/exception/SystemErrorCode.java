@@ -1,7 +1,5 @@
 package artoria.exception;
 
-import artoria.common.ErrorCode;
-
 public enum SystemErrorCode implements ErrorCode {
     USERNAME_IS_REQUIRED("SYS001", "Username is required. "),
     PASSWORD_IS_REQUIRED("SYS002", "Password is required. "),

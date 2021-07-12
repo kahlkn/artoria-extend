@@ -1,14 +1,35 @@
 package artoria.exception;
 
-import artoria.common.ErrorCode;
+import artoria.util.StringUtils;
 
 /**
  * Business exception.
  * @author Kahle
  */
 public class BusinessException extends UncheckedException {
+    private static final String EMPTY_MESSAGE = "null (Error Code: null)";
     private String description;
     private String code;
+
+    protected static String build(String code, String description) {
+        boolean descNotBlank = StringUtils.isNotBlank(description);
+        boolean codeNotBlank = StringUtils.isNotBlank(code);
+        if (codeNotBlank && descNotBlank) {
+            return description + " (Error Code: " + code + ")";
+        }
+        else if (descNotBlank) {
+            return description + " (Error Code: " + code + ")";
+        }
+        else if (codeNotBlank) {
+            return "An error has occurred and the error code is \"" + code + "\"";
+        }
+        else { return EMPTY_MESSAGE; }
+    }
+
+    protected static String build(ErrorCode errorCode) {
+        if (errorCode == null) { return EMPTY_MESSAGE; }
+        return build(errorCode.getCode(), errorCode.getDescription());
+    }
 
     public BusinessException() {
 
@@ -31,20 +52,19 @@ public class BusinessException extends UncheckedException {
     }
 
     public BusinessException(String code, String description) {
-        super(description + " (Error Code: " + code + ")");
+        super(build(code, description));
         this.description = description;
         this.code = code;
     }
 
     public BusinessException(String code, String description, Throwable cause) {
-        super(description + " (Error Code: " + code + ")", cause);
+        super(build(code, description), cause);
         this.description = description;
         this.code = code;
     }
 
     public BusinessException(ErrorCode errorCode) {
-        super(errorCode != null ? errorCode.getDescription() +
-                " (Error Code: " + errorCode.getCode() + ")" : "null (Error Code: null)");
+        super(build(errorCode));
         if (errorCode != null) {
             this.description = errorCode.getDescription();
             this.code = errorCode.getCode();
@@ -52,8 +72,7 @@ public class BusinessException extends UncheckedException {
     }
 
     public BusinessException(ErrorCode errorCode, Throwable cause) {
-        super(errorCode != null ? errorCode.getDescription() +
-                " (Error Code: " + errorCode.getCode() + ")" : "null (Error Code: null)", cause);
+        super(build(errorCode), cause);
         if (errorCode != null) {
             this.description = errorCode.getDescription();
             this.code = errorCode.getCode();

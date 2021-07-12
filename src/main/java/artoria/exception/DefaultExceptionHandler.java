@@ -17,12 +17,12 @@ import javax.servlet.http.HttpServletResponse;
  * @author Kahle
  */
 @ControllerAdvice
-public class SimpleExceptionHandler {
-    private static Logger log = LoggerFactory.getLogger(SimpleExceptionHandler.class);
+public class DefaultExceptionHandler {
+    private static Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
     private ErrorHandler errorHandler;
 
     @Autowired
-    public SimpleExceptionHandler(ErrorHandler errorHandler) {
+    public DefaultExceptionHandler(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
         log.info("The default exception handler was initialized success. ");
     }

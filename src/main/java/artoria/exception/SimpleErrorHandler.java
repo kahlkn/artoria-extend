@@ -1,7 +1,8 @@
 package artoria.exception;
 
-import artoria.common.ErrorCode;
+import artoria.common.Errors;
 import artoria.common.Result;
+import artoria.common.SimpleErrorCode;
 import artoria.util.Assert;
 import artoria.util.StringUtils;
 import org.slf4j.Logger;
@@ -11,11 +12,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map;
 
-import static artoria.common.Constants.DEFAULT_ENCODING_NAME;
-import static artoria.common.Constants.SLASH;
+import static artoria.common.Constants.*;
+import static java.lang.Boolean.FALSE;
 
 /**
  * Simple error handler.
@@ -23,120 +22,85 @@ import static artoria.common.Constants.SLASH;
  */
 public class SimpleErrorHandler implements ErrorHandler {
     private static Logger log = LoggerFactory.getLogger(SimpleErrorHandler.class);
+    private static final String DEFAULT_ERROR_MESSAGE = "Internal server error. ";
     private static final String TEXT_HTML = "text/html";
-    private Map<Class, ErrorCode> errorCodeMap;
-    private Boolean internalErrorPage;
-    private String baseTemplatePath;
-    private String defaultErrorMessage;
+    private final ErrorCodeProvider errorCodeProvider;
+    private final Boolean internalErrorPage;
+    private final String baseTemplatePath;
 
-    public SimpleErrorHandler(Boolean internalErrorPage, String baseTemplatePath,
-                              String defaultErrorMessage, Map<Class, ErrorCode> errorCodeMap) {
-        Assert.notBlank(defaultErrorMessage, "Parameter \"defaultErrorMessage\" must not blank. ");
-        Assert.notBlank(baseTemplatePath, "Parameter \"baseTemplatePath\" must not blank. ");
+    public SimpleErrorHandler(ErrorCodeProvider errorCodeProvider,
+                              Boolean internalErrorPage,
+                              String baseTemplatePath) {
+        Assert.notNull(errorCodeProvider, "Parameter \"errorCodeProvider\" must not null. ");
         Assert.notNull(internalErrorPage, "Parameter \"internalErrorPage\" must not null. ");
-        Assert.notNull(errorCodeMap, "Parameter \"errorCodeMap\" must not null. ");
-        this.defaultErrorMessage = defaultErrorMessage;
-        this.baseTemplatePath = baseTemplatePath;
+        Assert.notBlank(baseTemplatePath, "Parameter \"baseTemplatePath\" must not blank. ");
+        this.errorCodeProvider = errorCodeProvider;
         this.internalErrorPage = internalErrorPage;
-        this.errorCodeMap = errorCodeMap;
+        this.baseTemplatePath = baseTemplatePath;
     }
 
-    protected Object createPageResult(HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
-        String errorMessage = null;
-        String errorCode = null;
-        if (throwable instanceof BusinessException) {
-            BusinessException businessEx = (BusinessException) throwable;
-            errorMessage = businessEx.getDescription();
-            errorCode = businessEx.getCode();
+    protected ErrorCode getErrorCode(HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
+        if (throwable == null) {
+            int respStatus = response.getStatus();
+            String description = "An error has occurred. (Response Status: " + respStatus + ") ";
+            return new SimpleErrorCode(EMPTY_STRING, description);
         }
-        else {
-            if (throwable != null) {
-                Class<? extends Throwable> clazz = throwable.getClass();
-                ErrorCode errorCodeObj = errorCodeMap.get(clazz);
-                if (errorCodeObj != null) {
-                    errorMessage = errorCodeObj.getDescription();
-                    errorCode = errorCodeObj.getCode();
-                }
-            }
+        if (!(throwable instanceof BusinessException)) {
+            return Errors.INTERNAL_SERVER_ERROR;
         }
-        if (StringUtils.isBlank(errorMessage)) {
-            errorMessage = defaultErrorMessage;
-        }
-        int responseStatus = response.getStatus();
-        if (internalErrorPage) {
-            String html =
-            "<!DOCTYPE HTML>\n" +
-            "<html>\n" +
-            "<head>\n" +
-            "    <title>An error has occurred. </title>\n" +
-            "</head>\n" +
-            "<body>\n" +
-            "    <h3>\n" +
-            "        An error has occurred. \n" +
-            "    </h3>\n" +
-            "    Response Status: " + responseStatus + "<br />\n" +
-            "    Error Code: " + errorCode + "<br />\n" +
-            "    Error Message: " + errorMessage + "<br />\n" +
-            "    Please check the log for details if necessary. <br />\n" +
-            "    Powered by <a href=\"https://github.com/kahlkn/artoria\" target=\"_blank\">Artoria</a>. <br />\n" +
-            "</body>\n" +
-            "</html>\n";
-            try {
-                response.setContentType(TEXT_HTML + ";charset=" + DEFAULT_ENCODING_NAME);
-                PrintWriter writer = response.getWriter();
-                writer.write(html);
-            }
-            catch (IOException e) {
-                throw ExceptionUtils.wrap(e);
-            }
-            return null;
-        }
-        else {
-            String viewPath = baseTemplatePath + SLASH + responseStatus;
-            ModelAndView modelAndView = new ModelAndView(viewPath);
-            if (StringUtils.isNotBlank(errorMessage)) {
-                modelAndView.addObject("responseStatus", responseStatus);
-                modelAndView.addObject("errorCode", errorCode);
-                modelAndView.addObject("errorMessage", errorMessage);
-            }
-            return modelAndView;
-        }
-    }
-
-    protected Object createJsonResult(HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
-        Result<Object> result = new Result<Object>();
-        result.setSuccess(false);
-        String description = null;
-        String code = null;
-        if (throwable instanceof BusinessException) {
-            BusinessException businessEx = (BusinessException) throwable;
-            description = businessEx.getDescription();
-            code = businessEx.getCode();
-        }
-        else {
-            if (throwable != null) {
-                Class<? extends Throwable> clazz = throwable.getClass();
-                ErrorCode errorCodeObj = errorCodeMap.get(clazz);
-                if (errorCodeObj != null) {
-                    description = errorCodeObj.getDescription();
-                    code = errorCodeObj.getCode();
-                }
-            }
+        // Way 1, set code and description build message.
+        // Way 2, set message and description, no code or message is code.
+        BusinessException bizException = (BusinessException) throwable;
+        String description = bizException.getDescription();
+        String code = bizException.getCode();
+        ErrorCode errorCode = errorCodeProvider.getInstance(code);
+        if (errorCode != null) { return errorCode; }
+        String message = bizException.getMessage();
+        errorCode = errorCodeProvider.getInstance(message);
+        if (errorCode != null) { return errorCode; }
+        if (StringUtils.isBlank(description)) {
+            description = message;
         }
         if (StringUtils.isBlank(description)) {
-            description = defaultErrorMessage;
+            description = DEFAULT_ERROR_MESSAGE;
         }
-        if (StringUtils.isNotBlank(code)) {
-            result.setCode(code);
+        return new SimpleErrorCode(code, description);
+    }
+
+    protected Object pageResult(HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
+        ErrorCode errorCode = getErrorCode(request, response, throwable);
+        int responseStatus = response.getStatus();
+        if (!internalErrorPage) {
+            String viewPath = baseTemplatePath + SLASH + responseStatus;
+            ModelAndView modelAndView = new ModelAndView(viewPath);
+            modelAndView.addObject("responseStatus", responseStatus);
+            modelAndView.addObject("errorCode", errorCode.getCode());
+            modelAndView.addObject("errorMessage", errorCode.getDescription());
+            return modelAndView;
         }
-        if (throwable != null) {
-            result.setMessage(description);
+        response.setContentType(TEXT_HTML + "; charset=" + DEFAULT_ENCODING_NAME);
+        String html =
+        "<!DOCTYPE HTML>\n" +
+        "<html>\n" +
+        "<head>\n" +
+        "    <title>An error has occurred. </title>\n" +
+        "</head>\n" +
+        "<body>\n" +
+        "    <h3>\n" +
+        "        An error has occurred. \n" +
+        "    </h3>\n" +
+        "    Response Status: " + responseStatus + "<br />\n" +
+        "    Error Code: " + errorCode.getCode() + "<br />\n" +
+        "    Error Message: " + errorCode.getDescription() + "<br />\n" +
+        "    Please check the log for details if necessary. <br />\n" +
+        "    Powered by <a href=\"https://github.com/kahlkn/artoria\" target=\"_blank\">Artoria</a>. <br />\n" +
+        "</body>\n" +
+        "</html>\n";
+        try { response.getWriter().write(html); }
+        catch (IOException e) {
+            throw ExceptionUtils.wrap(e);
         }
-        else {
-            int respStatus = response.getStatus();
-            result.setMessage("An error has occurred. (Response Status: " + respStatus + ") ");
-        }
-        return result;
+        return null;
     }
 
     @Override
@@ -144,11 +108,10 @@ public class SimpleErrorHandler implements ErrorHandler {
         String accept = request.getHeader("Accept");
         accept = StringUtils.isNotBlank(accept) ? accept.toLowerCase() : null;
         if (accept != null && accept.contains(TEXT_HTML)) {
-            return this.createPageResult(request, response, throwable);
+            return pageResult(request, response, throwable);
         }
-        else {
-            return this.createJsonResult(request, response, throwable);
-        }
+        ErrorCode errorCode = getErrorCode(request, response, throwable);
+        return new Result<Object>(FALSE, errorCode.getCode(), errorCode.getDescription());
     }
 
 }

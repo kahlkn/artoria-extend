@@ -1,5 +1,7 @@
 package artoria.common;
 
+import artoria.exception.ErrorCode;
+
 public class SimpleErrorCode implements ErrorCode {
     private String description;
     private String code;

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-import static artoria.common.InternalErrorCode.*;
+import static artoria.common.Errors.*;
 
 /**
  * User interceptor.

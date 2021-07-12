@@ -1,6 +1,5 @@
 package artoria.exception;
 
-import artoria.common.ErrorCode;
 import artoria.logging.Logger;
 import artoria.logging.LoggerFactory;
 import org.junit.Test;
