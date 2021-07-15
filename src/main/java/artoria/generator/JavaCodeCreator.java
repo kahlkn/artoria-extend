@@ -1,6 +1,6 @@
 package artoria.generator;
 
-import artoria.engine.template.TemplateEngine;
+import artoria.engine.template.RichTemplateEngine;
 import artoria.exception.ExceptionUtils;
 import artoria.file.FileUtils;
 import artoria.io.IOUtils;
@@ -41,7 +41,7 @@ public class JavaCodeCreator implements Serializable {
     private Boolean skipExisted = false;
     private String beginCoverMark;
     private String endCoverMark;
-    private TemplateEngine templateEngine;
+    private RichTemplateEngine templateEngine;
     private String templatePath;
     private String outputPath;
     private String templateContent;
@@ -199,12 +199,12 @@ public class JavaCodeCreator implements Serializable {
         this.endCoverMark = endCoverMark;
     }
 
-    public TemplateEngine getTemplateEngine() {
+    public RichTemplateEngine getTemplateEngine() {
 
         return templateEngine;
     }
 
-    public void setTemplateEngine(TemplateEngine templateEngine) {
+    public void setTemplateEngine(RichTemplateEngine templateEngine) {
         Assert.notNull(templateEngine, "Parameter \"templateEngine\" must not null. ");
         this.templateEngine = templateEngine;
     }
@@ -378,7 +378,7 @@ public class JavaCodeCreator implements Serializable {
         String outputCharset = this.getOutputCharset();
         String templateName = this.getTemplateName();
         String templateContent = this.getTemplateContent();
-        TemplateEngine templateEngine = this.getTemplateEngine();
+        RichTemplateEngine templateEngine = this.getTemplateEngine();
         // Create template filled model.
         Map<String, Object> model = new HashMap<String, Object>(this.getAttributes());
         model.put("generatedTime", DateUtils.format(FULL_DATETIME_PATTERN));

@@ -23,7 +23,7 @@ import static org.apache.velocity.app.Velocity.*;
  * Velocity template renderer.
  * @author Kahle
  */
-public class VelocityTemplateEngine extends AbstractTemplateEngine {
+public class VelocityTemplateEngine extends AbstractRichTemplateEngine {
     private static final String FILE_LOADER_CLASS = "file.resource.loader.class";
     private static final String CLASS_LOADER_CLASS = "class.resource.loader.class";
     private static final String JAR_LOADER_CLASS = "jar.resource.loader.class";

@@ -19,7 +19,7 @@ import static artoria.common.Constants.*;
  * Freemarker template engine.
  * @author Kahle
  */
-public class FreemarkerTemplateEngine extends AbstractTemplateEngine {
+public class FreemarkerTemplateEngine extends AbstractRichTemplateEngine {
     private Configuration configuration;
 
     public FreemarkerTemplateEngine() {

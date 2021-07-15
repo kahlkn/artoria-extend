@@ -1,7 +1,7 @@
 package artoria.logging;
 
 import artoria.engine.template.LoggerTemplateEngine;
-import artoria.engine.template.TemplateEngine;
+import artoria.engine.template.PlainTemplateEngine;
 import artoria.util.Assert;
 
 import static artoria.common.Constants.EMPTY_STRING;
@@ -18,24 +18,24 @@ public class Log4jProvider implements LoggerProvider {
     /**
      * Logger template engine.
      */
-    private TemplateEngine loggerTemplateEngine;
+    private PlainTemplateEngine loggerTemplateEngine;
 
     public Log4jProvider() {
 
         this(new LoggerTemplateEngine());
     }
 
-    public Log4jProvider(TemplateEngine loggerTemplateEngine) {
+    public Log4jProvider(PlainTemplateEngine loggerTemplateEngine) {
 
         setLoggerTemplateEngine(loggerTemplateEngine);
     }
 
-    public TemplateEngine getLoggerTemplateEngine() {
+    public PlainTemplateEngine getLoggerTemplateEngine() {
 
         return loggerTemplateEngine;
     }
 
-    public void setLoggerTemplateEngine(TemplateEngine loggerTemplateEngine) {
+    public void setLoggerTemplateEngine(PlainTemplateEngine loggerTemplateEngine) {
         Assert.notNull(loggerTemplateEngine, "Parameter \"loggerTemplateEngine\" must not null. ");
         this.loggerTemplateEngine = loggerTemplateEngine;
     }

@@ -1,7 +1,6 @@
 package artoria.logging;
 
-import artoria.engine.template.TemplateEngine;
-import artoria.io.StringBuilderWriter;
+import artoria.engine.template.PlainTemplateEngine;
 import org.apache.log4j.Logger;
 
 import static artoria.common.Constants.TWO;
@@ -11,10 +10,10 @@ import static artoria.common.Constants.TWO;
  * @author Kahle
  */
 public class Log4jLogger implements artoria.logging.Logger {
-    private final TemplateEngine templateEngine;
+    private final PlainTemplateEngine templateEngine;
     private final Logger logger;
 
-    public Log4jLogger(Logger logger, TemplateEngine templateEngine) {
+    public Log4jLogger(Logger logger, PlainTemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
         this.logger = logger;
     }
@@ -23,9 +22,10 @@ public class Log4jLogger implements artoria.logging.Logger {
         if (!logger.isEnabledFor(level)) { return; }
         StackTraceElement element = new Throwable().getStackTrace()[TWO];
         String clazzName = element.getClassName();
-        StringBuilderWriter writer = new StringBuilderWriter();
+        /*StringBuilderWriter writer = new StringBuilderWriter();
         templateEngine.render(arguments, writer, null, format);
-        String message = writer.toString();
+        String message = writer.toString();*/
+        String message = templateEngine.render(format, arguments);
         logger.log(clazzName, level, message, throwable);
     }
 

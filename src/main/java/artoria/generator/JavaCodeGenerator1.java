@@ -1,6 +1,7 @@
 package artoria.generator;
 
 import artoria.beans.BeanUtils;
+import artoria.engine.template.RichTemplateEngine;
 import artoria.engine.template.TemplateEngine;
 import artoria.exception.ExceptionUtils;
 import artoria.jdbc.ColumnMeta;
@@ -57,7 +58,7 @@ public class JavaCodeGenerator1 implements Generator<Boolean>, Serializable {
     private String templateExtensionName = ".txt";
     private String baseOutputPath;
     private String basePackageName;
-    private TemplateEngine templateEngine;
+    private RichTemplateEngine templateEngine;
     private Map<String, Object> attributes = new HashMap<String, Object>();
     private Map<String, JavaCodeCreator> creatorMap = new HashMap<String, JavaCodeCreator>();
 
@@ -186,12 +187,12 @@ public class JavaCodeGenerator1 implements Generator<Boolean>, Serializable {
         return this;
     }
 
-    public TemplateEngine getTemplateEngine() {
+    public RichTemplateEngine getTemplateEngine() {
 
         return templateEngine;
     }
 
-    public JavaCodeGenerator1 setTemplateEngine(TemplateEngine templateEngine) {
+    public JavaCodeGenerator1 setTemplateEngine(RichTemplateEngine templateEngine) {
         Assert.notNull(templateEngine, "Parameter \"templateEngine\" must not null. ");
         this.templateEngine = templateEngine;
         return this;

@@ -48,21 +48,15 @@ public class SimpleErrorHandler implements ErrorHandler {
         if (!(throwable instanceof BusinessException)) {
             return Errors.INTERNAL_SERVER_ERROR;
         }
-        // Way 1, set code and description build message.
-        // Way 2, set message and description, no code or message is code.
         BusinessException bizException = (BusinessException) throwable;
         String description = bizException.getDescription();
         String code = bizException.getCode();
         ErrorCode errorCode = errorCodeProvider.getInstance(code);
         if (errorCode != null) { return errorCode; }
-        String message = bizException.getMessage();
-        errorCode = errorCodeProvider.getInstance(message);
-        if (errorCode != null) { return errorCode; }
         if (StringUtils.isBlank(description)) {
-            description = message;
-        }
-        if (StringUtils.isBlank(description)) {
-            description = DEFAULT_ERROR_MESSAGE;
+            String message = bizException.getMessage();
+            description = StringUtils
+                .isNotBlank(message) ? message : DEFAULT_ERROR_MESSAGE;
         }
         return new SimpleErrorCode(code, description);
     }
