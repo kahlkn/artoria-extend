@@ -76,45 +76,45 @@ public class VelocityTemplateEngine extends AbstractRichTemplateEngine {
     }
 
     @Override
-    public void render(String name, String encoding, Object data, Writer output) {
+    public void render(Object data, Writer writer, String tag, Reader reader) {
+        Assert.notBlank(tag, "Parameter \"tag\" must not blank. ");
+        Assert.notNull(reader, "Parameter \"reader\" must not null. ");
+        Assert.notNull(writer, "Parameter \"writer\" must not null. ");
+        Assert.notNull(data, "Parameter \"data\" must not null. ");
+        Context context = handle(data);
+        if (isInit) {
+            Velocity.evaluate(context, writer, tag, reader);
+        }
+        else if (engine != null) {
+            engine.evaluate(context, writer, tag, reader);
+        }
+        else {
+            defaultEngine.evaluate(context, writer, tag, reader);
+        }
+    }
+
+    @Override
+    public void render(Object data, Writer writer, String tag, String template) {
+        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
+        render(data, writer, tag, new StringReader(template));
+    }
+
+    @Override
+    public void render(String name, String encoding, Object data, Writer writer) {
         Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        Assert.notNull(output, "Parameter \"output\" must not null. ");
+        Assert.notNull(writer, "Parameter \"writer\" must not null. ");
         Assert.notNull(data, "Parameter \"data\" must not null. ");
         if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
         Context context = handle(data);
         if (isInit) {
-            Velocity.mergeTemplate(name, encoding, context, output);
+            Velocity.mergeTemplate(name, encoding, context, writer);
         }
         else if (engine != null) {
-            engine.mergeTemplate(name, encoding, context, output);
+            engine.mergeTemplate(name, encoding, context, writer);
         }
         else {
-            defaultEngine.mergeTemplate(name, encoding, context, output);
+            defaultEngine.mergeTemplate(name, encoding, context, writer);
         }
-    }
-
-    @Override
-    public void render(Object data, Writer output, String logTag, Reader reader) {
-        Assert.notBlank(logTag, "Parameter \"logTag\" must not blank. ");
-        Assert.notNull(reader, "Parameter \"reader\" must not null. ");
-        Assert.notNull(output, "Parameter \"output\" must not null. ");
-        Assert.notNull(data, "Parameter \"data\" must not null. ");
-        Context context = handle(data);
-        if (isInit) {
-            Velocity.evaluate(context, output, logTag, reader);
-        }
-        else if (engine != null) {
-            engine.evaluate(context, output, logTag, reader);
-        }
-        else {
-            defaultEngine.evaluate(context, output, logTag, reader);
-        }
-    }
-
-    @Override
-    public void render(Object data, Writer output, String logTag, String template) {
-        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
-        render(data, output, logTag, new StringReader(template));
     }
 
 }

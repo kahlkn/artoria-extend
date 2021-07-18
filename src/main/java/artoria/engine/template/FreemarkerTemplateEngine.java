@@ -43,14 +43,38 @@ public class FreemarkerTemplateEngine extends AbstractRichTemplateEngine {
     }
 
     @Override
-    public void render(String name, String encoding, Object data, Writer output) {
+    public void render(Object data, Writer writer, String tag, Reader reader) {
+        Assert.notBlank(tag, "Parameter \"tag\" must not blank. ");
+        Assert.notNull(reader, "Parameter \"reader\" must not null. ");
+        Assert.notNull(writer, "Parameter \"writer\" must not null. ");
+        Assert.notNull(data, "Parameter \"data\" must not null. ");
+        try {
+            Template template = new Template(tag, reader, configuration);
+            template.process(data, writer);
+        }
+        catch (TemplateException e) {
+            throw new RenderException(e);
+        }
+        catch (IOException e) {
+            throw new RenderException(e);
+        }
+    }
+
+    @Override
+    public void render(Object data, Writer writer, String tag, String template) {
+        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
+        render(data, writer, tag, new StringReader(template));
+    }
+
+    @Override
+    public void render(String name, String encoding, Object data, Writer writer) {
         Assert.notBlank(name, "Parameter \"name\" must not blank. ");
-        Assert.notNull(output, "Parameter \"output\" must not null. ");
+        Assert.notNull(writer, "Parameter \"writer\" must not null. ");
         Assert.notNull(data, "Parameter \"data\" must not null. ");
         if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
         try {
             Template template = configuration.getTemplate(name, encoding);
-            template.process(data, output);
+            template.process(data, writer);
         }
         catch (TemplateException e) {
             throw new RenderException(e);
@@ -58,30 +82,6 @@ public class FreemarkerTemplateEngine extends AbstractRichTemplateEngine {
         catch (IOException e) {
             throw new RenderException(e);
         }
-    }
-
-    @Override
-    public void render(Object data, Writer output, String logTag, Reader reader) {
-        Assert.notBlank(logTag, "Parameter \"logTag\" must not blank. ");
-        Assert.notNull(reader, "Parameter \"reader\" must not null. ");
-        Assert.notNull(output, "Parameter \"output\" must not null. ");
-        Assert.notNull(data, "Parameter \"data\" must not null. ");
-        try {
-            Template template = new Template(logTag, reader, configuration);
-            template.process(data, output);
-        }
-        catch (TemplateException e) {
-            throw new RenderException(e);
-        }
-        catch (IOException e) {
-            throw new RenderException(e);
-        }
-    }
-
-    @Override
-    public void render(Object data, Writer output, String logTag, String template) {
-        Assert.notBlank(template, "Parameter \"template\" must not blank. ");
-        render(data, output, logTag, new StringReader(template));
     }
 
 }
